@@ -136,6 +136,12 @@
     }
 }
 
+@media screen and (max-width: 544px) { /* stylelint-disable-line */
+    .cart-and-ipay {
+        padding-bottom: 0;
+    }
+}
+
 .shop-the-look-btn {
     display: inline-block;
     @include rem(padding-left, 10px);

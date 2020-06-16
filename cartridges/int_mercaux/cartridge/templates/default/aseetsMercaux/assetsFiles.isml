@@ -25,5 +25,3 @@
  
     assets.addCss('/css/index.css'); 
 </isscript>
-
-<span class="js-mercaux-analytics-tag" data-mercaux-analytics-url="${URLUtils.url('Analytics-Add')}"></span>

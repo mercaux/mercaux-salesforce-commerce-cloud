@@ -64,18 +64,18 @@ function insertShopTheLookBtn() {
     if (isSliderOnPage && $destinationBtnBlock.length > 0) {
         var btnText = $destinationBtnBlock.attr('data-btn-text');
         $destinationBtnBlock.html("<a href='" + selectors.sliderID + "' class='btn-primary'><span class='wrapped-with-icon'>" + btnText + '</span></a>');
+
+        $('body').on('click', selectors.blockButton, function (e) {
+            e.preventDefault();
+            $('html, body').animate({
+                scrollTop: $(selectors.sliderID).offset().top
+            }, 1000);
+        });
+
+        $(document).on('scroll', debounce(function () {
+            handleShopTheLookBtn(selectors);
+        }, 100));
     }
-
-    $('body').on('click', selectors.blockButton, function (e) {
-        e.preventDefault();
-        $('html, body').animate({
-            scrollTop: $(selectors.sliderID).offset().top
-        }, 1000);
-    });
-
-    $(document).on('scroll', debounce(function () {
-        handleShopTheLookBtn(selectors);
-    }, 100));
 }
 
 /**
@@ -100,6 +100,8 @@ function trigger_LookDisplayedInPage_event($sliderBlock) {
  *  @param {Object} selectors object with names of selector classNames and IDs
  */
 function handleShopTheLookBtn(selectors) {
+    if (!selectors) return;
+
     var sliderOffset = $(selectors.sliderID).offset().top;
     var windowOffset = window.pageYOffset;
 
