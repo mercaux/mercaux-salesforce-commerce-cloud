@@ -1,0 +1,21 @@
+<iscomment> 
+    * sz - number of product showed in one search result ( Default: 64 )
+    * number - number of product that will show in the slider (Default: 6)  
+    
+    To have properly result, number must be lower than sz param.
+    
+</iscomment>
+<isset name="Site" scope="page" value="${ require('dw/system/Site') }" />
+<isset name="settingsCatID" scope="page" value="${ Site.current.getCustomPreferenceValue('mercaux_CategoryID') || "Looks" }" />
+<isset name="numberOfProducts" scope="page" value="${ Site.current.getCustomPreferenceValue('mercaux_NumberRandomProducts') || 6 }" />
+<isset name="numberOfProductsSearchResult" scope="page" value="${ Site.current.getCustomPreferenceValue('mercaux_NumberSearchResultsInSlots') || 64 }" />
+<isset name="isMercauxGloballyEnabled" scope="page" value="${ Site.current.getCustomPreferenceValue('mercaux_GlobalEnableStatus') || false }" />
+
+<isif condition="${slotcontent && isMercauxGloballyEnabled}">
+    <isloop items="${slotcontent.content}" var="category"  status="loopState">
+        <isif condition="${loopState.count == 1 && category.ID === settingsCatID}" >
+            <isinclude url="${URLUtils.url('Mercaux-LooksFromCategory', 'cgid', category.ID, 'sz', numberOfProductsSearchResult, 'number', numberOfProducts )}"/>
+        </isif> 
+    </isloop>
+</isif> 
+

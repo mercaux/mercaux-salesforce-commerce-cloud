@@ -1,0 +1,31 @@
+<div class="refinements flex-container-collaps">
+
+    <isinclude template="searchLooksGallery/searchRefineBarMobile" />
+      
+    <isloop items="${pdict.productSearch.refinements}" var="refinement">
+        <div
+            class="flex-item-collaps refinement-desktop-item collapsible-xl refinement refinement-${refinement.displayName.toLowerCase().replace(/ /g, '-')}">
+            <div class="flex-item-header">
+                <button class="title text-left btn-block"
+                    aria-controls="refinement-${refinement.displayName.toLowerCase().replace(/ /g, '-')}"
+                    aria-expanded="false">
+                    <span>${refinement.displayName} <i class="icon-chevron bottom"></i>
+                    </span>
+                </button>
+
+            </div>
+            <div class="flex-item-body content value"
+                id="refinement-${refinement.displayName.toLowerCase().replace(/ /g, '-')}">
+
+                <isif condition="${refinement.isAttributeRefinement}">
+                    <ul class="flex-item-ul">
+                        <isloop items="${refinement.values}" var="refinementValue">
+                            <isinclude template="searchLooksGallery/refinements/attributes/boolean" />
+                        </isloop>
+                    </ul>
+                </isif>
+            </div>
+        </div>
+    </isloop>
+    
+</div>

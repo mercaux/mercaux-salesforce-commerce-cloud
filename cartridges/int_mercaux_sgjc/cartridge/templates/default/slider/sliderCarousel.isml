@@ -1,0 +1,1 @@
+<isinclude url="${URLUtils.url('Mercaux-ShowSlider', 'pid', pdict.pid)}" />

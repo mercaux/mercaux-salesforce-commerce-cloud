@@ -1,0 +1,89 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+<iscomment>
+	Desc:
+		Creates the variation section if product is a variation or a master,
+		otherwise
+
+	Parameter:
+		Product - the product to use
+
+	Options:
+		none
+	Available if empty: no
+	Full-Block-Element: yes
+</iscomment>
+
+<isscript>
+	// Get context variables to insert into template placeholders
+    var VariationUtils = require('*/cartridge/scripts/product/VariationUtils.js');
+    var context = VariationUtils.getContext(pdict);
+</isscript>
+
+<isif condition="${context.isValidProductType}">
+	<div class="product-variations" data-attributes="${context.selectedAttrs}">
+		<h2 class="visually-hidden">Variations</h2>
+		<iscomment>
+			Filter out variation attribute values with no orderable variants.
+			The "clean" ProductVariationModel of the master without any selected attribute values is used to filter the variants.
+			Otherwise hasOrderableVariants() would use currently selected values resulting in a too narrow selection of variants.
+		</iscomment>
+		<ul>
+		<isloop items="${context.attrs}" var="attr">
+			<isif condition="${attr.hasSwatch && attr.attributeId.toLowerCase() === 'size'}">
+
+				<li class="attribute product-attr-block-parent">
+
+					<div class="value product-size-ref js-size-refinement-block">
+					
+						<div class="product-size-ref-title">
+							${Resource.msg('label.select.size', 'int_mercaux_common', null)} ${attr.displayName}
+						</div> 
+						
+						<ul class="swatches ${attr.attributeId.toLowerCase()}">
+							<isloop items="${attr.values}" var="attrValue">
+								<isif condition="${attrValue.isOrderableInMaster}">
+									<li class="${attrValue.swatchClass}">
+										<isif condition="${attrValue.isSelectable}">
+											<div class="product-size-ref-item js-size-btn">
+												<a class="swatchanchor"
+													href="${attrValue.linkUrl + '&mercauxTileModal=true&parentLookID=' + productSetID}"
+													title="${attrValue.resourceVariationsLabel}">
+														<isprint value="${attrValue.displayValue}" encoding="off" />
+														<isprint value="${' - In Stock'}" encoding="off" />
+												</a>
+											</div>
+										<iselse/>
+											<div class="product-size-ref-item">
+												<a class="swatchanchor disabled"
+													href=""
+													title="${attrValue.displayValue}">
+														<isprint value="${attrValue.displayValue}" encoding="off" />
+														<isprint value="${' - Not In Stock'}" encoding="off" />
+												</a>
+											</div>
+										</isif>
+									</li>
+								</isif>
+							</isloop>
+							<iscomment> <isif condition="${attr.selectedValue}">
+								<li class="selected-value"><isprint value="${attr.selectedValue}"/></li>
+							</isif> </iscomment>
+						</ul>
+
+						<iscomment>Size Chart link</iscomment>
+						<isif condition="${attr.sizeChart}">
+							<div class="size-chart-link">
+								<a href="${attr.sizeChart.url}"
+									target="_blank"
+									title="${attr.sizeChart.title}">
+										${attr.sizeChart.label}
+								</a>
+							</div>
+						</isif>
+					</div>
+				</li>
+			</isif>
+		</isloop>
+		</ul>
+	</div>
+</isif>

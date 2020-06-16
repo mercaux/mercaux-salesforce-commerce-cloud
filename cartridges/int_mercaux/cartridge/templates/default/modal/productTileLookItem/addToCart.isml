@@ -1,0 +1,14 @@
+<div class="cart-and-ipay">
+    <input type="hidden" class="add-to-cart-url" value="${pdict.addToCartUrl}">
+    <div class="add-to-cart-block">
+        <button class="add-to-cart btn btn-primary js-add-to-bag-button" data-toggle="modal" data-target="#chooseBonusProductModal"
+            data-pid="${product.id}" data-product-sku="${product.sku || null}" data-pid-look="${productLook.id}" ${!product.readyToOrder || !product.available ? "disabled" : ""}>
+            <i class="fa fa-shopping-bag"></i>
+            ${Resource.msg('button.addtocart', 'common', null)}
+        </button>
+        
+        <isif condition="${!product.readyToOrder || !product.available}"> 
+            <span class="js-show-size-attr add-to-cart-overlay" data-product-sku="${product.sku || null}" data-pid-look="${productLook.id}"></span> 
+        </isif> 
+    </div>
+</div>

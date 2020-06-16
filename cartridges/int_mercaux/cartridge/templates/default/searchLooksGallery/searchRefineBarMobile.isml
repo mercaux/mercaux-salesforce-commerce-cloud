@@ -1,0 +1,32 @@
+<div class="accordion-mobile" id="accordionRefinement">
+    <isloop items="${pdict.productSearch.refinements}" var="refinement">
+        <div class="accordionItem refinement">
+            <div class="acc-header flex-item-header"
+                id="refHeading-${refinement.displayName.toLowerCase().replace(/ /g, '-')}">
+                <button class="btn collapsed" type="button" data-toggle="collapse" data-target="${" #refinement-" +
+                                                                                            refinement.displayName.toLowerCase().replace(/ /g, '-')}" aria-expanded="false"
+                    aria-controls="refinement-${refinement.displayName.toLowerCase().replace(/ /g, '-')}">
+                    <div> ${refinement.displayName} </div>
+
+                    <div>
+                        <i class="icon-accord-item"></i>
+                    </div>
+                </button>
+            </div>
+
+            <div id="refinement-${refinement.displayName.toLowerCase().replace(/ /g, '-')}" class="collapse"
+                aria-labelledby="refHeading-${refinement.displayName.toLowerCase().replace(/ /g, '-')}"
+                data-parent="#accordionRefinement">
+                <div class="acc-content content value">
+                    <isif condition="${refinement.isAttributeRefinement}">
+                        <ul class="flex-item-ul">
+                            <isloop items="${refinement.values}" var="refinementValue">
+                                <isinclude template="searchLooksGallery/refinements/attributes/boolean" />
+                            </isloop>
+                        </ul>
+                    </isif>
+                </div>
+            </div>
+        </div>
+    </isloop> 
+</div>

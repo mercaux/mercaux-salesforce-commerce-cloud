@@ -1,0 +1,22 @@
+<iscomment>
+    Size Refinement
+</iscomment>
+
+<div class="attribute product-attr-block-parent">
+    <div class="product-size-ref js-size-refinement-block">
+        <div class="product-size-ref-title">
+            ${Resource.msg('label.select', 'common', null)} ${attr.displayName}
+        </div> 
+
+        <isloop items="${attr.values}" var="attrValue">
+            <div class="product-size-ref-item js-size-btn">
+                <button type="button" class="options-select select-${attr.id} ${attrValue.selected ? 'selected' : '';}"
+                    value="${attrValue.url}" id="${attr.id}-1" data-attr-value="${attrValue.value}"
+                    ${!attrValue.selectable ? 'disabled' : ''}>
+                    ${attrValue.displayValue} - ${attrValue.selectable ? 'In Stock' : 'Not In stock'}
+                </button>
+            </div>
+        </isloop>
+
+    </div> 
+</div>

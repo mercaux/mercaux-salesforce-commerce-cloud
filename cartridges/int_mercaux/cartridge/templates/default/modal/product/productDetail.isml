@@ -1,0 +1,142 @@
+<isset name="product" value="${pdict.product}" scope="page" />
+<isset name="loopState" value="1" scope="page" />
+<isset name="isBundle" value="false" scope="page" />
+
+<div class="modal-wrapper-internal wrapper-mercaux modal-content-mercaux product-set-detail js-product-look-child-product">
+    <div class="product-detail set-item flex-container" data-pid="${product.id}">
+        <div class="left-wrapper-internal">
+            <div class="header-left-block flex-container">
+                <h4 class="title-left-block title-left-block-internal product-name">
+                    <a href="${URLUtils.url('Product-Show', 'pid', product.id)}">
+                        ${product.productName}
+                    </a>
+                </h4>
+            </div>
+            <div class="price price-desktop-hidden">
+                <isset name="price" value="${product.price}" scope="page" />
+                <isinclude template="modal/product/components/pricing/main" />
+            </div>
+            <div class="add-wishlist add-wishlist-desktop-hidden">
+                <div class="add-wishlist-wrapper">
+                    <span class="icon-like"></span> ${Resource.msg('label.addtowishlist', 'int_mercaux_common', null)}
+                </div>
+                <div>
+                    <isinclude template="modal/product/components/pidRating" />
+                </div>
+            </div>
+            <div class="left-img-container-internal">
+                <isinclude template="modal/product/imageCarousel" />
+            </div>
+        </div> <!-- left-wrapper-internal -->
+
+        <div class="right-wrapper-internal">
+            <div class="attributes">
+                <div class="flex-container flex-align-items-center">
+                    <!-- Prices -->
+                    <div class="prices">
+                        <isset name="price" value="${product.price}" scope="page" />
+                        <isinclude template="modal/product/components/pricing/main" />
+                    </div>
+
+                    <isinclude template="modal/product/components/pidRating" />
+                </div>
+
+                <iscomment>
+                    - Add wishlist plugin here:
+                    <div class="add-wishlist">
+                        <div class="add-wishlist-wrapper">
+                            <span class="icon-like"></span> ADD TO Wishlist
+                        </div>
+                    </div>
+                </iscomment>
+
+                <isinclude template="modal/product/components/mainAttributes" />
+
+                <isif condition="${product.variationAttributes}">
+                    <isloop items="${product.variationAttributes}" var="attr" status="attributeStatus">
+                        <div class="swatch row" data-attr="${attr.id}">
+                            <div class="col-12">
+                                <isinclude template="modal/product/components/variationAttribute" />
+                            </div>
+                        </div>
+                    </isloop>
+                </isif>
+
+                <isif condition="${product.options && product.options.length}">
+                    <isinclude template="modal/product/components/options" />
+                </isif>
+
+                <!-- Size Chart -->
+                <isif condition="${product.variationAttributes && product.sizeChartId}">
+                    <div class="size-guide">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="size-guide size-chart">
+                                    <isinclude template="modal/product/components/sizeChart" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </isif>
+
+                <!-- One size block -->
+                <isif condition="${product.oneSizeProduct}">
+                    <div class="refinement-oneSize">
+                        One size - ${product.availability.messages[0]}
+                    </div>
+                </isif>
+
+                <div class="flex-container flex-align-items-flex-end">
+                    <isif condition="${product.variationAttributes && product.quantities}">
+                        <!-- Quantity Drop Down Menu -->
+                        <div class="attribute quantity">
+                            <div class="select-div">
+                                <isinclude template="modal/product/components/quantity" />
+                            </div>
+                        </div>
+                    </isif>
+
+                    <isif condition="${(product.options && !product.options.length && !product.variationAttributes)}">
+                        <div class="attribute quantity">
+                            <div class="select-div">
+                                <isinclude template="modal/product/components/quantity" />
+                            </div>
+                        </div>
+                    </isif>
+
+                    <div class="add-bag-button">
+                        <isinclude template="modal/product/components/addToCartProduct" />
+                    </div>
+                </div>
+
+                <div class="product-info">
+                    <div class="product-id">${product.id}</div>
+
+                    <!-- Product Availability -->
+                    <isinclude template="modal/product/components/productAvailability" />
+                </div>
+
+                <div class="drop-hint flex-container-line">
+                    <span class="icon-gift"></span>
+                    <span class="drop-hint-label">${Resource.msg('label.drophint', 'int_mercaux_common', null)}</span>
+                </div>
+
+                <!-- Applicable Promotions -->
+                <div class="row">
+                    <div class="col-12 promotions">
+                        <isinclude template="modal/product/components/promotions" />
+                    </div>
+                </div>
+
+                <iscomment>
+                    <div class="row">
+                        <isinclude template="modal/product/components/socialIcons" />
+                    </div>
+                </iscomment>
+            </div>
+
+            <isinclude template="modal/product/components/descriptionAndDetails" />
+
+        </div> <!-- right-wrapper-internal -->
+    </div> <!-- product-detail set-item -->
+</div> <!-- modal-wrapper-internal -->

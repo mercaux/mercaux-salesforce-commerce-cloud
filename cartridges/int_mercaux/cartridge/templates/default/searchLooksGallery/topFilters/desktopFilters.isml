@@ -1,0 +1,19 @@
+<div class="looks-top-filters-wrapper">
+    <div class="top-filter-item">
+        <span>${Resource.msg('label.refineby', 'int_mercaux_common', null)}</span>
+    </div>
+    
+    <div class="refinements-wrapper-parent js-refinement-desktop-parent">
+        <div class="refinement-bar"> 
+            <isinclude url="${pdict.refineurl}" />
+        </div>
+    </div>
+
+    <div class="sort-order-menu">
+        <isinclude template="searchLooksGallery/sortOrderMenu" />
+    </div>
+
+    <div class="page-size">
+        <isinclude template="searchLooksGallery/components/pageSize" />
+    </div>
+</div>

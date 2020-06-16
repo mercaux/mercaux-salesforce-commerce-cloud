@@ -1,0 +1,168 @@
+{
+    "step-types": {
+        "script-module-step": [
+            {
+                "@type-id": "custom.Mercaux.createLooksXML",
+                "module": "bm_mercaux/cartridge/scripts/steps/CreateImportFiles.js",
+                "description":"Mercaux step type",
+                "function": "execute",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "CatalogID",
+                            "description": "Set master catalog id where products set will imported.",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true,
+                            "default-value": "apparel-m-catalog"
+                        },
+                        {
+                            "@name": "StorefrontCatalogID",
+                            "description": "Set storefront catalog id where products should be assigned along with category ID below.",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true,
+                            "default-value": "storefront-catalog-m-en"
+                        },
+                        {
+                            "@name": "CatalogImageBasePath",
+                            "description": "Set Image Base path value that should be the same as your current catalog has. See: {Edit your current catalog} -> Image Settings -> Base path field value",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true,
+                            "default-value": "/images"
+                        },
+                        {
+                            "@name": "CategoryID",
+                            "description": "Set category ID to assign Mercaux looks productSet where products set will imported.",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true,
+                            "default-value": "Looks"
+                        },
+                        {
+                            "@name": "RootMercauxFolder",
+                            "description": "Set the path where generated XML catalog with the looks where placed.",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true,
+                            "default-value": "/mercaux"
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "ERROR"
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "OK"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.Mercaux.cleanArchiveFolder",
+                "module": "bm_mercaux/cartridge/scripts/steps/CleanArchiveFolder.js",
+                "description":"My custom script step type",
+                "function": "execute",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "RootMercauxFolder",
+                            "description": "Set the path where generated XML catalog with the looks where placed.",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true,
+                            "default-value": "/mercaux"
+                        },
+                        {
+                            "@name": "Number",
+                            "description": "Number of files that should be keep in archive",
+                            "@type": "long",
+                            "@required": false,
+                            "@trim": true,
+                            "default-value": 10
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "ERROR"
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "OK"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.Mercaux.analytic",
+                "module": "bm_mercaux/cartridge/scripts/steps/PrepareAnalyticObjects.js",
+                "description":"Setting all analytic object to ready for export",
+                "function": "execute",
+                "parameters": {
+                    "parameter": [
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "ERROR"
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "OK"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.Mercaux.analytic.export",
+                "module": "bm_mercaux/cartridge/scripts/steps/CreateAnalyticFiles.js",
+                "function": "execute",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "disabled",
+                            "description": "Indicates if this step should be skipped.",
+                            "@type": "boolean",
+                            "@required": false,
+                            "default-value": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "outputFolder",
+                            "description": "Path to the folder to export analytic data to",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "DISABLED",
+                            "description": "This step was disabled."
+                        },
+                        {
+                            "@code": "ERROR",
+                            "description": "Processing failed."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Processing finished successfully."
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

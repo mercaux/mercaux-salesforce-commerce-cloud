@@ -1,0 +1,27 @@
+<isset name="productLook" value="${pdict.product}" scope="page" />
+
+<div class="wrapper-mercaux modal-content-mercaux flex-container js-product-look-parent-block" data-product-set-id="${productLook.id}">
+    <div class="left-block">
+        <div class="header-left-block flex-container">
+            <h4 class="title-left-block">${productLook.productName}</h4>
+            <span class="icon-like"></span>
+            <span class="product-count d-lg-none d-md-none">${productLook.individualProducts.length.toFixed()} ${Resource.msg('label.lookitems', 'int_mercaux_common', null)}
+            </span>
+        </div>
+
+        <div class="main-look">
+            <isloop items="${productLook.images.large}" var="productImageLarge">
+                <img src="${productImageLarge.url}" alt="${productImageLarge.alt}" />
+            </isloop>
+        </div>
+    </div> <!-- left-block -->
+
+    <div class="right-block">
+        <div class="line-right-block flex-container-line set-items" itemtype="http://schema.org/SomeProducts"
+            itemid="#product">
+            <isloop items="${productLook.individualProducts}" var="product">
+                <isinclude template="modal/productTileLookItem" />
+            </isloop>
+        </div>
+    </div> <!-- right-block -->
+</div>

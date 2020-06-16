@@ -1,0 +1,451 @@
+.modal-wrapper-internal {
+
+    @media (max-width: $xs) {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .left-wrapper-internal {
+        width: 48%;
+        height: auto;
+
+        @media (max-width: $xs) {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .add-wishlist-desktop-hidden {
+            display: none;
+
+            @media (max-width: $xs) {
+                display: flex;
+                justify-content: space-between;
+            }
+        }
+
+        .price-desktop-hidden {
+            display: none;
+
+            @media (max-width: $xs) {
+                @include rem(font-size, 26px);
+                @include rem(padding-bottom, 10px);
+
+                display: block;
+            }
+        }
+
+        .title-left-block-internal {
+            @include rem(font-size, 31px);
+
+            width: 100%;
+            height: 100%;
+            font-weight: 600;
+
+            a {
+                color: #000 !important;
+            }
+        }
+
+        .left-img-container-internal {
+            @include rem(margin-top, 6px);
+            @include rem(height, 600px);
+
+            overflow: hidden;
+
+            @media (max-width: $xs) {
+                height: auto;
+            }
+
+            img {
+                width: 100%;
+            }
+        }
+    }
+
+    .right-wrapper-internal {
+        @include rem(margin-top, 50px);
+
+        width: 43%;
+        height: auto;
+        margin-right: 3%;
+
+        @media (max-width: $xs) {
+            width: 100%;
+            margin-right: 0;
+        }
+
+        .swatch-circle {
+            @include rem(width, 23px);
+            @include rem(height, 23px);
+
+            background: #fff;
+            border-radius: 1.25em;
+            border: 0.063em solid rgba(0, 0, 0, 0.3);
+            display: inline-block;
+            margin-right: 0.313em;
+            position: relative;
+
+            &.color-value.selected {
+                &::after {
+                    border-radius: 50%;
+                    height: 0.75em;
+                    line-height: 0.8em;
+                    width: 0.8em;
+                    background-color: #495057;
+                    @include rem(left, -0.5px);
+                    @include rem(top, 0.5px);
+
+                    color: #000;
+                    content: "\F058";
+                    display: table-caption;
+                    font-family: FontAwesome;
+                    font-size: 1.625em;
+                    position: absolute;
+                }
+            }
+        }
+
+        .swatch-label {
+            @include rem(margin-right, 14px);
+            @include rem(font-size, 15px);
+
+            font-weight: 600;
+            color: #000;
+        }
+
+        .color-attribute {
+            outline: none;
+            border: none;
+            padding: 0;
+            background: none;
+        }
+
+        .attributes {
+            padding: 0;
+        }
+
+        .attribute {
+            margin-top: 0;
+
+            label {
+                display: none;
+            }
+
+            &.quantity {
+                label {
+                    display: block;
+                    text-transform: uppercase;
+                    @include rem(font-size, 13px);
+                }
+            }
+        }
+
+        .quantity {
+            @include rem(margin-right, 10px);
+
+            flex: 1 15%;
+        }
+
+        .product-option {
+            label {
+                margin-bottom: 0;
+            }
+
+            .select-div {
+                @include rem(padding-top, 8px);
+            }
+        }
+
+        .ratings {
+            margin-top: 0;
+        }
+
+        .description {
+            margin-bottom: 0;
+        }
+
+        .drop-hint {
+            padding-left: 0;
+        }
+
+        .icon-gift {
+            @include rem(width, 15px);
+            @include rem(height, 15px);
+            @include rem(background-size, 15px);
+            @include rem(margin-right, 5px);
+            @include rem(margin-top, 4px);
+
+            background: url($icon-gift) no-repeat;
+            display: block;
+        }
+
+        .collapsible-xl {
+            span.title {
+                @include rem(font-size, 16px);
+
+                width: 100%;
+                outline: none;
+                cursor: pointer;
+                color: #000;
+                border-bottom: 1px solid #cbcbcb;
+
+                &::after {
+                    @include rem(font-size, 20px);
+                    @include rem(margin-right, 10px);
+
+                    float: left;
+                    content: "\002B";
+                    font-weight: 600;
+                }
+            }
+        }
+
+        .collapsible-xl.active {
+            span.title {
+                &::after {
+                    content: "\2212";
+                }
+            }
+
+            .content {
+                @include rem(margin-top, 8px);
+                @include rem(font-size, 14px);
+
+                ul {
+                    @include rem(padding-left, 5px);
+
+                    margin: 0;
+
+                    li {
+                        list-style-type: none;
+
+                        &::after {
+                            float: left;
+                            content: "\2212";
+                            font-weight: 300;
+                            @include rem(margin-top, 3px);
+                        }
+                    }
+                }
+            }
+        }
+
+        .product-id {
+            @include rem(font-size, 15px);
+
+            color: #333;
+        }
+
+        .price {
+            @include rem(font-size, 25px);
+
+            @media (max-width: $xs) {
+                display: none;
+            }
+
+            .sales {
+                font-weight: 400;
+            }
+
+            del + .sales {
+                color: #d12432;
+            }
+        }
+
+        .add-wishlist {
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            @include rem(padding-top, 5px);
+            @include rem(padding-bottom, 10px);
+
+            padding-right: 0;
+            padding-left: 0;
+
+            @media (max-width: $xs) {
+                display: none;
+            }
+
+            .icon-like {
+                @include rem(height, 25px);
+                @include rem(width, 25px);
+                @include rem(background-size, 25px);
+
+                background-image: url($icon-like);
+                cursor: pointer;
+                display: block;
+                background-repeat: no-repeat;
+            }
+
+            .add-wishlist-wrapper {
+                @include rem(font-size, 15px);
+
+                display: flex;
+                align-items: center;
+            }
+        }
+
+        .refinement-oneSize {
+            @include rem(padding-top, 10px);
+            @include rem(padding-bottom, 10px);
+            @include rem(padding-left, 10px);
+            @include rem(padding-right, 10px);
+            @include rem(margin-top, 16px);
+
+            text-align: center;
+            border: 1px #000 solid;
+        }
+
+        .pick-color {
+            @include rem(padding-top, 5px);
+            @include rem(padding-bottom, 5px);
+
+            display: flex;
+
+            .color-wrapper {
+                display: flex;
+
+                span {
+                    @include rem(padding-top, -1px);
+                    @include rem(padding-bottom, 10px);
+                    @include rem(padding-left, 10px);
+
+                    padding-bottom: 0;
+
+                    @media (max-width: $xs) {
+                        @include rem(padding-right, 15px);
+                    }
+                }
+            }
+        }
+
+        .select-div {
+            @include rem(padding-top, 15px);
+            @include rem(padding-bottom, 5px);
+
+            select {
+                @include rem(height, 45px);
+                @include rem(font-size, 16px);
+                @include rem(padding-top, 10px);
+                @include rem(padding-bottom, 10px);
+                @include rem(padding-left, 15px);
+                @include rem(padding-right, 10px);
+
+                width: 100%;
+                background: #fff;
+                border: solid 1px #000;
+                border-radius: 0;
+                color: #000;
+
+                @media (max-width: $xs) {
+                    width: 100%;
+                }
+            }
+
+            .custom-select {
+                -moz-appearance: none;
+                -webkit-appearance: none;
+                appearance: none;
+                position: relative;
+            }
+
+            select:not(.quantity-select) {
+                -moz-appearance: menulist-button;
+                -webkit-appearance: menulist-button;
+                appearance: menulist-button;
+            }
+        }
+
+        .size-guide {
+            @include rem(font-size, 13px);
+
+            text-decoration: underline;
+            text-align: right;
+
+            .size-chart {
+                @include rem(font-size, 15px);
+                @include rem(margin-top, 5px);
+
+                text-align: right;
+            }
+
+            a {
+                color: #000 !important;
+
+                &:hover {
+                    text-decoration: none;
+                }
+            }
+        }
+
+        .add-bag-button {
+            @include rem(margin-top, 14px);
+            @include rem(margin-bottom, 5px);
+
+            flex: 1 100%;
+
+            button {
+                @include rem(height, 45px);
+
+                width: 100%;
+                background-color: #000;
+                color: #fff;
+                cursor: pointer;
+                text-transform: uppercase;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 0;
+
+                i { display: none; }
+
+                @media (max-width: $xs) {
+                    width: 100%;
+                }
+            }
+        }
+
+        .product-info {
+            @include rem(padding-bottom, 10px);
+            @include rem(font-size, 13px);
+
+            display: flex;
+            justify-content: space-between;
+
+            .product-availability {
+                margin-top: 0;
+                text-align: right;
+            }
+        }
+
+        .drop-hint {
+            @include rem(font-size, 17px);
+            @include rem(padding-right, 25px);
+
+            text-transform: uppercase;
+
+            @media (max-width: $xs) {
+                text-align: center;
+            }
+        }
+
+        .style-fit,
+        .designer-notes,
+        .delivery-returns {
+            font-weight: bold;
+        }
+
+        .style-fit-options {
+            ul {
+                padding: 0;
+
+                li {
+                    @include rem(font-size, 15px);
+
+                    list-style: none;
+                }
+            }
+        }
+    }
+}

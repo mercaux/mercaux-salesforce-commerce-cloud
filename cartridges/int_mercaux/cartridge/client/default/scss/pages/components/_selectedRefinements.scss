@@ -1,0 +1,38 @@
+.looks-top-selected-refinements {
+    display: inline-flex;
+    width: 100%;
+    flex-wrap: wrap;
+    @include rem(margin-bottom, 35px);
+
+    @media (max-width: $md) {
+        display: none;
+    }
+
+    .filter-value {
+        @include rem(margin-bottom, 15px);
+        @include rem(margin-right, 15px);
+
+        button {
+            background: #fff 0 0 no-repeat padding-box;
+            border: 1px solid #707070;
+            display: flex;
+            align-items: center;
+            @include rem(padding-top, 5px);
+            @include rem(padding-right, 5px);
+            @include rem(padding-bottom, 5px);
+            @include rem(padding-left, 10px);
+
+            .cross-icon {
+                @include rem(width, 27px);
+                @include rem(height, 27px);
+                @include rem(background-size, 27px);
+
+                cursor: pointer;
+                background: url($icon-close) no-repeat;
+                display: inline-block;
+                @include rem(margin-left, 10px);
+                @include rem(margin-top, -2px);
+            }
+        }
+    }
+}

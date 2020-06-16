@@ -1,0 +1,3 @@
+<isif condition="${productSet.likesCount}">
+    <span class="">${productSet.likesCount}</span> <span class="icon-like"></span>
+</isif>

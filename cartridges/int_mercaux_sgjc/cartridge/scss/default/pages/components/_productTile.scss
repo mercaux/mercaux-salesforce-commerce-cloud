@@ -1,0 +1,135 @@
+.mercaux-product-tile {
+    margin: 0;
+    text-align: left;
+    color: #000;
+
+    @media (min-width: $sm) {
+        margin: -3%;
+    }
+
+    @media (min-width: $md) {
+        margin: -6%;
+    }
+
+    .image-container {
+        @include rem(margin-bottom, 15px);
+
+        width: 100%;
+        height: auto;
+        overflow: hidden;
+
+        @media (min-width: $xs) and (max-width: $sm-e) {
+            width: 100%;
+        }
+
+        a {
+            display: block;
+            width: 100%;
+            text-align: center;
+            height: auto;
+        }
+    }
+
+    .tile-body {
+        @include rem(padding-left, 5px);
+        @include rem(padding-right, 5px);
+
+        padding-top: 0;
+        padding-bottom: 0;
+
+        .pdp-link {
+            display: flex;
+            justify-content: space-between;
+
+            .likes {
+                display: flex;
+                align-items: center;
+            }
+
+            a {
+                @include rem(font-size, 18px);
+
+                font-weight: 600;
+                color: #000 !important;
+
+                @media (min-width: $xs) and (max-width: $sm-e) {
+                    @include rem(font-size, 13px);
+                    @include rem(margin-bottom, 5px);
+                }
+
+                @media (min-width: $xs-d) and (max-width: $sm-e) {
+                    @include rem(font-size, 15px);
+                }
+            }
+
+            .icon-like {
+                @include rem(height, 25px);
+                @include rem(width, 25px);
+                @include rem(background-size, 25px);
+
+                background-image: url($icon-like);
+                cursor: pointer;
+                display: block;
+            }
+
+            .likes-counter {
+                @include rem(margin-right, 5px);
+
+                @media (min-width: $xs) and (max-width: $sm-e) {
+                    @include rem(font-size, 13px);
+                    @include rem(margin-right, 3px);
+
+                    margin-top: 0;
+                }
+
+                @media (min-width: $xs-d) and (max-width: $sm-e) {
+                    @include rem(font-size, 14px);
+                    @include rem(margin-right, 2px);
+                }
+            }
+        }
+    }
+
+    .tile-body-footer {
+        padding-top: 0;
+        padding-bottom: 0;
+        @include rem(padding-left, 5px);
+        @include rem(padding-right, 5px);
+
+        .productLook-items {
+            @include rem(margin-bottom, 13px);
+            @include rem(margin-top, 5px);
+            @include rem(font-size, 14px);
+
+            display: block;
+
+            @media (min-width: $xs) and (max-width: $sm-e) {
+                @include rem(margin-bottom, 6px);
+                @include rem(font-size, 11px);
+            }
+
+            @media (min-width: $xs-d) and (max-width: $sm-e) {
+                @include rem(font-size, 13px);
+            }
+        }
+    }
+
+    .productLook-tile-btn {
+        .slider-mercaux-btn {
+            @include rem(height, 35px);
+            @include rem(font-size, 12px);
+
+            width: 100%;
+            background-color: #000;
+            border: none;
+            color: #fff;
+            text-transform: uppercase;
+            outline: none;
+
+            @media (min-width: $md) {
+                @include rem(height, 44px);
+                @include rem(font-size, 15px);
+            }
+        }
+    }
+}

@@ -1,0 +1,51 @@
+<iscomment>
+
+Template Notes:
+
+- This template is intended to be referenced from an <isinclude> tag within an <isloop> in another
+  source template.  The <isloop> is expected to have a "status" attribute, named "attributeStatus".
+- ${attributeStatus.last} is checked to see whether a particular attribute row should include the
+  Quantity drop-down menu
+
+</iscomment>
+
+<div class="attribute">
+    <isif condition="${attr.swatchable}">
+    
+        <isif condition="${attr.id === 'color'}"> 
+            <!-- Custom styled color attribute -->
+            <isinclude template="modal/product/components/colorVariationAttr" />
+        <iselse>  
+            <!-- Select <Attribute> Label -->
+            <span class="${attr.id} non-input-label">
+                ${Resource.msg('label.select', 'common', null)} ${attr.displayName}
+            </span>
+            <!-- Default -->
+            <isinclude template="modal/product/components/basicSwatchableAttr" />
+        </isif>
+
+    <iselse> 
+        <!-- Select <Attribute> Label -->
+        <label class="${attr.id}" for="${attr.id}-1">
+            ${Resource.msg('label.select', 'common', null)} ${attr.displayName}
+        </label>
+
+        <div class="select-div">
+            <!-- Attribute Values Drop Down Menu -->
+            <select class="custom-select form-control select-${attr.id}" id="${attr.id}-1" ${ product.productType === "variant" && isBundle ? "disabled" : "" }>
+                <option value="${attr.resetUrl}">
+                    ${Resource.msg('label.select', 'common', null)} ${attr.displayName}
+                </option>
+                <isloop items="${attr.values}" var="attrValue">
+                    <option value="${attrValue.url}" data-attr-value="${attrValue.value}"
+                        ${!attrValue.selectable ? 'disabled' : ''}
+                        ${attrValue.selected ? 'selected' : ''}
+                    >
+                        ${attrValue.displayValue}
+                    </option>
+                </isloop>
+            </select>
+        </div>
+
+    </isif>
+</div>

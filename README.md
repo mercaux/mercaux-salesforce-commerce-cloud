@@ -1,1 +1,0 @@
-# Mercaux SFCC Cartridge

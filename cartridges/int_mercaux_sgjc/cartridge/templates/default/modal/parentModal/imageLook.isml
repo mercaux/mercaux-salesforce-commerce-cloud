@@ -1,0 +1,33 @@
+<!-- dwMarker="product" dwContentID="${pdict.Product.UUID}" -->
+<isset name="imageProduct" value="${pdict.Product}" scope="page" />
+
+<isif condition="${!empty(imageProduct.getImage('large', 0))}">
+    <isset name="imageUrl" value="${imageProduct.getImage('large', 0).getURL()}" scope="page" />
+    <isset name="imageAlt" value="${imageProduct.getImage('large', 0).alt}" scope="page" />
+    <isset name="imageTitle" value="${imageProduct.getImage('large', 0).title}" scope="page" />
+<iselse/>
+    <isset name="imageUrl" value="${URLUtils.staticURL('/images/noimagelarge.png')}" scope="page" />
+    <isset name="imageAlt" value="${pdict.Product.name}" scope="page" />
+    <isset name="imageTitle" value="${pdict.Product.name}" scope="page" />
+</isif>
+
+<isif condition="${!empty(imageProduct.getImage('hi-res', 0))}">
+    <isset name="imageUrlHiRes" value="${imageProduct.getImage('hi-res', 0).getURL()}" scope="page" />
+<iselse/>
+    <isset name="imageUrlHiRes" value="${URLUtils.staticURL('/images/noimagelarge.png')}" scope="page" />
+</isif>
+
+<div class="product-primary-image">
+    <h2 class="visually-hidden">Images</h2>
+
+    <isif condition="${!empty(imageProduct.getImages('hi-res')) && imageProduct.getImages('hi-res').length > 0}">
+        <isset name="hi_res" scope="page" value="${imageProduct.getImages('hi-res')[0].getURL().toString()}" />
+        <isset name="href" scope="page" value="${'href=' + hi_res + ' target=_blank'}" />
+    <iselse/>
+        <isset name="hi_res" scope="page" value="${''}" />
+        <isset name="href" scope="page" value="${'name=product_detail_image'}" />
+    </isif>
+    <a ${href} class="product-image main-image" title="${pdict.Product.name}${imageTitle}">
+        <img itemprop="image" class="primary-image" src="${imageUrl}" alt="${imageAlt}" />
+    </a>
+</div> 

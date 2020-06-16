@@ -1,0 +1,248 @@
+.slider-mercaux {
+    position: relative;
+    top: 0;
+    right: 0;
+    @include rem(margin-bottom, 40px);
+
+    width: 100%;
+
+    .slider-owl-parent-block {
+        @include rem(padding-left, 30px);
+        @include rem(padding-right, 30px);
+
+        @media (min-width: $md) {
+            @include rem(padding-left, 60px);
+            @include rem(padding-right, 60px);
+        }
+    }
+
+    .owl-carousel {
+        z-index: inherit;
+    }
+
+    .flex-container {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .item-info {
+        .item-top {
+            @include rem(margin-bottom, 10px);
+            @include rem(margin-top, 10px);
+
+            .icon-like {
+                @include rem(height, 25px);
+                @include rem(width, 25px);
+                @include rem(background-size, 25px);
+
+                background-image: url($icon-like);
+                cursor: pointer;
+                display: block;
+            }
+
+            .item-titles {
+                .title {
+                    @include rem(font-size, 19px);
+
+                    display: block;
+                    font-weight: bold;
+                }
+
+                .subtitle {
+                    @include rem(font-size, 16px);
+                }
+            }
+
+            .likes {
+                align-content: center;
+                @include rem(font-size, 16px);
+            }
+        }
+
+        .item-bottom {
+            button.slider-mercaux-btn {
+                @include rem(height, 44px);
+
+                width: 100%;
+                border: none;
+                text-transform: uppercase;
+                color: #fff;
+                background-color: #000;
+            }
+        }
+    }
+
+    .slider-mercaux-title {
+        @include rem(margin-bottom, 45px);
+    }
+
+    .owl-nav {
+        .owl-prev,
+        .owl-next {
+            outline: none;
+            box-sizing: border-box;
+            position: absolute;
+
+            span {
+                opacity: 0;
+            }
+
+            &:hover {
+                background: none;
+            }
+
+            &::before {
+                @include rem(width, 15px);
+                @include rem(height, 15px);
+
+                content: '';
+                border-width: 3px 3px 0 0;
+                border-style: solid;
+                border-color: #222;
+                transition: 0.2s ease;
+                display: block;
+                transform-origin: 100% 0;
+
+                @media (min-width: $md) {
+                    @include rem(width, 18px);
+                    @include rem(height, 18px);
+
+                    border-width: 2px 2px 0 0;
+                }
+            }
+
+            &.disabled {
+                display: none;
+            }
+        }
+
+        .owl-prev {
+            @include rem(left, -20px);
+
+            transform: rotate(-135deg);
+            top: calc(45% - 57px);
+
+            @media (min-width: $md) {
+                @include rem(left, -45px);
+            }
+        }
+
+        .owl-next {
+            @include rem(right, -20px);
+
+            transform: rotate(45deg);
+            top: calc(45% - 47px);
+
+            @media (min-width: $md) {
+                @include rem(right, -45px);
+            }
+        }
+    }
+
+    .item {
+        height: auto;
+
+        .mercaux-image {
+            width: calc(100% - 3px);
+            border: 1px #f1f1f1 solid;
+
+            img {
+                width: 100%;
+            }
+        }
+    }
+}
+
+.shop-the-look-btn {
+    display: inline-block;
+    margin-top: 0;
+    margin-bottom: 0;
+    @include rem(margin-left, 10px);
+    @include rem(margin-right, 10px);
+
+    @media screen and (max-width: 568px) { /* stylelint-disable-line */
+        @include rem(padding-top, 30px);
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        left: 0;
+        margin: 0;
+        z-index: 2;
+    }
+
+    a {
+        @include rem(width, 210px);
+        @include rem(height, 37px);
+        @include rem(line-height, 37px);
+        @include rem(text-indent, 30px);
+
+        background: #f2f2f2;
+        border: none;
+        color: #3c3c3c;
+        display: inline-block;
+        text-transform: uppercase;
+        text-decoration: none;
+        text-align: center;
+        outline: none;
+        box-shadow: none;
+        position: relative;
+        transition: all 0.1s ease-in;
+
+        span.wrapped-with-icon {
+            position: relative;
+
+            &::before,
+            &::after {
+                @include rem(width, 19px);
+                @include rem(height, 1px);
+                @include rem(left, -30px);
+                @include rem(top, 7px);
+
+                position: absolute;
+                content: "";
+                background: #5f5f5f;
+            }
+
+            &::after {
+                transform: rotate(90deg);
+            }
+        }
+
+        &:active,
+        &:hover {
+            color: #000 !important;
+            background-color: #dcdcdc !important;
+            border-color: #dcdcdc !important;
+        }
+
+        @media screen and (max-width: 568px) { /* stylelint-disable-line */
+            @include rem(height, 40px);
+            @include rem(line-height, 40px);
+            @include rem(text-indent, 15px);
+            @include rem(font-size, 14px);
+
+            position: absolute;
+            width: 100%;
+            left: 0;
+            bottom: 0;
+            background: #000;
+            color: #fff;
+
+            span.wrapped-with-icon {
+                &::before,
+                &::after {
+                    @include rem(width, 15px);
+
+                    background: #fff;
+                }
+            }
+
+            &:active,
+            &:hover {
+                color: #fff !important;
+                background-color: #000 !important;
+                border-color: #000 !important;
+            }
+        }
+    }
+}

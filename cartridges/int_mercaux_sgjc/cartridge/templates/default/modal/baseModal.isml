@@ -1,0 +1,21 @@
+<!-- Modal -->
+<div class="modal-mercaux-wrapper">
+    <div class="modal fade" id="baseMercauxModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body-mercaux">
+                    <div class="modal-mercaux">
+                        <header>
+                            <div class="wrapper-mercaux flex-container">
+                                <div class="back-btn-block flex-container js-back-btn-block"></div>
+                                <span class="close-mercaux-btn" aria-hidden="true" data-dismiss="modal"></span>
+                            </div>
+                        </header>
+
+                        <div class="js-modal-mercaux"></div>
+                    </div> 
+                </div>
+            </div>
+        </div>
+    </div>
+</div> <!-- modal-mercaux-wrapper -->

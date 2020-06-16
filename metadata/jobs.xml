@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobs xmlns="http://www.demandware.com/xml/impex/jobs/2015-07-01">
+    <job job-id="MercauxAnalytic" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="RefArch"/>
+            <step step-id="prerpareAnalyticObjects" type="custom.Mercaux.analytic" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+            <step step-id="AnalyticExport" type="custom.Mercaux.analytic.export" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="disabled">false</parameter>
+                    <parameter name="outputFolder">/mercaux/Analytics</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2020-05-01Z</date-from>
+                    <date-to>2021-01-01Z</date-to>
+                    <start-time>04:00:00.000Z</start-time>
+                    <interval>1h</interval>
+                    <day-of-week/>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="mercauxLooks" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="RefArch"/>
+            <step step-id="createXMLfile" type="custom.Mercaux.createLooksXML" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="CatalogID">apparel-m-catalog</parameter>
+                    <parameter name="StorefrontCatalogID">storefront-catalog-m-en</parameter>
+                    <parameter name="CategoryID">Looks</parameter>
+                    <parameter name="RootMercauxFolder">/mercaux</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Import" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">mercaux/src</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive Zipped</parameter>
+                    <parameter name="ArchiveFolder">src/mercaux/archived</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR,NO_FILES_FOUND">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+            <step step-id="CleanArchiveFolder" type="custom.Mercaux.cleanArchiveFolder" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="RootMercauxFolder">/mercaux</parameter>
+                    <parameter name="Number">10</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="RefArch"/>
+            <step step-id="Reindex" type="SearchReindex" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Product related search indexes">true</parameter>
+                    <parameter name="Active data search index">true</parameter>
+                    <parameter name="Content search index">false</parameter>
+                    <parameter name="Indexer Type">Full Index Rebuild</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2019-12-03Z</date>
+                <time>05:00:00.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+</jobs>

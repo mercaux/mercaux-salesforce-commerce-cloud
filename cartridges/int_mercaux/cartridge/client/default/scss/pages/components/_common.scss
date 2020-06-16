@@ -1,0 +1,51 @@
+.icon-accord-item {
+    color: #666;
+    position: relative;
+    display: block;
+    @include rem(width, 16px);
+    @include rem(height, 16px);
+}
+
+.icon-accord-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 100%;
+    background: #989898;
+    top: 46%;
+    @include rem(height, 2px);
+}
+
+.icon-accord-item::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 100%;
+    background: #989898;
+    top: 46%;
+    display: none;
+    transform: rotate(-90deg);
+    @include rem(height, 2px);
+}
+
+.icon-accord-item.open::before {
+    top: 0;
+    transform: rotate(135deg);
+}
+
+.icon-chevron::before {
+    border-style: solid;
+    border-width: 2px 2px 0 0;
+    content: "";
+    display: inline-block;
+    position: relative;
+    transform: rotate(-45deg);
+    vertical-align: top;
+    @include rem(width, 13px);
+    @include rem(height, 13px);
+}
+
+.icon-chevron.bottom::before {
+    top: 0;
+    transform: rotate(135deg);
+}

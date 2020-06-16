@@ -1,0 +1,50 @@
+<iscontent type="text/html" charset="UTF-8" compact="true" />
+<iscache type="relative" hour="24" varyby="price_promotion" />
+ 
+<div class="modal-wrapper-internal wrapper-mercaux modal-content-mercaux flex-container js-product-look-child-product"
+    id="pdpMain" data-product-set-id="${productSetID}" itemscope itemtype="http://schema.org/Product">
+        
+        <isobject object="${pdict.Product}" view="detail">
+            <isset name="isQuickView" value="${pdict.CurrentHttpParameterMap.source.stringValue == 'quickview' || pdict.CurrentHttpParameterMap.source.stringValue == 'cart' || pdict.CurrentHttpParameterMap.source.stringValue == 'giftregistry' || pdict.CurrentHttpParameterMap.source.stringValue == 'wishlist'}" scope="page"/>
+ 
+            <div class="left-wrapper-internal pdp-main">
+
+                <div class="header-left-block flex-container">
+                    <h4 class="title-left-block title-left-block-internal product-name" itemprop="name" data-product-sku="${pdict.Product.manufacturerSKU}">
+                        <a href="${URLUtils.url('Product-Show', 'pid', pdict.Product.ID)}">
+                            <isprint value="${pdict.Product.name}" encoding="off"/> 
+                        </a>
+                    </h4>
+                </div>
+
+                <div class="price price-desktop-hidden">
+                    <isinclude template="product/components/pricing"/>
+                </div>
+
+                <div class="add-wishlist add-wishlist-desktop-hidden">
+                    <div class="add-wishlist-wrapper">
+                        <span class="icon-like"></span> ${Resource.msg('label.addtowishlist', 'int_mercaux_common', null)}
+                    </div>
+                    <div>
+                        <iscomment> <isinclude template="modal/product/components/pidRating" /> </iscomment>
+                    </div>
+                </div>
+
+                <div class="left-img-container-internal product-image-container">
+                    <isinclude template="product/components/productimages"/>
+                </div>
+
+            </div> <!-- left-wrapper-internal -->
+            
+            <div class="right-wrapper-internal product-detail pdp-main">
+                <div id="product-content">
+                    <isinclude template="modal/product/childProductContent"/>
+                </div> 
+
+            </div> <!-- right-wrapper-internal -->
+     
+    
+        </isobject>
+</div>
+ 
+ 

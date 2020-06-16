@@ -1,0 +1,155 @@
+.flex-grid {
+    display: flex;
+    flex-wrap: wrap;
+    @include rem(margin-right, -7px);
+    @include rem(margin-left, -7px);
+
+    .icon-like {
+        @include rem(height, 25px);
+        @include rem(width, 25px);
+        @include rem(background-size, 25px);
+
+        background-image: url($icon-like);
+        cursor: pointer;
+        display: block;
+        background-repeat: no-repeat;
+
+        @media (min-width: $xs) and (max-width: $sm-e) {
+            @include rem(height, 15px);
+            @include rem(width, 15px);
+            @include rem(background-size, 15px);
+        }
+
+        @media (min-width: $xs-d) and (max-width: $sm-e) {
+            @include rem(height, 18px);
+            @include rem(width, 18px);
+            @include rem(background-size, 18px);
+        }
+    }
+
+    .flex-container {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .flex-item {
+        flex: 0 0 25%;
+        max-width: 25%;
+        @include rem(padding-right, 7px);
+        @include rem(padding-left, 7px);
+
+        @media (min-width: $xs) and (max-width: $sm-e) {
+            flex: 0 0 50%;
+            max-width: 50%;
+        }
+
+        .product {
+            .productLook-tile {
+                .image-container {
+                    @include rem(margin-bottom, 15px);
+
+                    width: 100%;
+                    height: auto;
+                    overflow: hidden;
+
+                    @media (min-width: $xs) and (max-width: $sm-e) {
+                        width: 100%;
+                    }
+
+                    a {
+                        width: 100%;
+                        height: auto;
+
+                        .tile-image {
+                            width: 100%;
+                            height: auto;
+                        }
+                    }
+                }
+
+                .tile-body {
+                    .pdp-link {
+                        a {
+                            @include rem(font-size, 18px);
+
+                            color: #000 !important;
+
+                            @media (min-width: $xs) and (max-width: $sm-e) {
+                                @include rem(font-size, 13px);
+                                @include rem(margin-bottom, 5px);
+                            }
+
+                            @media (min-width: $xs-d) and (max-width: $sm-e) {
+                                @include rem(font-size, 15px);
+                            }
+                        }
+
+                        .likes-counter {
+                            @include rem(margin-top, 3px);
+                            @include rem(margin-right, 5px);
+
+                            @media (min-width: $xs) and (max-width: $sm-e) {
+                                @include rem(font-size, 13px);
+                                @include rem(margin-right, 3px);
+
+                                margin-top: 0;
+                            }
+
+                            @media (min-width: $xs-d) and (max-width: $sm-e) {
+                                @include rem(font-size, 14px);
+                                @include rem(margin-right, 2px);
+                            }
+                        }
+                    }
+                }
+
+                .tile-body-footer {
+                    .productLook-items {
+                        @include rem(margin-bottom, 13px);
+                        @include rem(font-size, 14px);
+
+                        display: block;
+
+                        @media (min-width: $xs) and (max-width: $sm-e) {
+                            @include rem(margin-bottom, 6px);
+                            @include rem(font-size, 11px);
+                        }
+
+                        @media (min-width: $xs-d) and (max-width: $sm-e) {
+                            @include rem(font-size, 13px);
+                        }
+                    }
+                }
+
+                .productLook-tile-btn {
+                    .slider-mercaux-btn {
+                        @include rem(height, 44px);
+                        @include rem(font-size, 15px);
+
+                        width: 100%;
+                        background-color: #000;
+                        border: none;
+                        color: #fff;
+                        text-transform: uppercase;
+                        outline: none;
+
+                        @media (min-width: $xs) and (max-width: $sm-e) {
+                            @include rem(height, 23px);
+                            @include rem(font-size, 10px);
+                        }
+
+                        @media (min-width: $xs-d) and (max-width: $sm-e) {
+                            @include rem(height, 30px);
+                            @include rem(font-size, 12px);
+                        }
+
+                        @media (min-width: $sm) and (max-width: $sm-e) {
+                            @include rem(height, 35px);
+                            @include rem(font-size, 13px);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

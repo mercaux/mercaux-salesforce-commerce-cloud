@@ -1,0 +1,7 @@
+<ul class="flex-item-ul">
+    <isloop items="${refinement.values}" var="refinementValue">
+        <isif condition="${refinementValue.type !== 'color' || refinementValue.type !== 'size'}">
+            <isinclude template="searchLooksGallery/refinements/attributes/boolean"/>
+        </isif>
+    </isloop>
+</ul>

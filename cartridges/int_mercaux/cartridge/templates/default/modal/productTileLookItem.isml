@@ -1,0 +1,53 @@
+<isset name="loopState" value="1" scope="page" />
+<isset name="isBundle" value="false" scope="page" />
+<div class="product mobile-flex-container product-detail set-item product-set-detail" data-pid="${product.id}">
+    <div class="product-image-border">
+        <span data-url="${URLUtils.url('Mercaux-ShowModal')}" data-product-sku="${product.sku || null}" data-pid="${product.id}" data-pid-look="${productLook.id}"
+            class="child-call-btn js-open-product-look">
+            <isif condition="${product.images.medium && product.images.medium.length > 0}">
+                <img src="${product.images.medium[0].url}" class="product-image" alt="${product.images.medium[0].alt}" />
+            <iselse>
+                <img src="${product.images.large[0].url}" class="product-image" alt="${product.images.large[0].alt}" />
+            </isif>
+        </span>
+    </div>
+    <div class="mobile-block">
+        <h5 class="product-title">
+            <span data-url="${URLUtils.url('Mercaux-ShowModal')}" data-pid="${product.id}" data-product-sku="${product.sku || null}" data-pid-look="${productLook.id}"
+            class="open-modal child-call-btn js-open-product-look">
+                ${product.productName}
+                </span>
+        </h5>
+        <div class="product-id display-none">${product.id}</div>
+
+        <div class="price-block flex-container mobile-flex-container">
+            <span class="product-price open-modal js-open-product-look" data-url="${URLUtils.url('Mercaux-ShowModal')}" data-pid="${product.id}" data-pid-look="${productLook.id}">
+                <isset name="price" value="${product.price}" scope="page" />
+                <isinclude template="modal/product/components/pricing/main" />
+            </span>
+        </div>
+
+        <iscomment>
+            <div class="review-stars">
+                <span>
+                    <isinclude template="modal/product/components/pidRating" />
+                </span>
+            </div>
+        </iscomment>
+
+        <isif condition="${product.variationAttributes}">
+            <isloop items="${product.variationAttributes}" var="attr" status="attributeStatus">
+                <isif condition="${attr.id === "size"}">
+                    <isinclude template="modal/productTileLookItem/sizeRefinement" />
+                </isif>
+            </isloop>
+        </isif>
+
+        <div class="attribute quantity display-none">
+            <isinclude template="modal/product/components/quantity" />
+        </div>
+
+        <isinclude template="modal/productTileLookItem/addToCart" />
+
+    </div>
+</div>

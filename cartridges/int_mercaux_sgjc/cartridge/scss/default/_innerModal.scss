@@ -1,0 +1,510 @@
+.modal-wrapper-internal {
+
+    @media (max-width: $xs) {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .left-wrapper-internal {
+        width: 48%;
+        height: auto;
+
+        @media (max-width: $xs) {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .add-wishlist-desktop-hidden {
+            display: none;
+
+            @media (max-width: $xs) {
+                display: flex;
+                justify-content: space-between;
+            }
+        }
+
+        .price-desktop-hidden {
+            display: none;
+
+            @media (max-width: $xs) {
+                @include rem(font-size, 26px);
+                @include rem(padding-bottom, 10px);
+
+                display: block;
+            }
+        }
+
+        .title-left-block-internal {
+            @include rem(font-size, 31px);
+
+            width: 100%;
+            height: 100%;
+            font-weight: 600;
+
+            a {
+                color: #000 !important;
+            }
+        }
+
+        .left-img-container-internal {
+            @include rem(margin-top, 6px);
+
+            @media (max-width: $xs) {
+                height: auto;
+            }
+
+            img {
+                width: 100%;
+            }
+        }
+    }
+
+    .right-wrapper-internal {
+        @include rem(margin-top, 50px);
+
+        width: 44%;
+        height: auto;
+        margin-right: 3%;
+        font-family: Lato, sans-serif;
+
+        @media (max-width: $xs) {
+            width: 100%;
+            margin-right: 0;
+        }
+
+        .product-variations {
+            ul {
+                margin-inline-start: 0;
+                padding-inline-start: 0;
+                list-style: none;
+            }
+        }
+
+        .select-div {
+            @include rem(padding-top, 15px);
+            @include rem(padding-bottom, 5px);
+
+            select {
+                @include rem(height, 45px);
+                @include rem(font-size, 16px);
+                @include rem(padding-top, 10px);
+                @include rem(padding-bottom, 10px);
+                @include rem(padding-left, 15px);
+                @include rem(padding-right, 10px);
+
+                width: 100%;
+                background: #fff;
+                border: solid 1px #000;
+                border-radius: 0;
+                color: #000;
+
+                @media (max-width: $xs) {
+                    width: 100%;
+                }
+            }
+
+            .custom-select {
+                -moz-appearance: none;
+                -webkit-appearance: none;
+                appearance: none;
+                position: relative;
+            }
+
+            select:not(.quantity-select) {
+                -moz-appearance: menulist-button;
+                -webkit-appearance: menulist-button;
+                appearance: menulist-button;
+            }
+        }
+
+        .product-info {
+            @include rem(padding-top, 30px);
+        }
+
+        .availability-storepickup {
+            display: flex;
+            justify-content: flex-start;
+            align-items: self-end;
+            @include rem(margin-top, 8px);
+
+            .availability-web {
+                background: none;
+                padding: 0;
+                display: flex;
+                @include rem(margin-right, 20px);
+
+                .availability-msg .in-stock-msg {
+                    text-decoration: none;
+                    color: #000;
+                    font-weight: 400;
+                }
+            }
+
+            .availability-instore {
+                background: none;
+                padding: 0;
+                display: flex;
+            }
+
+            a {
+                text-decoration: underline;
+                color: #000;
+                font-weight: 400;
+            }
+        }
+
+        .tabs {
+            display: flex;
+            width: 100%;
+            @include rem(font-size, 14px);
+            @include rem(line-height, 23px);
+
+            .tab {
+                flex: 1 1 auto;
+
+                .tab-label {
+                    font-weight: 400;
+                    text-transform: uppercase;
+                    padding: 0;
+                    text-align: left;
+                    @include rem(text-indent, 15px);
+                    @include rem(letter-spacing, 0.5px);
+                }
+
+                .tab-content {
+                    @include rem(padding-left, 10px);
+                    @include rem(padding-right, 10px);
+
+                    ul {
+                        padding-left: 0;
+                        padding-right: 0;
+                    }
+                }
+            }
+
+            @media screen and (min-width: 768px) { /* stylelint-disable-line scss/media-feature-value-dollar-variable */
+                .tab .tab-switch:checked + .tab-label {
+                    background: none;
+                    border-bottom-color: #000;
+                    color: #000;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    @include rem(letter-spacing, 0.5px);
+                }
+            }
+        }
+
+        .swatches.color {
+            li {
+                &.selectable {
+                    display: flex;
+                    align-items: center;
+                    @include rem(margin-right, 15px);
+
+                    font-weight: 600;
+
+                    a {
+                        @include rem(width, 27px);
+                        @include rem(height, 27px);
+                        @include rem(min-width, 27px);
+                        @include rem(min-height, 27px);
+
+                        background: #fff;
+                        border-radius: 1.25em;
+                        border: 0.063em solid rgba(0, 0, 0, 0.3);
+                        display: inline-block;
+                        position: relative;
+                        padding: 0;
+                        margin: 0 0.5rem 0 0;
+                    }
+                }
+
+                &.selectable.selected {
+                    a {
+                        @include rem(width, 23px);
+                        @include rem(height, 23px);
+                        @include rem(min-width, 23px);
+                        @include rem(min-height, 23px);
+
+                        border: 2px #000 solid;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        @include rem(padding-left, 2px);
+                        @include rem(padding-right, 2px);
+                        @include rem(padding-top, 2px);
+                        @include rem(padding-bottom, 2px);
+
+                        img {
+                            border: 2px #fff solid;
+                            border-radius: 100%;
+                            padding: 0;
+                            margin: 0;
+                        }
+                    }
+                }
+            }
+        }
+
+        .swatches {
+            li {
+                a {
+                    color: #000;
+                    border-color: #b3b3b3;
+                    @include rem(border-width, 1px);
+                }
+
+                &.selected,
+                &:hover {
+                    a {
+                        border-color: #000;
+                    }
+                }
+
+                &.unselectable {
+                    a {
+                        color: #c3c3c3;
+                        border-color: #dedede;
+                    }
+
+                    &:hover {
+                        a {
+                            color: #c3c3c3;
+                            border-color: #dedede;
+                        }
+                    }
+                }
+            }
+        }
+
+        .attributes {
+            @include rem(margin-top, 15px);
+            @include rem(margin-bottom, 15px);
+
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .attribute {
+            margin-top: 0;
+
+            .label {
+                display: none;
+            }
+
+            .value {
+                width: 100%;
+            }
+        }
+
+        .inventory .attribute {
+            margin-top: 0;
+            display: flex;
+            flex-direction: column;
+            @include rem(margin-right, 15px);
+
+            &.quantity {
+                label {
+                    @include rem(font-size, 14px);
+
+                    font-weight: 400;
+                }
+
+                input {
+                    width: 100%;
+                    background: #fff;
+                    border: solid 1px #000;
+                    border-radius: 0;
+                    color: #000;
+                    font-size: 1.5em;
+                    margin-right: 0.4em;
+                    text-align: center;
+                    padding: 0.7em 0.5em;
+                    @include rem(height, 37px);
+                }
+            }
+        }
+
+        .size-chart-link {
+            @include rem(font-size, 13px);
+
+            width: 100%;
+            text-align: right;
+
+            a {
+                color: #000 !important;
+                text-decoration: underline;
+
+                &:hover {
+                    text-decoration: none;
+                }
+            }
+        }
+
+        .product-price {
+            @include rem(font-size, 15px);
+            @include rem(margin-bottom, 10px);
+
+            display: block;
+            font-weight: bold;
+
+            .price-standard,
+            .price-sales {
+                font-weight: bold;
+            }
+
+            .price-standard + .price-sales {
+                color: #d12432;
+                @include rem(margin-left, 5px);
+            }
+
+            @media (min-width: $xs) and (max-width: $sm) {
+                @include rem(font-size, 18px);
+
+                margin-bottom: 0;
+            }
+        }
+
+        .product-actions {
+            @include rem(padding-bottom, 20px);
+
+            padding-left: 0;
+            padding-right: 0;
+            padding-top: 0;
+        }
+
+        .add-wishlist {
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            @include rem(padding-bottom, 5px);
+            @include rem(padding-top, 5px);
+
+            padding-left: 0;
+            padding-right: 0;
+
+            @media (max-width: $xs) {
+                display: none;
+            }
+
+            .icon-like {
+                @include rem(height, 25px);
+                @include rem(width, 25px);
+                @include rem(background-size, 25px);
+
+                background-image: url($icon-like);
+                cursor: pointer;
+                background-repeat: no-repeat;
+                display: inline-block;
+                vertical-align: middle;
+            }
+
+            a {
+                color: #000;
+            }
+
+            .add-wishlist-wrapper {
+                @include rem(font-size, 15px);
+
+                display: flex;
+                align-items: center;
+            }
+        }
+
+        .description {
+            margin-bottom: 0;
+        }
+
+        .drop-hint {
+            padding-left: 0;
+        }
+
+        .icon-gift {
+            @include rem(width, 15px);
+            @include rem(height, 15px);
+            @include rem(background-size, 15px);
+            @include rem(margin-right, 5px);
+            @include rem(margin-top, 4px);
+
+            background: url($icon-gift) no-repeat;
+            display: block;
+        }
+
+        .product-add-to-cart {
+            padding: 0;
+            border: none;
+
+            .add-to-cart-disabled {
+                width: 100%;
+                @include rem(height, 40px);
+                @include rem(margin-top, 20px);
+                @include rem(margin-bottom, 10px);
+            }
+        }
+
+        .product-id {
+            @include rem(font-size, 13px);
+            @include rem(margin-bottom, 40px);
+
+            color: #333;
+        }
+
+        .product-review-look {
+            .rating {
+                color: #000;
+                @include rem(font-size, 18px);
+                @include rem(letter-spacing, 4px);
+            }
+        }
+
+        .refinement-oneSize {
+            @include rem(padding-top, 10px);
+            @include rem(padding-bottom, 10px);
+            @include rem(padding-left, 10px);
+            @include rem(padding-right, 10px);
+            @include rem(margin-top, 16px);
+
+            text-align: center;
+            border: 1px #000 solid;
+        }
+
+        .add-bag-button {
+            @include rem(margin-top, 14px);
+            @include rem(margin-bottom, 5px);
+
+            flex: 1 100%;
+
+            button {
+                @include rem(height, 45px);
+
+                width: 100%;
+                background-color: #000;
+                color: #fff;
+                cursor: pointer;
+                text-transform: uppercase;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 0;
+
+                i { display: none; }
+
+                @media (max-width: $xs) {
+                    width: 100%;
+                }
+            }
+        }
+
+        .drop-hint {
+            @include rem(font-size, 17px);
+            @include rem(padding-right, 25px);
+
+            text-transform: uppercase;
+
+            @media (max-width: $xs) {
+                text-align: center;
+            }
+        }
+    }
+}

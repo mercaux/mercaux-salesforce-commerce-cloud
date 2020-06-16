@@ -1,0 +1,5 @@
+<div class="flex-item-header">
+    <button class="title text-left btn-block" aria-controls="looks-top-filters-sortBy" aria-expanded="false">
+        <span>${Resource.msg('label.sortby', 'int_mercaux_common', null)} <i class="icon-chevron bottom"></i></span>
+    </button>
+</div>

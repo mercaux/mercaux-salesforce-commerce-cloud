@@ -1,0 +1,44 @@
+<div class="product-tile productLook-tile">
+    <!-- dwMarker="product" dwContentID="${product.uuid}" -->
+    <div class="image-container">
+        <a href="#" class="js-open-look-modal" data-custom-open="modal-1" data-toggle="modal"
+            data-target="#baseMercauxModal" data-url="${URLUtils.url('Mercaux-ShowModal')}" data-pid="${product.id}">
+
+            <isif condition="${product.images.medium && product.images.medium.length > 0}">
+                <img class="tile-image" src="${product.images.medium[0].url}" alt="${product.productName}"
+                    title="${product.images.medium[0].title}" />
+                <iselse>
+                    <img class="tile-image" src="${product.croppedImage.absURL}" alt="${product.productName}"
+                        title="${product.croppedImage.title}" />
+            </isif>
+        </a>
+    </div>
+    <div class="tile-body">
+
+        <div class="pdp-link flex-container">
+            <a href="#" class="js-open-look-modal" data-custom-open="modal-1" data-toggle="modal"
+            data-target="#baseMercauxModal" data-url="${URLUtils.url('Mercaux-ShowModal')}" data-pid="${product.id}">${product.productName}</a>
+
+            <div class="likes d-inline-flex">
+                <span class="likes-counter">${product.likesCount}</span>
+                <span class="icon-like"></span>
+            </div>
+        </div>
+
+        <div class="tile-body-footer">
+            <span class="productLook-items">
+                ${product.numberOfProductsInSet} ${Resource.msg('label.lookitems', 'int_mercaux_common', null)} 
+            </span>
+        </div>
+
+        <div class="productLook-tile-btn">
+            <button class="slider-mercaux-btn js-open-look-modal" data-custom-open="modal-1" data-toggle="modal"
+                data-target="#baseMercauxModal" data-url="${URLUtils.url('Mercaux-ShowModal')}"
+                data-pid="${product.id}">
+                ${Resource.msg('button.viewallitems', 'int_mercaux_common', null)}
+            </button>
+        </div>
+
+    </div>
+    <!-- END_dwmarker -->
+</div>

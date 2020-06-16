@@ -1,0 +1,9 @@
+<div class="looks-top-filters-sortBy">
+    <div class="flex-item-collaps collapsible-xl">
+        <isinclude template="searchLooksGallery/components/sortOrder/orderHeader" />
+
+        <div class="flex-item-body content value " id="looks-top-filters-sortBy">
+            <isinclude template="searchLooksGallery/components/sortOrder/orderBody" />
+        </div>
+    </div>
+</div>

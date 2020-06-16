@@ -1,0 +1,14 @@
+<isif condition="${pdict.productSearch.productIds.length > 0}">
+    <isset name="pageSize" scope="page" value="${pdict.productSearch.pageSize}" />
+
+    <div class="looks-top-filters-pageSize">
+        <label for="looksFiltersPageSize">View</label>
+        <div class="select-div">
+            <select name="looksFiltersPageSize" class="custom-select js-change-page-size" aria-label="PageSize">
+                <option value="12" ${pageSize === 12 && "selected"}>12</option>
+                <option value="24" ${pageSize === 24 && "selected"}>24</option>
+                <option value="48" ${pageSize === 48 && "selected"}>48</option>
+            </select>
+        </div>
+    </div>
+</isif>

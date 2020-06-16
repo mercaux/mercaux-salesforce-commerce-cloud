@@ -1,0 +1,16 @@
+<div class="looks-top-selected-refinements">
+    <isloop items="${pdict.selectedFilters}" var="selectedFilter">
+        <isif condition="${selectedFilter.selectable}">
+            <div class="filter-value">
+                <button data-href="${selectedFilter.url}">
+                    <span class="sr-only selected-assistive-text">
+                        ${Resource.msg('msg.assistive.selected.text', 'common', null)}
+                        ${selectedFilter.title}
+                    </span>
+                    ${selectedFilter.displayValue}
+                    <span class="cross-icon"></span>
+                </button>
+            </div>
+        </isif>
+    </isloop> 
+</div>

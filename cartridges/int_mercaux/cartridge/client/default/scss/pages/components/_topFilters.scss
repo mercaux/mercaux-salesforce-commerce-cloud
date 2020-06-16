@@ -1,0 +1,283 @@
+.search-results {
+    @include rem(padding-top, 30px);
+}
+
+.looks-top-filters-wrapper {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    @include rem(margin-bottom, 10px);
+
+    @media (max-width: $md) {
+        display: none;
+    }
+
+    .title {
+        line-height: 1;
+    }
+
+    .refinements-wrapper-parent .refinement-bar {
+        display: block !important;
+    }
+
+    .refinements .accordion-mobile {
+        display: none;
+    }
+
+    .flex-container {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .flex-container-collaps {
+        display: inline-flex;
+        justify-content: flex-start;
+        width: 100%;
+    }
+
+    .flex-item-collaps {
+        position: relative;
+        top: 0;
+        right: 0;
+        flex: 0 0 50%;
+        @include rem(min-width, 240px);
+    }
+
+    .active {
+        .flex-item-header {
+            background-color: #fff;
+            border: 1px solid #000;
+            border-bottom: none;
+            @include rem(padding-top, 9px);
+            @include rem(padding-right, 19px);
+            @include rem(padding-left, 19px);
+            @include rem(padding-bottom, 1px);
+
+            button {
+                i.icon-chevron {
+                    position: relative;
+                    @include rem(left, 13px);
+                    @include rem(top, 3px);
+
+                    &::before {
+                        transform: rotate(-45deg);
+                    }
+                }
+            }
+        }
+    }
+
+    .flex-item-header {
+        position: relative;
+        z-index: 2;
+        top: 0;
+        right: 0;
+        display: inline-block;
+        @include rem(padding-top, 10px);
+        @include rem(padding-right, 20px);
+        @include rem(padding-left, 20px);
+        @include rem(padding-bottom, 1px);
+
+        button {
+            outline: none;
+
+            &::after {
+                display: none;
+            }
+
+            span {
+                @include rem(margin-right, 13px);
+
+                i.icon-chevron {
+                    position: relative;
+                    @include rem(left, 13px);
+                    @include rem(top, -3px);
+                }
+            }
+        }
+    }
+
+    .flex-item-body {
+        position: absolute;
+        left: 0;
+        z-index: 1;
+        width: 95%;
+        height: auto;
+        background-color: #fff;
+        border: 1px solid;
+        @include rem(top, 28px);
+
+        .flex-item-ul {
+            padding-left: 0;
+            padding-right: 0;
+            margin: 0;
+            @include rem(padding-top, 15px);
+            @include rem(padding-bottom, 15px);
+
+            li {
+                list-style-type: none;
+                @include rem(padding-top, 4px);
+                @include rem(padding-right, 15px);
+                @include rem(padding-left, 15px);
+                @include rem(padding-bottom, 4px);
+
+                button {
+                    background: none;
+                    outline: none;
+                    border: none;
+                    display: flex;
+                    width: 100%;
+
+                    i {
+                        @include rem(font-size, 26px);
+                        @include rem(margin-right, 5px);
+                    }
+
+                    span {
+                        text-align: left;
+                        @include rem(font-size, 17px);
+                        @include rem(padding-left, 5px);
+                    }
+                }
+            }
+        }
+    }
+
+    .top-filter-item {
+        flex: 0 0 20%;
+        @include rem(padding-top, 7px);
+    }
+
+    .refinements-wrapper-parent {
+        flex: 0 0 45%;
+    }
+
+    .refinements-wrapper-parent.has-one-refinement {
+        flex: 0 0 auto;
+    }
+
+    .sort-order-menu {
+        flex: 0 0 20%;
+    }
+
+    .page-size {
+        flex: 0 0 15%;
+    }
+}
+
+.looks-top-filters-pageSize {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    label {
+        @include rem(padding-top, 8px);
+        @include rem(padding-right, 20px);
+    }
+
+    .custom-select {
+        @include rem(width, 80px);
+    }
+
+    .select-div {
+        select {
+            @include rem(height, 45px);
+            @include rem(font-size, 16px);
+            @include rem(padding-top, 10px);
+            @include rem(padding-bottom, 10px);
+            @include rem(padding-left, 15px);
+            @include rem(padding-right, 10px);
+
+            width: 100%;
+            background: #fff;
+            border: solid 1px #000;
+            border-radius: 0;
+            color: #000;
+
+            @media (max-width: $xs) {
+                width: 100%;
+            }
+        }
+
+        .custom-select {
+            -moz-appearance: none;
+            -webkit-appearance: none;
+            appearance: none;
+            position: relative;
+        }
+
+        select:not(.quantity-select) {
+            -moz-appearance: menulist-button;
+            -webkit-appearance: menulist-button;
+            appearance: menulist-button;
+        }
+    }
+}
+
+.looks-top-filters-sortBy {
+    .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: #fff;
+        border: 2px #000 solid;
+        z-index: 0;
+        @include rem(height, 22px);
+        @include rem(width, 22px);
+        @include rem(border-radius, 5px);
+
+        &::after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+    }
+
+    li.flex-item-li {
+        position: relative;
+        cursor: pointer;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        @include rem(margin-bottom, 5px);
+        @include rem(font-size, 17px);
+
+        label {
+            position: relative;
+            width: 100%;
+            margin-bottom: 0;
+            cursor: pointer;
+            @include rem(padding-left, 30px);
+        }
+
+        input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            z-index: 1;
+        }
+
+        &:hover input ~ .checkmark {
+            background-color: #fff;
+        }
+
+        input:checked ~ .checkmark {
+            background-color: #000;
+        }
+
+        input:checked ~ .checkmark::after {
+            display: block;
+        }
+
+        .checkmark::after {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 2px #fff solid;
+            @include rem(border-radius, 5px);
+        }
+    }
+}

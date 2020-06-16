@@ -1,0 +1,16 @@
+{
+	"hooks": [ 
+		{
+                  "name": "mercaux.modal.variation.filters",
+                  "script": "./hooks/modalVariationRender"
+            },
+            {
+                  "name": "mercaux.modal.variation.tile.parentModal",
+                  "script": "./hooks/modalVariationRenderTileModal"
+		},
+		{
+                  "name": "mercaux.plp.looks.tile",
+                  "script": "./hooks/replaceTileOnLooksCat"
+            }
+	]
+}

@@ -1,0 +1,89 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+<isscript>
+	var avm = pdict.Product.availabilityModel;
+	pdict.available = avm.availabilityStatus==dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_IN_STOCK
+					&& avm.inventoryRecord != null
+					&& avm.inventoryRecord.stockLevel.available;
+
+    var imageCongig = {
+        scaleWidth: 172,
+        scaleHeight: 172,
+        scaleMode: 'fit'
+    }; 
+
+    var productImage = pdict.Product.getImages('large')[0];
+    var productImageAbsURL = productImage.getAbsImageURL(imageCongig); 
+    var productSetID;
+
+    if (pdict.isVariationSelected) {
+        productSetID = pdict.parentLookID;
+    } else {
+        productSetID = OrigProduct.ID;
+    }
+</isscript>
+<isset name="product" value="${pdict.Product}" scope="page" />
+<isset name="productID" value="${pdict.Product.ID}" scope="page" />
+
+
+<div class="product mobile-flex-container" data-pid="${pdict.Product.ID}">
+ 
+    <div class="product-image-border product-set-image">
+        <span data-url="${URLUtils.url('Mercaux-ShowModal')}" data-product-sku="${pdict.Product.manufacturerSKU}" 
+            data-pid="${pdict.Product.ID}" data-pid-look="${productSetID}"
+            class="child-call-btn js-open-product-look">
+
+            <isset name="smImg" value="${pdict.Product.getImages('medium')[0]}" scope="page" /> 
+            
+		    <img class="product-thumbnail" src="${ productImageAbsURL }" alt="${smImg.alt}"/> 
+ 
+        </span>
+
+    </div>
+    <div class="mobile-block">
+        <h5 class="product-title">
+            <span data-url="${URLUtils.url('Mercaux-ShowModal')}" data-pid="${product.ID}"  data-pid-look="${productSetID}" data-product-sku="${pdict.Product.manufacturerSKU}" 
+                class="open-modal child-call-btn js-open-product-look">
+                     <isprint value="${pdict.Product.name}" encoding="off"/>
+            </span>
+        </h5> 
+        
+        <div class="product-number display-none">
+			${Resource.msg('product.item','product',null)} <isprint value="${ pdict.Product.ID }" encoding="off"/>
+		</div>
+        
+        <div class="price-block flex-container mobile-flex-container">
+            <span class="open-modal js-open-product-look" 
+                data-url="${URLUtils.url('Mercaux-ShowModal')}"
+                data-pid="${product.ID}" data-pid-look="${productSetID}">
+                <isinclude template="product/components/pricing"/>
+            </span>
+        </div>
+        
+        <isif condition="${pdict.isSet}">
+            <isinclude template="modal/product/components/variationsModalTile"/>
+        </isif>
+
+        <div class="display-none">
+            <isset name="pam" value="${pdict.Product.getAttributeModel()}" scope="page"/>
+            <isset name="group" value="${pam.getAttributeGroup('mainAttributes')}" scope="page"/>
+
+            <isinclude template="product/components/group"/>
+
+            <isinclude template="modal/product/components/options"/>
+ 
+        </div>
+
+        <isinclude template="modal/productTileLookItem/addToCart" />
+    
+        <isif condition="${pdict.isVariationSelected}">
+            <span id="selected-tile-attr" data-selected-pid="${pdict.Product.ID}" data-master-product="${pdict.isMaster}"></span>
+            <script>
+                var pid = $('#selected-tile-attr').attr('data-selected-pid');
+                var isMaster = $('#selected-tile-attr').attr('data-master-product');
+                $('body').trigger('productVariationTileModal.isml:loaded', { selectedPID: pid, isMaster: isMaster }); 
+            </script>
+
+        </isif>
+  
+    </div>
+</div>

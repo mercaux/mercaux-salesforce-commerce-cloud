@@ -1,0 +1,15 @@
+<ul class="flex-item-ul">
+    <isloop items="${pdict.productSearch.productSort.options}" var="option">
+        <li class="flex-item-li">
+
+            <label for="${option.id}">
+
+                <input type="radio" id="${option.id}" data-id="${option.id}" class="${option.id} js-sort-menu-item"
+                    name="sort-order" ${pdict.productSearch.productSort.ruleId === option.id ? 'checked="true"' : ''}
+                    value="${option.url}">
+                <span class="checkmark"></span>
+                ${option.displayName}
+            </label>
+        </li>
+    </isloop>
+</ul>

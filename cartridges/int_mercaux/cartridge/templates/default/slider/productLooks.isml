@@ -1,0 +1,19 @@
+<isset name="mercauxLooksIDs" value="${pdict.mercauxLooks}" scope="page" />
+
+<isif condition="${mercauxLooksIDs.length > 0}"> 
+    <div class="slider-mercaux" id="SliderLooksCarousel"> 
+        <h2 class="slider-mercaux-title">${Resource.msg('title.slidertitle', 'int_mercaux_common', null)}</h2>
+
+        <div class="owl-carousel owl-theme">
+            <isloop items="${mercauxLooksIDs}" var="productSetID">
+                <isinclude url="${ URLUtils.url('Mercaux-SlideItem', 'pid', productSetID) }" />
+            </isloop>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <isinclude template="modal/baseModal"/> 
+
+<iselse>
+<!-- There no any Mercaux Looks -->
+</isif>

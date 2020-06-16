@@ -1,0 +1,486 @@
+.modal-mercaux {
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    background-color: #fbfbfb;
+    @include rem(padding-top, 10px);
+    @include rem(padding-bottom, 10px);
+    @include rem(padding-left, 25px);
+    @include rem(padding-right, 25px);
+
+    @media (min-width: $xs) and (max-width: $sm) {
+        @include rem(padding-top, 10px);
+    }
+
+    header {
+        .wrapper-mercaux {
+            align-items: center;
+        }
+
+        .back-btn-block {
+            @include rem(font-size, 17px);
+            @include rem(padding-left, 10px);
+
+            position: relative;
+            top: 0;
+            right: 0;
+            color: #999;
+            cursor: pointer;
+
+            .back-mercaux-btn {
+                @include rem(margin-left, 7px);
+
+                color: #999 !important;
+            }
+
+            a:hover {
+                color: #999;
+                text-decoration: none;
+            }
+
+            .arrow-back {
+                position: absolute;
+                left: 0;
+                @include rem(top, 6px);
+
+                box-sizing: border-box;
+                transform: rotate(-135deg);
+                cursor: pointer;
+
+                &::before {
+                    @include rem(width, 12px);
+                    @include rem(height, 12px);
+
+                    content: '';
+                    border-width: 2px 2px 0 0;
+                    border-style: solid;
+                    border-color: #999;
+                    transition: 0.2s ease;
+                    display: block;
+                    transform-origin: 100% 0;
+                }
+            }
+        }
+
+        .close-mercaux-btn {
+            @include rem(width, 40px);
+            @include rem(height, 40px);
+            @include rem(background-size, 40px);
+            @include rem(margin-right, -13px);
+
+            cursor: pointer;
+            background: url($icon-close) no-repeat;
+
+            @media (min-width: $xs) and (max-width: $sm) {
+                @include rem(width, 20px);
+                @include rem(height, 20px);
+                @include rem(background-size, 20px);
+            }
+        }
+    }
+
+    .wrapper-mercaux {
+        margin: auto;
+    }
+
+    .flex-container {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .flex-align-items-center {
+        align-items: center;
+    }
+
+    .flex-align-items-flex-end {
+        align-items: flex-end;
+    }
+
+    .flex-container-line {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        flex-basis: auto;
+
+        @media (min-width: $xs-b) and (max-width: $sm) {
+            justify-content: space-between;
+        }
+    }
+
+    .js-modal-mercaux {
+        .flex-container {
+            @media (min-width: $xs) and (max-width: $sm) {
+                display: block;
+            }
+        }
+    }
+
+    .modal-content-mercaux {
+        @include rem(margin-top, 20px);
+        @include rem(margin-bottom, 30px);
+
+        @media (min-width: $xs) and (max-width: $sm) {
+            @include rem(margin-top, 10px);
+        }
+
+        .left-block {
+            width: 40%;
+            height: auto;
+
+            @media (min-width: $xs) and (max-width: $sm) {
+                width: 100%;
+
+                .product-count {
+                    @include rem(font-size, 16px);
+                }
+
+                .flex-container {
+                    display: flex;
+                    justify-content: space-between;
+                }
+            }
+
+            @media (min-width: $sm-b) and (max-width: $sm-d) {
+                width: 40%;
+                margin-right: 0;
+            }
+
+            .icon-like {
+                @include rem(height, 40px);
+                @include rem(width, 40px);
+                @include rem(background-size, 40px);
+
+                background-image: url($icon-like);
+                cursor: pointer;
+                display: block;
+            }
+
+            .title-left-block {
+                @include rem(font-size, 31px);
+
+                font-weight: bold;
+
+                @media (min-width: $xs) and (max-width: $sm) {
+                    @include rem(font-size, 20px);
+                }
+            }
+
+            .header-left-block {
+                @media (min-width: $xs) and (max-width: $sm) {
+                    .icon-like {
+                        display: none;
+                    }
+                }
+            }
+
+            .main-look {
+                @include rem(margin-top, 6px);
+                @include rem(height, 600px);
+
+                width: 100%;
+                overflow: hidden;
+
+                @media (min-width: $xs) and (max-width: $sm) {
+                    height: auto;
+
+                    img {
+                        display: none;
+                    }
+                }
+            }
+
+            img {
+                width: 100%;
+            }
+        }
+
+        span.open-modal {
+            cursor: pointer;
+        }
+
+        .right-block {
+            @include rem(margin-top, 50px);
+            @include rem(margin-left, 2%);
+
+            width: 58%;
+            height: auto;
+
+            .display-none {
+                display: none;
+            }
+
+            @media (min-width: $xs) and (max-width: $sm) {
+                @include rem(margin-top, 10px);
+
+                width: 100%;
+
+                .mobile-flex-container {
+                    display: flex;
+                    justify-content: space-between;
+
+                    .mobile-block {
+                        width: 55%;
+                        position: relative;
+
+                        @media (min-width: $xs-b) and (max-width: $sm) {
+                            width: 100%;
+                        }
+
+                        @media (min-width: $xs) and (max-width: $sm) {
+                            .cart-and-ipay {
+                                padding-bottom: 0;
+                                @include rem(margin-top, 30px);
+                            }
+                        }
+                    }
+
+                    @media (min-width: $xs-b) and (max-width: $sm) {
+                        display: block;
+                    }
+                }
+            }
+
+            @media (min-width: $sm-b) and (max-width: $sm-d) {
+                width: 60%;
+            }
+
+            .price {
+                @include rem(font-size, 14px);
+            }
+
+            img {
+                width: 100%;
+            }
+
+            .line-right-block {
+                .product {
+                    @include rem(width, 172px);
+                    @include rem(margin-left, 20px);
+                    @include rem(margin-bottom, 20px);
+
+                    position: relative;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+
+                    @media (min-width: $xs) and (max-width: $sm) {
+                        @include rem(margin-bottom, 25px);
+
+                        width: 100%;
+                        margin-left: 0;
+                        border-bottom: 1px solid #e0e0e0;
+                        flex-direction: row;
+                    }
+
+                    @media (min-width: $xs-b) and (max-width: $sm) {
+                        width: 48%;
+                        flex-direction: column;
+                    }
+
+                    .product-image-border {
+                        @include rem(margin-bottom, 10px);
+
+                        width: 100%;
+                        overflow: hidden;
+                        cursor: pointer;
+
+                        @media (min-width: $xs) and (max-width: $sm) {
+                            width: 35%;
+                        }
+
+                        @media (min-width: $xs-b) and (max-width: $sm) {
+                            width: auto;
+                            height: auto;
+                        }
+                    }
+
+                    .product-title {
+                        @include rem(font-size, 15px);
+                        @include rem(margin-bottom, 2px);
+
+                        font-weight: bold;
+
+                        @media (min-width: $xs) and (max-width: $sm) {
+                            @include rem(font-size, 16px);
+                        }
+                    }
+
+                    .product-price {
+                        @include rem(font-size, 15px);
+                        @include rem(margin-bottom, 10px);
+
+                        display: block;
+                        font-weight: bold;
+
+                        @media (min-width: $xs) and (max-width: $sm) {
+                            @include rem(font-size, 18px);
+
+                            margin-bottom: 0;
+                        }
+                    }
+
+                    .add-to-cart-block {
+                        position: relative;
+                        z-index: 1;
+
+                        .add-to-cart-overlay {
+                            position: absolute;
+                            left: 0;
+                            top: 0;
+                            width: 100%;
+                            height: 100%;
+                            z-index: 2;
+                            cursor: pointer;
+                            display: none;
+                        }
+
+                        button:disabled + span.add-to-cart-overlay {
+                            display: block;
+                        }
+
+                        @media (min-width: $xs) and (max-width: $sm) {
+                            @include rem(margin-bottom, 25px);
+                        }
+                    }
+
+                    button.add-to-cart {
+                        @include rem(height, 30px);
+                        @include rem(font-size, 13px);
+
+                        cursor: pointer;
+                        width: 100%;
+                        background-color: #000;
+                        border: none;
+                        outline: none;
+                        text-transform: uppercase;
+                        color: #fff;
+                        opacity: 1;
+
+                        @media (min-width: $xs) and (max-width: $sm) {
+                            @include rem(font-size, 12px);
+                        }
+                    }
+
+                    .price-block {
+                        @media (min-width: $xs) and (max-width: $sm) {
+                            @include rem(margin-bottom, 10px);
+                        }
+                    }
+
+                    .product-attr-block-parent {
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                        height: calc(100% - 30px);
+                        overflow-y: auto;
+                        background: #fff;
+                        margin-top: 0;
+                        display: none;
+                        z-index: 2;
+
+                        @media screen and (max-width: $sm) {
+                            @include rem(left, 2px);
+                            @include rem(bottom, 29px);
+                            @include rem(height, 200px);
+
+                            right: 0;
+                            top: inherit;
+                            margin: 0 auto;
+                        }
+
+                        @media screen and (max-width: 439px) { /* stylelint-disable-line scss/media-feature-value-dollar-variable */
+                            @include rem(bottom, 54px);
+
+                            height: 100%;
+                        }
+                    }
+
+                    .product-size-ref {
+                        background: #fff;
+                        color: #000;
+                        border: 1px #cbcbcb solid;
+                        @include rem(font-size, 13px);
+
+                        .product-size-ref-title {
+                            border-bottom: 1px solid #a0a0a0;
+                            @include rem(padding-left, 9px);
+                            @include rem(padding-right, 9px);
+                            @include rem(padding-top, 6px);
+                            @include rem(padding-bottom, 6px);
+                        }
+
+                        .product-size-ref-item {
+                            button {
+                                border-top: 0;
+                                border-left: 0;
+                                border-right: 0;
+                                background: #fff;
+                                color: #000;
+                                width: 100%;
+                                outline: none;
+                                text-align: left;
+                                border-bottom: 1px solid #cbcbcb;
+                                @include rem(padding-left, 9px);
+                                @include rem(padding-right, 9px);
+                                @include rem(padding-top, 6px);
+                                @include rem(padding-bottom, 6px);
+
+                                &:hover {
+                                    background: #f3f3f3;
+                                }
+
+                                &:disabled {
+                                    color: #868686;
+                                }
+
+                                &:active {
+                                    box-shadow: 1px 1px 7px -6px #000 inset;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.modal-mercaux-wrapper {
+    .modal {
+        padding-right: 0 !important;
+        z-index: 99;
+
+        .modal-content {
+            @include rem(min-height, 650px);
+
+            background: #fbfbfb;
+            border: none;
+        }
+
+        .modal-dialog {
+            @include rem(max-width, 1140px);
+            @include rem(margin-top, 30px);
+            @include rem(margin-bottom, 30px);
+            @include rem(padding-left, 20px);
+            @include rem(padding-right, 20px);
+
+            margin-left: auto;
+            margin-right: auto;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        .modal-body-mercaux {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            flex: 0 0 auto;
+            position: relative;
+        }
+    }
+}
+
+.modal-backdrop {
+    z-index: 98;
+}

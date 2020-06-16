@@ -1,0 +1,37 @@
+<isset name="productSet" value="${pdict.product}" scope="page" />
+
+<div class="item js-look-item" data-pid="${productSet.id}">
+    <div class="mercaux-image">
+        <a href="#" class="js-open-look-modal" data-custom-open="modal-1" data-toggle="modal"
+            data-target="#baseMercauxModal" data-url="${URLUtils.url('Mercaux-ShowModal')}" data-pid="${productSet.id}">
+            <img src="${productSet.image.absURL}" title="${productSet.image.title}" alt="${productSet.image.alt}" />
+        </a>
+    </div>
+
+    <div class="item-info">
+        <div class="flex-container item-top">
+            <div class="item-titles">
+                <span class="title">${productSet.name}</span>
+
+                <isif condition="${productSet.description}">
+                    <span class="subtitle">${productSet.description}</span>
+                </isif>
+            </div>
+
+            <isif condition="${productSet.likesCount}">
+                <div class="likes d-inline-flex">
+                    <span class="mr-2">${productSet.likesCount}</span>
+                    <span class="icon-like"></span>
+                </div>
+            </isif>
+        </div>
+
+        <div class="item-bottom">
+            <button class="slider-mercaux-btn js-open-look-modal" data-custom-open="modal-1" data-toggle="modal"
+                data-target="#baseMercauxModal" data-url="${URLUtils.url('Mercaux-ShowModal')}"
+                data-pid="${productSet.id}">
+                ${Resource.msg('button.slidebutton', 'int_mercaux_common', null)}
+            </button>
+        </div>
+    </div>
+</div>

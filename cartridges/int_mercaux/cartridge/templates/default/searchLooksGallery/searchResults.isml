@@ -1,0 +1,15 @@
+<isdecorate template="common/layout/page">
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets');
+        assets.addJs('/js/search.js'); 
+        assets.addJs('/js/looksGallery/main.js'); 
+        assets.addCss('/css/product/detail.css');
+        assets.addCss('/css/index.css');
+        assets.addCss('/css/pages/looksGallery.css');
+    </isscript>
+
+    <isinclude template="searchLooksGallery/searchLooksResult" />
+    
+    <!-- Modal -->
+    <isinclude template="modal/baseModal"/> 
+</isdecorate>

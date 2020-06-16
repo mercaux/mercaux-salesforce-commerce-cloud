@@ -1,0 +1,20 @@
+<div class="accordionItem">
+    <div class="acc-header flex-item-header" id="refHeading-sortBy">
+        <button class="btn collapsed" type="button" data-toggle="collapse" data-target="#refinement-sortBy"
+            aria-expanded="false" aria-controls="refinement-sortBy">
+            <div>
+                ${Resource.msg('label.sortby', 'int_mercaux_common', null)}
+            </div>
+
+            <div>
+                <i class="icon-accord-item"></i>
+            </div>
+        </button>
+    </div>
+
+    <div id="refinement-sortBy" class="collapse" aria-labelledby="refHeading-sortBy" data-parent="#accordionRefinement">
+        <div class="acc-content">
+            <isinclude template="searchLooksGallery/components/sortOrderMobile" />
+        </div>
+    </div>
+</div>

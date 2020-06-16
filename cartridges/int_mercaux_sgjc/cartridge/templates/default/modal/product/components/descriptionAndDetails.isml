@@ -1,0 +1,50 @@
+<div class="product-info">
+    <h2 class="visually-hidden">Additional Information</h2>
+    <isset name="vags" value="${pam.getVisibleAttributeGroups()}" scope="page" />
+    <isset name="showAttributes" value="${false}" scope="page" />
+    <isloop items="${vags}" var="AttributeGroup" status="loopstatus">
+        <isif condition="${AttributeGroup.ID != 'mainAttributes'}">
+            <isset name="showAttributes" value="${true}" scope="page" />
+        </isif>
+    </isloop>
+    <div class="tabs"> 
+        
+        <isif
+            condition="${!empty(pdict.Product.shortDescription) && pdict.Product.shortDescription.markup.length > 0}">
+            <div class="tab">
+                <input type="radio" name="css-tabs" id="tab-lookmodal-1" checked class="tab-switch">
+        <label for="tab-lookmodal-1" class="tab-label">${Resource.msg('product.tab.description', 'product', null)}</label>
+        <div class="tab-content">
+            <isprint value="${pdict.Product.shortDescription}" encoding="off" />
+        </div>
+    </div>
+    </isif>
+    <isif condition="${!empty(pdict.Product.longDescription) && pdict.Product.longDescription.markup.length > 0}">
+        <div class="tab">
+            <input type="radio" name="css-tabs" id="tab-lookmodal-2" class="tab-switch">
+            <label for="tab-lookmodal-2" class="tab-label">${Resource.msg('product.tab.details', 'product', null)}</label>
+            <div class="tab-content">
+                <isprint value="${pdict.Product.longDescription}" encoding="off" />
+            </div>
+        </div>
+    </isif>
+    <isif condition="${showAttributes}">
+        <div class="tab">
+            <input type="radio" name="css-tabs" id="tab-lookmodal-3" class="tab-switch">
+            <label for="tab-lookmodal-3" class="tab-label">${Resource.msg('product.tab.attributes', 'product', null)}</label>
+            <div class="tab-content">
+                <isloop items="${vags}" var="AttributeGroup" status="loopstatus">
+                    <isif condition="${AttributeGroup.ID != 'mainAttributes'}">
+                        <isset name="group" value="${AttributeGroup}" scope="page" />
+                        <h3>
+                            <isprint value="${group.getDisplayName()}" encoding="off" />
+                        </h3>
+                        <isinclude template="product/components/group" />
+                    </isif>
+                </isloop>
+            </div>
+        </div>
+    </isif>
+  
+</div>
+</div>

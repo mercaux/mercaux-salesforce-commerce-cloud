@@ -1,0 +1,18 @@
+<div class="ref-footer">
+    <div class="ref-result-count header-bar ref-footer-item">
+        <div class="pull-left d-md-none result-count">
+            <isinclude template="search/resultsCount" />
+        </div>
+    </div>
+
+    <div class="ref-clear-btn ref-footer-item">
+        <!--- Results count and Reset button --->
+        <isif condition="${pdict.productSearch.productIds.length > 0}">
+            <div class="refinement-bar">
+                <div class="secondary-bar">
+                    <button class="reset btn" data-href="${pdict.productSearch.resetLink}">Clear All</button>
+                </div>
+            </div>
+        </isif>
+    </div>
+</div>

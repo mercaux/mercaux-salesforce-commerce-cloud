@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog xmlns="http://www.demandware.com/xml/impex/catalog/2006-10-31" catalog-id="storefront-catalog-m-en">
+    <header>
+        <image-settings>
+            <internal-location base-path="/images"/>
+            <view-types>
+                <view-type>large</view-type>
+                <view-type>medium</view-type>
+                <view-type>small</view-type>
+                <view-type>swatch</view-type>
+                <view-type>hi-res</view-type>
+            </view-types>
+            <variation-attribute-id>color</variation-attribute-id>
+            <alt-pattern>${productname}, ${variationvalue}, ${viewtype}</alt-pattern>
+            <title-pattern>${productname}, ${variationvalue}</title-pattern>
+        </image-settings>
+    </header>
+
+    <category category-id="Looks">
+        <display-name xml:lang="x-default">Looks</display-name>
+        <online-flag>true</online-flag>
+        <parent>root</parent>
+        <template>searchLooksGallery/searchResults.isml</template>
+        <page-attributes/>
+        <custom-attributes>
+            <custom-attribute attribute-id="enableCompare">false</custom-attribute>
+            <custom-attribute attribute-id="showInMenu">true</custom-attribute>
+        </custom-attributes>
+        <refinement-definitions>
+            <refinement-definition type="attribute" bucket-type="none" attribute-id="lookType" system="false">
+                <display-name xml:lang="x-default">Look Type</display-name>
+                <value-set>refinement-category</value-set>
+                <sort-mode>value-name</sort-mode>
+                <sort-direction>ascending</sort-direction>
+                <cutoff-threshold>5</cutoff-threshold>
+            </refinement-definition>
+            <refinement-definition type="attribute" bucket-type="none" attribute-id="badges" system="false">
+                <display-name xml:lang="x-default">Badge</display-name>
+                <value-set>search-result</value-set>
+                <sort-mode>value-name</sort-mode>
+                <sort-direction>ascending</sort-direction>
+                <cutoff-threshold>5</cutoff-threshold>
+            </refinement-definition>
+            <blocked-refinement-definition type="attribute" attribute-id="manufacturerSKU" system="true"/>
+            <blocked-refinement-definition type="attribute" attribute-id="brand" system="true"/>
+            <blocked-refinement-definition type="attribute" attribute-id="isNew" system="false"/>
+            <blocked-refinement-definition type="price"/>
+            <blocked-refinement-definition type="attribute" attribute-id="refinementColor" system="false"/>
+            <blocked-refinement-definition type="category"/>
+        </refinement-definitions>
+    </category>
+
+</catalog>
