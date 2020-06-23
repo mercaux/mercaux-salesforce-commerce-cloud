@@ -47,10 +47,7 @@
                     <h4 class="title-left-block" itemprop="name">
                         <isprint value="${pdict.Product.name}" encoding="off" />
                     </h4>
-                    <div class="likes-count">
-                        ${pdict.Product.custom.likesCount} <span class="icon-like"></span>
-                    </div>
-                   
+                    
                     <span class="product-count d-lg-none d-md-none">${pdict.Product.productSetProducts.size().toFixed()}
                         items
                     </span>

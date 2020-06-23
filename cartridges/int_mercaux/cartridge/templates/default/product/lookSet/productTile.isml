@@ -18,11 +18,6 @@
         <div class="pdp-link flex-container">
             <a href="#" class="js-open-look-modal" data-custom-open="modal-1" data-toggle="modal"
             data-target="#baseMercauxModal" data-url="${URLUtils.url('Mercaux-ShowModal')}" data-pid="${product.id}">${product.productName}</a>
-
-            <div class="likes d-inline-flex">
-                <span class="likes-counter">${product.likesCount}</span>
-                <span class="icon-like"></span>
-            </div>
         </div>
 
         <div class="tile-body-footer">

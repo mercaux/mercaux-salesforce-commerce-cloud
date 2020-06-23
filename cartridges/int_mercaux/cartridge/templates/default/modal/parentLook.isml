@@ -4,7 +4,6 @@
     <div class="left-block">
         <div class="header-left-block flex-container">
             <h4 class="title-left-block">${productLook.productName}</h4>
-            <span class="icon-like"></span>
             <span class="product-count d-lg-none d-md-none">${productLook.individualProducts.length.toFixed()} ${Resource.msg('label.lookitems', 'int_mercaux_common', null)}
             </span>
         </div>

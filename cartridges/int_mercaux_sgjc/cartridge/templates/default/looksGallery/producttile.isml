@@ -112,11 +112,6 @@
 				data-target="#baseMercauxModal" data-url="${URLUtils.url('Mercaux-ShowModal')}" data-pid="${Product.ID}">
 					<isprint value="${Product.name}" encoding="off" />
 				</a>
-
-				<div class="likes"> 
-					<span class="likes-counter">${pdict.product.custom.likesCount}</span>
-					<span class="icon-like"></span>
-				</div>
 			</div> 
 		</div>
 

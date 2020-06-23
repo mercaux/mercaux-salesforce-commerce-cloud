@@ -17,12 +17,6 @@
                 </isif>
             </div>
 
-            <isif condition="${productSet.likesCount}">
-                <div class="likes d-inline-flex">
-                    <span class="mr-2">${productSet.likesCount}</span>
-                    <span class="icon-like"></span>
-                </div>
-            </isif>
         </div>
 
         <div class="item-bottom">
