@@ -10,9 +10,9 @@
 var params = request.httpParameterMap;
 
 /* Script Modules */
-var app = require('~/cartridge/scripts/app');
-var guard = require('~/cartridge/scripts/guard');
-var meta = require('~/cartridge/scripts/meta');
+var app = require('*/cartridge/scripts/app');
+var guard = require('*/cartridge/scripts/guard');
+var meta = require('*/cartridge/scripts/meta');
 
 /**
  * Renders the product page.
@@ -87,7 +87,7 @@ function getAvailability() {
     var product = Product.get(params.pid.stringValue);
 
     if (product.isVisible()) {
-        let r = require('~/cartridge/scripts/util/Response');
+        let r = require('*/cartridge/scripts/util/Response');
 
         r.renderJSON(product.getAvailability(params.Quantity.stringValue));
     } else {

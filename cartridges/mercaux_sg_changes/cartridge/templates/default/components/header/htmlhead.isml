@@ -82,8 +82,8 @@ If you are not using the build cartridge the comments can be safely removed.
 
 <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('mercaux_GlobalEnableStatus')}">
 <!-- Mercaux CSS Assets Include -->
-<link rel="stylesheet" href="${URLUtils.staticURL('/css/owl.carousel.min.css')}" />
-<link rel="stylesheet" href="${URLUtils.staticURL('/css/owl.theme.default.min.css')}" />
+<link rel="stylesheet" href="${URLUtils.staticURL('/css/owl/owl.carousel.min.css')}" />
+<link rel="stylesheet" href="${URLUtils.staticURL('/css/owl/owl.theme.default.min.css')}" />
 <link rel="stylesheet" href="${URLUtils.staticURL('/css/mercauxStyles.css')}" />
 </isif>
 
