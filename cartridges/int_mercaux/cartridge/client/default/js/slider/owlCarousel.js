@@ -76,6 +76,10 @@ function insertShopTheLookBtn() {
             handleShopTheLookBtn(selectors);
         }, 100));
     }
+
+    if (!isSliderOnPage && $destinationBtnBlock.length > 0) {
+        $destinationBtnBlock.remove();
+    }
 }
 
 /**
