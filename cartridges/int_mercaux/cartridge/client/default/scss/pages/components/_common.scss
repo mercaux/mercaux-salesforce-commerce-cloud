@@ -40,7 +40,7 @@
     display: inline-block;
     position: relative;
     transform: rotate(-45deg);
-    vertical-align: top;
+    vertical-align: center;
     @include rem(width, 13px);
     @include rem(height, 13px);
 }
