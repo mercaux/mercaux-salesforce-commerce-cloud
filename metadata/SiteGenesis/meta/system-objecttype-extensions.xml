@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">
+    <type-extension type-id="Product">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="badges">
+                <display-name xml:lang="x-default">Badges</display-name>
+                <type>set-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>true</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
+             <attribute-definition attribute-id="isMercauxLook">
+                <display-name xml:lang="x-default">isMercauxLook</display-name>
+                <type>boolean</type>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="likesCount">
+                <display-name xml:lang="x-default">Likes Count</display-name>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>true</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="lookType">
+                <display-name xml:lang="x-default">Look Type</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>true</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">Ordinary</display>
+                        <value>ordinary</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Signature</display>
+                        <value>signature</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Operational</display>
+                        <value>operational</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Social</display>
+                        <value>social</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Customer</display>
+                        <value>customer</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="MercauxLookAttrs">
+                <display-name xml:lang="x-default">Mercaux Look Attributes</display-name>
+                <attribute attribute-id="lookType"/>
+                <attribute attribute-id="badges"/>
+                <attribute attribute-id="likesCount"/>
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+
+    <type-extension type-id="SitePreferences">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="mercaux_CategoryID">
+                <display-name xml:lang="x-default">Default Look Gallery page Category ID</display-name>
+                <description xml:lang="x-default">Default category ID of Looks Gallery PLP</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <default-value>Looks</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="mercaux_GlobalEnableStatus">
+                <display-name xml:lang="x-default">Enable Cartridge Globally</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="mercaux_NumberRandomProducts">
+                <display-name xml:lang="x-default">Number of Products in Slider Slot Category</display-name>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>6</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="mercaux_NumberSearchResultsInSlots">
+                <display-name xml:lang="x-default">Number of Products in the one search result in slots</display-name>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>64</default-value>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="Mercaux Cartridge Settings">
+                <display-name xml:lang="x-default">Mercaux Cartridge Settings</display-name>
+                <attribute attribute-id="mercaux_CategoryID"/>
+                <attribute attribute-id="mercaux_NumberRandomProducts"/>
+                <attribute attribute-id="mercaux_GlobalEnableStatus"/>
+                <attribute attribute-id="mercaux_NumberSearchResultsInSlots"/>
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+
+
+</metadata>
+

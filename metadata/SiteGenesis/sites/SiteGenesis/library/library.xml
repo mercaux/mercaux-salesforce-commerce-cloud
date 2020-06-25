@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library xmlns="http://www.demandware.com/xml/impex/library/2006-10-31" library-id="SiteGenesisSharedLibrary">
+    <content content-id="mercaux-pdp-slider-looks-content">
+        <display-name xml:lang="x-default">Slider for Product Detail</display-name>
+        <online-flag>true</online-flag>
+        <searchable-flag>false</searchable-flag>
+        <template>slider/sliderCarousel.isml</template>
+        <page-attributes/>
+    </content>
+</library>
