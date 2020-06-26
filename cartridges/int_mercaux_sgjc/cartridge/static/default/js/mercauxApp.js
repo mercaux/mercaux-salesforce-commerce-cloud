@@ -1,4 +1,2264 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+/* eslint-disable no-console */
+/* eslint-disable camelcase */
+'use strict';
+/*
+ * This file contains Logic to send Analytics data to the backend
+ * endpoints via Analytics-Add controller
+ */
+
+/**
+ * Event name: Look displayed in a page
+ * @param {EventListenerObject} e - Event listener object
+ * @param {Array} looksIDs Product Look IDs
+ * @param {string} endpointURL Endpoint URL of request to do Analytic request
+ * @param {function} requestCb Request callback function
+ */
+function lookDiplayedInPage_event(e, looksIDs, endpointURL, requestCb) {
+    var $body = $(e.target);
+
+    var data = {
+        event: 'Look Displayed in Page',
+        what: looksIDs,
+        from: {
+            type: null
+        },
+        when: { timestamp: Date.now() }
+    };
+
+    var pageData = getTypeOfEventPage($body);
+    data.from = pageData;
+
+    requestCb(endpointURL, data);
+}
+
+/**
+ * Event name: Look pop-up displayed
+ * @param {EventListenerObject} e - Event listener object
+ * @param {string} lookID Product Look ID
+ * @param {string} endpointURL Endpoint URL of request to do Analytic request
+ * @param {function} requestCb Request callback function
+ */
+function lookPopupDisplayed_event(e, lookID, endpointURL, requestCb) {
+    var $body = $(e.target);
+
+    var data = {
+        event: 'Look Popup Displayed',
+        what: [lookID],
+        from: {
+            type: null
+        },
+        when: { timestamp: Date.now() }
+    };
+
+    var pageData = getTypeOfEventPage($body);
+    data.from = pageData;
+
+    requestCb(endpointURL, data);
+}
+
+/**
+ * Event name: From product pop-up (desktop only)
+ * @param {EventListenerObject} e - Event listener object
+ * @param {Object} data object with product data
+ * @param {string} endpointURL Endpoint URL of request to do Analytic request
+ * @param {function} requestCb Request callback function
+ */
+function fromProductPopUp_event(e, data, endpointURL, requestCb) {
+    var lookID = data.lookID;
+    var productSKU = data.productSKU;
+
+    var dataEventObj = {
+        event: 'From Product pop-up',
+        what: [productSKU],
+        from: {
+            type: null
+        },
+        when: { timestamp: Date.now() }
+    };
+
+    if (lookID) {
+        dataEventObj.from.type = 'Look ID';
+        dataEventObj.from.lookID = lookID;
+    }
+
+    requestCb(endpointURL, dataEventObj);
+}
+
+/**
+ * Event name: From add to basket button (mobile only)
+ * @param {EventListenerObject} e - Event listener object
+ * @param {Object} data object with product data
+ * @param {string} endpointURL Endpoint URL of request to do Analytic request
+ * @param {function} requestCb Request callback function
+ */
+function fromAddToBasketBtn_event(e, data, endpointURL, requestCb) {
+    var lookID = data.lookID;
+    var productSKU = data.productSKU;
+
+    var dataEventObj = {
+        event: 'From Add to Basket button (Mobile)',
+        what: [productSKU],
+        from: {
+            type: null
+        },
+        when: { timestamp: Date.now() }
+    };
+
+    if (lookID) {
+        dataEventObj.from.type = 'Look ID';
+        dataEventObj.from.lookID = lookID;
+    }
+
+    requestCb(endpointURL, dataEventObj);
+}
+
+/**
+ * Event name: Products added to basket
+ * @param {EventListenerObject} e - Event listener object
+ * @param {Object} data object with product data
+ * @param {string} endpointURL Endpoint URL of request to do Analytic request
+ * @param {function} requestCb Request callback function
+ */
+function productsAddedToBasket_event(e, data, endpointURL, requestCb) {
+    var lookID = data.lookID;
+    var productSKU = data.productSKU;
+    var $body = $(e.target);
+
+    var dataEventObj = {
+        event: 'Products added to basket',
+        what: [productSKU],
+        from: {
+            type: null
+        },
+        place: null,
+        when: { timestamp: Date.now() }
+    };
+
+    if (lookID) {
+        dataEventObj.from.type = 'Look ID';
+        dataEventObj.from.lookID = lookID;
+    }
+
+    var pageData = getTypeOfEventPage($body);
+    dataEventObj.place = pageData;
+
+    requestCb(endpointURL, dataEventObj);
+}
+
+/**
+ * Helper function to get type of Event page
+ * @param {JQuery} $body - Body element
+ * @returns {Object} Object with data of page type
+ */
+function getTypeOfEventPage($body) {
+    var result = {
+        type: '',
+        pid: null
+    };
+
+    var isHomepage = $body.find('div[class*="home"]').length > 0 || $body.find('.home-main').length > 0;
+    var isProductDetailPage = $body.find('.product-detail').length > 0;
+    var isLooksGalleryPage = $body.find('#LooksGalleryPage').length > 0;
+
+    if (isHomepage) {
+        result.type = 'Homepage';
+    } else if (isLooksGalleryPage) {
+        result.type = 'LooksGalleryPage';
+    } else if (isProductDetailPage) {
+        result.type = 'ProductDetail';
+        result.pid = $body.find('.pdp-main').find("input[name='pid']").val();
+    }
+
+    return result;
+}
+
+/**
+ *  Produces analytic requests to the backend side
+ *  @param {string} endpointURL Endpoint URL of request to do Analytic request
+ *  @param {Object} data contain object of analytic data for request
+ */
+function makeAnalyticsRequest(endpointURL, data) {
+    fetch(endpointURL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    }).then(() => {
+        // console.log('Analytics was sent');
+    }).catch(e => {
+        console.log(e);
+    });
+}
+
+module.exports = function () {
+    $(document).ready(function () {
+        var $analyticTag = $('.js-mercaux-analytics-tag');
+        var endpointURL = $analyticTag.attr('data-mercaux-analytics-url');
+
+        if ($analyticTag.length < 1) {
+            console.error('Analytics tag of Mercaux is not defined');
+            return;
+        }
+
+        $('body').on('analyticsMercaux:LookDisplayedInPage', function (e, data) {
+            lookDiplayedInPage_event(e, data.looksIDs, endpointURL, makeAnalyticsRequest);
+        });
+
+        $('body').on('analyticsMercaux:LookPopupDisplayed', function (e, data) {
+            lookPopupDisplayed_event(e, data.lookID, endpointURL, makeAnalyticsRequest);
+        });
+
+        $('body').on('analyticsMercaux:FromProductPopUp', function (e, data) {
+            fromProductPopUp_event(e, data, endpointURL, makeAnalyticsRequest);
+        });
+
+        $('body').on('analyticsMercaux:FromAddToBasketOnMobile', function (e, data) {
+            fromAddToBasketBtn_event(e, data, endpointURL, makeAnalyticsRequest);
+        });
+
+        $('body').on('analyticsMercaux:ProductsAddedToBasket', function (e, data) {
+            productsAddedToBasket_event(e, data, endpointURL, makeAnalyticsRequest);
+        });
+    });
+};
+
+},{}],2:[function(require,module,exports){
+/* eslint-disable no-mixed-operators */
+/* eslint-disable one-var */
+'use strict';
+
+/**
+ * copied from https://github.com/darkskyapp/string-hash
+ * @param {string} str - String to be used for hash
+ * @returns {number} unsigned int with bitshift
+ */
+function hashFn(str) {
+    var hash = 5381,
+        i = str.length;
+
+    while (i) {
+        hash = (hash * 33) ^ str.charCodeAt(--i);
+    }
+    /* JavaScript does bitwise operations (like XOR, above) on 32-bit signed
+    * integers. Since we want the results to be always positive, convert the
+    * signed int to an unsigned by doing an unsigned bitshift. */
+    return hash >>> 0;
+}
+
+/**
+ * Create rating based on hash ranging from 2-5
+ * @param {number} pid Product ID
+ * @returns {number} rating value
+ */
+function getRating(pid) {
+    return hashFn(pid.toString()) % 30 / 10 + 2;
+}
+
+module.exports = {
+    init: function () {
+        $('.product-review-look').each(function (index, review) {
+            var pid = $(review).data('pid');
+            if (!pid) {
+                return;
+            }
+            // rating range from 2 - 5
+            var rating = getRating(pid);
+            var baseRating = Math.floor(rating);
+            var starsCount = 0;
+            for (var i = 0; i < baseRating; i++) {
+                $('.rating', review).append('<i class="fa fa-star"></i>');
+                starsCount++;
+            }
+            // give half star for anything in between
+            if (rating > baseRating) {
+                $('.rating', review).append('<i class="fa fa-star-half-o"></i>');
+                starsCount++;
+            }
+            if (starsCount < 5) {
+                for (var j = 0; j < 5 - starsCount; j++) {
+                    $('.rating', review).append('<i class="fa fa-star-o"></i>');
+                }
+            }
+        });
+    }
+};
+
+},{}],3:[function(require,module,exports){
+/*!
+ * Generated using the Bootstrap Customizer (https://getbootstrap.com/docs/3.4/customize/)
+ */
+
+/*!
+ * Bootstrap v3.4.1 (https://getbootstrap.com/)
+ * Copyright 2011-2020 Twitter, Inc.
+ * Licensed under the MIT license
+ */
+
+if("undefined"==typeof jQuery)throw new Error("Bootstrap's JavaScript requires jQuery");+function(t){"use strict";var e=t.fn.jquery.split(" ")[0].split(".");if(e[0]<2&&e[1]<9||1==e[0]&&9==e[1]&&e[2]<1||e[0]>3)throw new Error("Bootstrap's JavaScript requires jQuery version 1.9.1 or higher, but lower than version 4")}(jQuery),+function(t){"use strict";function e(e){return this.each(function(){var i=t(this),n=i.data("bs.alert");n||i.data("bs.alert",n=new s(this)),"string"==typeof e&&n[e].call(i)})}var i='[data-dismiss="alert"]',s=function(e){t(e).on("click",i,this.close)};s.VERSION="3.4.1",s.TRANSITION_DURATION=150,s.prototype.close=function(e){function i(){o.detach().trigger("closed.bs.alert").remove()}var n=t(this),a=n.attr("data-target");a||(a=n.attr("href"),a=a&&a.replace(/.*(?=#[^\s]*$)/,"")),a="#"===a?[]:a;var o=t(document).find(a);e&&e.preventDefault(),o.length||(o=n.closest(".alert")),o.trigger(e=t.Event("close.bs.alert")),e.isDefaultPrevented()||(o.removeClass("in"),t.support.transition&&o.hasClass("fade")?o.one("bsTransitionEnd",i).emulateTransitionEnd(s.TRANSITION_DURATION):i())};var n=t.fn.alert;t.fn.alert=e,t.fn.alert.Constructor=s,t.fn.alert.noConflict=function(){return t.fn.alert=n,this},t(document).on("click.bs.alert.data-api",i,s.prototype.close)}(jQuery),+function(t){"use strict";function e(e){return this.each(function(){var s=t(this),n=s.data("bs.button"),a="object"==typeof e&&e;n||s.data("bs.button",n=new i(this,a)),"toggle"==e?n.toggle():e&&n.setState(e)})}var i=function(e,s){this.$element=t(e),this.options=t.extend({},i.DEFAULTS,s),this.isLoading=!1};i.VERSION="3.4.1",i.DEFAULTS={loadingText:"loading..."},i.prototype.setState=function(e){var i="disabled",s=this.$element,n=s.is("input")?"val":"html",a=s.data();e+="Text",null==a.resetText&&s.data("resetText",s[n]()),setTimeout(t.proxy(function(){s[n](null==a[e]?this.options[e]:a[e]),"loadingText"==e?(this.isLoading=!0,s.addClass(i).attr(i,i).prop(i,!0)):this.isLoading&&(this.isLoading=!1,s.removeClass(i).removeAttr(i).prop(i,!1))},this),0)},i.prototype.toggle=function(){var t=!0,e=this.$element.closest('[data-toggle="buttons"]');if(e.length){var i=this.$element.find("input");"radio"==i.prop("type")?(i.prop("checked")&&(t=!1),e.find(".active").removeClass("active"),this.$element.addClass("active")):"checkbox"==i.prop("type")&&(i.prop("checked")!==this.$element.hasClass("active")&&(t=!1),this.$element.toggleClass("active")),i.prop("checked",this.$element.hasClass("active")),t&&i.trigger("change")}else this.$element.attr("aria-pressed",!this.$element.hasClass("active")),this.$element.toggleClass("active")};var s=t.fn.button;t.fn.button=e,t.fn.button.Constructor=i,t.fn.button.noConflict=function(){return t.fn.button=s,this},t(document).on("click.bs.button.data-api",'[data-toggle^="button"]',function(i){var s=t(i.target).closest(".btn");e.call(s,"toggle"),t(i.target).is('input[type="radio"], input[type="checkbox"]')||(i.preventDefault(),s.is("input,button")?s.trigger("focus"):s.find("input:visible,button:visible").first().trigger("focus"))}).on("focus.bs.button.data-api blur.bs.button.data-api",'[data-toggle^="button"]',function(e){t(e.target).closest(".btn").toggleClass("focus",/^focus(in)?$/.test(e.type))})}(jQuery),+function(t){"use strict";function e(e){return this.each(function(){var s=t(this),n=s.data("bs.carousel"),a=t.extend({},i.DEFAULTS,s.data(),"object"==typeof e&&e),o="string"==typeof e?e:a.slide;n||s.data("bs.carousel",n=new i(this,a)),"number"==typeof e?n.to(e):o?n[o]():a.interval&&n.pause().cycle()})}var i=function(e,i){this.$element=t(e),this.$indicators=this.$element.find(".carousel-indicators"),this.options=i,this.paused=null,this.sliding=null,this.interval=null,this.$active=null,this.$items=null,this.options.keyboard&&this.$element.on("keydown.bs.carousel",t.proxy(this.keydown,this)),"hover"==this.options.pause&&!("ontouchstart"in document.documentElement)&&this.$element.on("mouseenter.bs.carousel",t.proxy(this.pause,this)).on("mouseleave.bs.carousel",t.proxy(this.cycle,this))};i.VERSION="3.4.1",i.TRANSITION_DURATION=600,i.DEFAULTS={interval:5e3,pause:"hover",wrap:!0,keyboard:!0},i.prototype.keydown=function(t){if(!/input|textarea/i.test(t.target.tagName)){switch(t.which){case 37:this.prev();break;case 39:this.next();break;default:return}t.preventDefault()}},i.prototype.cycle=function(e){return e||(this.paused=!1),this.interval&&clearInterval(this.interval),this.options.interval&&!this.paused&&(this.interval=setInterval(t.proxy(this.next,this),this.options.interval)),this},i.prototype.getItemIndex=function(t){return this.$items=t.parent().children(".item"),this.$items.index(t||this.$active)},i.prototype.getItemForDirection=function(t,e){var i=this.getItemIndex(e),s="prev"==t&&0===i||"next"==t&&i==this.$items.length-1;if(s&&!this.options.wrap)return e;var n="prev"==t?-1:1,a=(i+n)%this.$items.length;return this.$items.eq(a)},i.prototype.to=function(t){var e=this,i=this.getItemIndex(this.$active=this.$element.find(".item.active"));return t>this.$items.length-1||0>t?void 0:this.sliding?this.$element.one("slid.bs.carousel",function(){e.to(t)}):i==t?this.pause().cycle():this.slide(t>i?"next":"prev",this.$items.eq(t))},i.prototype.pause=function(e){return e||(this.paused=!0),this.$element.find(".next, .prev").length&&t.support.transition&&(this.$element.trigger(t.support.transition.end),this.cycle(!0)),this.interval=clearInterval(this.interval),this},i.prototype.next=function(){return this.sliding?void 0:this.slide("next")},i.prototype.prev=function(){return this.sliding?void 0:this.slide("prev")},i.prototype.slide=function(e,s){var n=this.$element.find(".item.active"),a=s||this.getItemForDirection(e,n),o=this.interval,r="next"==e?"left":"right",l=this;if(a.hasClass("active"))return this.sliding=!1;var d=a[0],h=t.Event("slide.bs.carousel",{relatedTarget:d,direction:r});if(this.$element.trigger(h),!h.isDefaultPrevented()){if(this.sliding=!0,o&&this.pause(),this.$indicators.length){this.$indicators.find(".active").removeClass("active");var c=t(this.$indicators.children()[this.getItemIndex(a)]);c&&c.addClass("active")}var p=t.Event("slid.bs.carousel",{relatedTarget:d,direction:r});return t.support.transition&&this.$element.hasClass("slide")?(a.addClass(e),"object"==typeof a&&a.length&&a[0].offsetWidth,n.addClass(r),a.addClass(r),n.one("bsTransitionEnd",function(){a.removeClass([e,r].join(" ")).addClass("active"),n.removeClass(["active",r].join(" ")),l.sliding=!1,setTimeout(function(){l.$element.trigger(p)},0)}).emulateTransitionEnd(i.TRANSITION_DURATION)):(n.removeClass("active"),a.addClass("active"),this.sliding=!1,this.$element.trigger(p)),o&&this.cycle(),this}};var s=t.fn.carousel;t.fn.carousel=e,t.fn.carousel.Constructor=i,t.fn.carousel.noConflict=function(){return t.fn.carousel=s,this};var n=function(i){var s=t(this),n=s.attr("href");n&&(n=n.replace(/.*(?=#[^\s]+$)/,""));var a=s.attr("data-target")||n,o=t(document).find(a);if(o.hasClass("carousel")){var r=t.extend({},o.data(),s.data()),l=s.attr("data-slide-to");l&&(r.interval=!1),e.call(o,r),l&&o.data("bs.carousel").to(l),i.preventDefault()}};t(document).on("click.bs.carousel.data-api","[data-slide]",n).on("click.bs.carousel.data-api","[data-slide-to]",n),t(window).on("load",function(){t('[data-ride="carousel"]').each(function(){var i=t(this);e.call(i,i.data())})})}(jQuery),+function(t){"use strict";function e(e,s){return this.each(function(){var n=t(this),a=n.data("bs.modal"),o=t.extend({},i.DEFAULTS,n.data(),"object"==typeof e&&e);a||n.data("bs.modal",a=new i(this,o)),"string"==typeof e?a[e](s):o.show&&a.show(s)})}var i=function(e,i){this.options=i,this.$body=t(document.body),this.$element=t(e),this.$dialog=this.$element.find(".modal-dialog"),this.$backdrop=null,this.isShown=null,this.originalBodyPad=null,this.scrollbarWidth=0,this.ignoreBackdropClick=!1,this.fixedContent=".navbar-fixed-top, .navbar-fixed-bottom",this.options.remote&&this.$element.find(".modal-content").load(this.options.remote,t.proxy(function(){this.$element.trigger("loaded.bs.modal")},this))};i.VERSION="3.4.1",i.TRANSITION_DURATION=300,i.BACKDROP_TRANSITION_DURATION=150,i.DEFAULTS={backdrop:!0,keyboard:!0,show:!0},i.prototype.toggle=function(t){return this.isShown?this.hide():this.show(t)},i.prototype.show=function(e){var s=this,n=t.Event("show.bs.modal",{relatedTarget:e});this.$element.trigger(n),this.isShown||n.isDefaultPrevented()||(this.isShown=!0,this.checkScrollbar(),this.setScrollbar(),this.$body.addClass("modal-open"),this.escape(),this.resize(),this.$element.on("click.dismiss.bs.modal",'[data-dismiss="modal"]',t.proxy(this.hide,this)),this.$dialog.on("mousedown.dismiss.bs.modal",function(){s.$element.one("mouseup.dismiss.bs.modal",function(e){t(e.target).is(s.$element)&&(s.ignoreBackdropClick=!0)})}),this.backdrop(function(){var n=t.support.transition&&s.$element.hasClass("fade");s.$element.parent().length||s.$element.appendTo(s.$body),s.$element.show().scrollTop(0),s.adjustDialog(),n&&s.$element[0].offsetWidth,s.$element.addClass("in"),s.enforceFocus();var a=t.Event("shown.bs.modal",{relatedTarget:e});n?s.$dialog.one("bsTransitionEnd",function(){s.$element.trigger("focus").trigger(a)}).emulateTransitionEnd(i.TRANSITION_DURATION):s.$element.trigger("focus").trigger(a)}))},i.prototype.hide=function(e){e&&e.preventDefault(),e=t.Event("hide.bs.modal"),this.$element.trigger(e),this.isShown&&!e.isDefaultPrevented()&&(this.isShown=!1,this.escape(),this.resize(),t(document).off("focusin.bs.modal"),this.$element.removeClass("in").off("click.dismiss.bs.modal").off("mouseup.dismiss.bs.modal"),this.$dialog.off("mousedown.dismiss.bs.modal"),t.support.transition&&this.$element.hasClass("fade")?this.$element.one("bsTransitionEnd",t.proxy(this.hideModal,this)).emulateTransitionEnd(i.TRANSITION_DURATION):this.hideModal())},i.prototype.enforceFocus=function(){t(document).off("focusin.bs.modal").on("focusin.bs.modal",t.proxy(function(t){document===t.target||this.$element[0]===t.target||this.$element.has(t.target).length||this.$element.trigger("focus")},this))},i.prototype.escape=function(){this.isShown&&this.options.keyboard?this.$element.on("keydown.dismiss.bs.modal",t.proxy(function(t){27==t.which&&this.hide()},this)):this.isShown||this.$element.off("keydown.dismiss.bs.modal")},i.prototype.resize=function(){this.isShown?t(window).on("resize.bs.modal",t.proxy(this.handleUpdate,this)):t(window).off("resize.bs.modal")},i.prototype.hideModal=function(){var t=this;this.$element.hide(),this.backdrop(function(){t.$body.removeClass("modal-open"),t.resetAdjustments(),t.resetScrollbar(),t.$element.trigger("hidden.bs.modal")})},i.prototype.removeBackdrop=function(){this.$backdrop&&this.$backdrop.remove(),this.$backdrop=null},i.prototype.backdrop=function(e){var s=this,n=this.$element.hasClass("fade")?"fade":"";if(this.isShown&&this.options.backdrop){var a=t.support.transition&&n;if(this.$backdrop=t(document.createElement("div")).addClass("modal-backdrop "+n).appendTo(this.$body),this.$element.on("click.dismiss.bs.modal",t.proxy(function(t){return this.ignoreBackdropClick?void(this.ignoreBackdropClick=!1):void(t.target===t.currentTarget&&("static"==this.options.backdrop?this.$element[0].focus():this.hide()))},this)),a&&this.$backdrop[0].offsetWidth,this.$backdrop.addClass("in"),!e)return;a?this.$backdrop.one("bsTransitionEnd",e).emulateTransitionEnd(i.BACKDROP_TRANSITION_DURATION):e()}else if(!this.isShown&&this.$backdrop){this.$backdrop.removeClass("in");var o=function(){s.removeBackdrop(),e&&e()};t.support.transition&&this.$element.hasClass("fade")?this.$backdrop.one("bsTransitionEnd",o).emulateTransitionEnd(i.BACKDROP_TRANSITION_DURATION):o()}else e&&e()},i.prototype.handleUpdate=function(){this.adjustDialog()},i.prototype.adjustDialog=function(){var t=this.$element[0].scrollHeight>document.documentElement.clientHeight;this.$element.css({paddingLeft:!this.bodyIsOverflowing&&t?this.scrollbarWidth:"",paddingRight:this.bodyIsOverflowing&&!t?this.scrollbarWidth:""})},i.prototype.resetAdjustments=function(){this.$element.css({paddingLeft:"",paddingRight:""})},i.prototype.checkScrollbar=function(){var t=window.innerWidth;if(!t){var e=document.documentElement.getBoundingClientRect();t=e.right-Math.abs(e.left)}this.bodyIsOverflowing=document.body.clientWidth<t,this.scrollbarWidth=this.measureScrollbar()},i.prototype.setScrollbar=function(){var e=parseInt(this.$body.css("padding-right")||0,10);this.originalBodyPad=document.body.style.paddingRight||"";var i=this.scrollbarWidth;this.bodyIsOverflowing&&(this.$body.css("padding-right",e+i),t(this.fixedContent).each(function(e,s){var n=s.style.paddingRight,a=t(s).css("padding-right");t(s).data("padding-right",n).css("padding-right",parseFloat(a)+i+"px")}))},i.prototype.resetScrollbar=function(){this.$body.css("padding-right",this.originalBodyPad),t(this.fixedContent).each(function(e,i){var s=t(i).data("padding-right");t(i).removeData("padding-right"),i.style.paddingRight=s?s:""})},i.prototype.measureScrollbar=function(){var t=document.createElement("div");t.className="modal-scrollbar-measure",this.$body.append(t);var e=t.offsetWidth-t.clientWidth;return this.$body[0].removeChild(t),e};var s=t.fn.modal;t.fn.modal=e,t.fn.modal.Constructor=i,t.fn.modal.noConflict=function(){return t.fn.modal=s,this},t(document).on("click.bs.modal.data-api",'[data-toggle="modal"]',function(i){var s=t(this),n=s.attr("href"),a=s.attr("data-target")||n&&n.replace(/.*(?=#[^\s]+$)/,""),o=t(document).find(a),r=o.data("bs.modal")?"toggle":t.extend({remote:!/#/.test(n)&&n},o.data(),s.data());s.is("a")&&i.preventDefault(),o.one("show.bs.modal",function(t){t.isDefaultPrevented()||o.one("hidden.bs.modal",function(){s.is(":visible")&&s.trigger("focus")})}),e.call(o,r,this)})}(jQuery),+function(t){"use strict";function e(e){return this.each(function(){var s=t(this),n=s.data("bs.tab");n||s.data("bs.tab",n=new i(this)),"string"==typeof e&&n[e]()})}var i=function(e){this.element=t(e)};i.VERSION="3.4.1",i.TRANSITION_DURATION=150,i.prototype.show=function(){var e=this.element,i=e.closest("ul:not(.dropdown-menu)"),s=e.data("target");if(s||(s=e.attr("href"),s=s&&s.replace(/.*(?=#[^\s]*$)/,"")),!e.parent("li").hasClass("active")){var n=i.find(".active:last a"),a=t.Event("hide.bs.tab",{relatedTarget:e[0]}),o=t.Event("show.bs.tab",{relatedTarget:n[0]});if(n.trigger(a),e.trigger(o),!o.isDefaultPrevented()&&!a.isDefaultPrevented()){var r=t(document).find(s);this.activate(e.closest("li"),i),this.activate(r,r.parent(),function(){n.trigger({type:"hidden.bs.tab",relatedTarget:e[0]}),e.trigger({type:"shown.bs.tab",relatedTarget:n[0]})})}}},i.prototype.activate=function(e,s,n){function a(){o.removeClass("active").find("> .dropdown-menu > .active").removeClass("active").end().find('[data-toggle="tab"]').attr("aria-expanded",!1),e.addClass("active").find('[data-toggle="tab"]').attr("aria-expanded",!0),r?(e[0].offsetWidth,e.addClass("in")):e.removeClass("fade"),e.parent(".dropdown-menu").length&&e.closest("li.dropdown").addClass("active").end().find('[data-toggle="tab"]').attr("aria-expanded",!0),n&&n()}var o=s.find("> .active"),r=n&&t.support.transition&&(o.length&&o.hasClass("fade")||!!s.find("> .fade").length);o.length&&r?o.one("bsTransitionEnd",a).emulateTransitionEnd(i.TRANSITION_DURATION):a(),o.removeClass("in")};var s=t.fn.tab;t.fn.tab=e,t.fn.tab.Constructor=i,t.fn.tab.noConflict=function(){return t.fn.tab=s,this};var n=function(i){i.preventDefault(),e.call(t(this),"show")};t(document).on("click.bs.tab.data-api",'[data-toggle="tab"]',n).on("click.bs.tab.data-api",'[data-toggle="pill"]',n)}(jQuery),+function(t){"use strict";function e(e){return this.each(function(){var s=t(this),n=s.data("bs.affix"),a="object"==typeof e&&e;n||s.data("bs.affix",n=new i(this,a)),"string"==typeof e&&n[e]()})}var i=function(e,s){this.options=t.extend({},i.DEFAULTS,s);var n=this.options.target===i.DEFAULTS.target?t(this.options.target):t(document).find(this.options.target);this.$target=n.on("scroll.bs.affix.data-api",t.proxy(this.checkPosition,this)).on("click.bs.affix.data-api",t.proxy(this.checkPositionWithEventLoop,this)),this.$element=t(e),this.affixed=null,this.unpin=null,this.pinnedOffset=null,this.checkPosition()};i.VERSION="3.4.1",i.RESET="affix affix-top affix-bottom",i.DEFAULTS={offset:0,target:window},i.prototype.getState=function(t,e,i,s){var n=this.$target.scrollTop(),a=this.$element.offset(),o=this.$target.height();if(null!=i&&"top"==this.affixed)return i>n?"top":!1;if("bottom"==this.affixed)return null!=i?n+this.unpin<=a.top?!1:"bottom":t-s>=n+o?!1:"bottom";var r=null==this.affixed,l=r?n:a.top,d=r?o:e;return null!=i&&i>=n?"top":null!=s&&l+d>=t-s?"bottom":!1},i.prototype.getPinnedOffset=function(){if(this.pinnedOffset)return this.pinnedOffset;this.$element.removeClass(i.RESET).addClass("affix");var t=this.$target.scrollTop(),e=this.$element.offset();return this.pinnedOffset=e.top-t},i.prototype.checkPositionWithEventLoop=function(){setTimeout(t.proxy(this.checkPosition,this),1)},i.prototype.checkPosition=function(){if(this.$element.is(":visible")){var e=this.$element.height(),s=this.options.offset,n=s.top,a=s.bottom,o=Math.max(t(document).height(),t(document.body).height());"object"!=typeof s&&(a=n=s),"function"==typeof n&&(n=s.top(this.$element)),"function"==typeof a&&(a=s.bottom(this.$element));var r=this.getState(o,e,n,a);if(this.affixed!=r){null!=this.unpin&&this.$element.css("top","");var l="affix"+(r?"-"+r:""),d=t.Event(l+".bs.affix");if(this.$element.trigger(d),d.isDefaultPrevented())return;this.affixed=r,this.unpin="bottom"==r?this.getPinnedOffset():null,this.$element.removeClass(i.RESET).addClass(l).trigger(l.replace("affix","affixed")+".bs.affix")}"bottom"==r&&this.$element.offset({top:o-e-a})}};var s=t.fn.affix;t.fn.affix=e,t.fn.affix.Constructor=i,t.fn.affix.noConflict=function(){return t.fn.affix=s,this},t(window).on("load",function(){t('[data-spy="affix"]').each(function(){var i=t(this),s=i.data();s.offset=s.offset||{},null!=s.offsetBottom&&(s.offset.bottom=s.offsetBottom),null!=s.offsetTop&&(s.offset.top=s.offsetTop),e.call(i,s)})})}(jQuery),+function(t){"use strict";function e(e){var i,s=e.attr("data-target")||(i=e.attr("href"))&&i.replace(/.*(?=#[^\s]+$)/,"");return t(document).find(s)}function i(e){return this.each(function(){var i=t(this),n=i.data("bs.collapse"),a=t.extend({},s.DEFAULTS,i.data(),"object"==typeof e&&e);!n&&a.toggle&&/show|hide/.test(e)&&(a.toggle=!1),n||i.data("bs.collapse",n=new s(this,a)),"string"==typeof e&&n[e]()})}var s=function(e,i){this.$element=t(e),this.options=t.extend({},s.DEFAULTS,i),this.$trigger=t('[data-toggle="collapse"][href="#'+e.id+'"],[data-toggle="collapse"][data-target="#'+e.id+'"]'),this.transitioning=null,this.options.parent?this.$parent=this.getParent():this.addAriaAndCollapsedClass(this.$element,this.$trigger),this.options.toggle&&this.toggle()};s.VERSION="3.4.1",s.TRANSITION_DURATION=350,s.DEFAULTS={toggle:!0},s.prototype.dimension=function(){var t=this.$element.hasClass("width");return t?"width":"height"},s.prototype.show=function(){if(!this.transitioning&&!this.$element.hasClass("in")){var e,n=this.$parent&&this.$parent.children(".panel").children(".in, .collapsing");if(!(n&&n.length&&(e=n.data("bs.collapse"),e&&e.transitioning))){var a=t.Event("show.bs.collapse");if(this.$element.trigger(a),!a.isDefaultPrevented()){n&&n.length&&(i.call(n,"hide"),e||n.data("bs.collapse",null));var o=this.dimension();this.$element.removeClass("collapse").addClass("collapsing")[o](0).attr("aria-expanded",!0),this.$trigger.removeClass("collapsed").attr("aria-expanded",!0),this.transitioning=1;var r=function(){this.$element.removeClass("collapsing").addClass("collapse in")[o](""),this.transitioning=0,this.$element.trigger("shown.bs.collapse")};if(!t.support.transition)return r.call(this);var l=t.camelCase(["scroll",o].join("-"));this.$element.one("bsTransitionEnd",t.proxy(r,this)).emulateTransitionEnd(s.TRANSITION_DURATION)[o](this.$element[0][l])}}}},s.prototype.hide=function(){if(!this.transitioning&&this.$element.hasClass("in")){var e=t.Event("hide.bs.collapse");if(this.$element.trigger(e),!e.isDefaultPrevented()){var i=this.dimension();this.$element[i](this.$element[i]())[0].offsetHeight,this.$element.addClass("collapsing").removeClass("collapse in").attr("aria-expanded",!1),this.$trigger.addClass("collapsed").attr("aria-expanded",!1),this.transitioning=1;var n=function(){this.transitioning=0,this.$element.removeClass("collapsing").addClass("collapse").trigger("hidden.bs.collapse")};return t.support.transition?void this.$element[i](0).one("bsTransitionEnd",t.proxy(n,this)).emulateTransitionEnd(s.TRANSITION_DURATION):n.call(this)}}},s.prototype.toggle=function(){this[this.$element.hasClass("in")?"hide":"show"]()},s.prototype.getParent=function(){return t(document).find(this.options.parent).find('[data-toggle="collapse"][data-parent="'+this.options.parent+'"]').each(t.proxy(function(i,s){var n=t(s);this.addAriaAndCollapsedClass(e(n),n)},this)).end()},s.prototype.addAriaAndCollapsedClass=function(t,e){var i=t.hasClass("in");t.attr("aria-expanded",i),e.toggleClass("collapsed",!i).attr("aria-expanded",i)};var n=t.fn.collapse;t.fn.collapse=i,t.fn.collapse.Constructor=s,t.fn.collapse.noConflict=function(){return t.fn.collapse=n,this},t(document).on("click.bs.collapse.data-api",'[data-toggle="collapse"]',function(s){var n=t(this);n.attr("data-target")||s.preventDefault();var a=e(n),o=a.data("bs.collapse"),r=o?"toggle":n.data();i.call(a,r)})}(jQuery),+function(t){"use strict";function e(){var t=document.createElement("bootstrap"),e={WebkitTransition:"webkitTransitionEnd",MozTransition:"transitionend",OTransition:"oTransitionEnd otransitionend",transition:"transitionend"};for(var i in e)if(void 0!==t.style[i])return{end:e[i]};return!1}t.fn.emulateTransitionEnd=function(e){var i=!1,s=this;t(this).one("bsTransitionEnd",function(){i=!0});var n=function(){i||t(s).trigger(t.support.transition.end)};return setTimeout(n,e),this},t(function(){t.support.transition=e(),t.support.transition&&(t.event.special.bsTransitionEnd={bindType:t.support.transition.end,delegateType:t.support.transition.end,handle:function(e){return t(e.target).is(this)?e.handleObj.handler.apply(this,arguments):void 0}})})}(jQuery);
+},{}],4:[function(require,module,exports){
+'use strict';
+
+module.exports = function () {
+    $(document).ready(function () {
+        require('./bootstrap.custom.min');
+    });
+};
+
+},{"./bootstrap.custom.min":3}],5:[function(require,module,exports){
+'use strict';
+
+var sliderInit = require('./slider');
+var libsInit = require('./libs');
+var analyticsInit = require('./analyticsMercaux');
+
+analyticsInit();
+libsInit();
+sliderInit();
+
+},{"./analyticsMercaux":1,"./libs":4,"./slider":7}],6:[function(require,module,exports){
+/* eslint-disable camelcase */
+/* eslint-disable no-console */
+'use strict';
+
+/**
+ * Init client-side JS code
+ */
+function init() {
+    var selectors = {
+        openProductOfLook: '.js-open-product-look',
+        openLookModal: '.js-open-look-modal',
+        backToBaseModal: '.js-back-to-base-modal',
+        modalBody: '.modal-body',
+        jsModalMercaux: '.js-modal-mercaux',
+        productBackBlock: '.js-back-btn-block'
+    };
+
+    var $jsModalMercaux = $(selectors.jsModalMercaux);
+
+    var CURRENT_WINDOW_WIDTH = 0;
+    var BREAKPOINT_MOBILE = 728;
+
+    $(window).on('load', onWindowChange);
+    $(window).resize(onWindowChange);
+
+    /*
+    *  Handler for Open Product of Look button event
+    */
+    $('body').on('click', selectors.openProductOfLook, function (e) {
+        if (CURRENT_WINDOW_WIDTH <= BREAKPOINT_MOBILE) {
+            e.preventDefault();
+            return;
+        }
+        var $selector = $(this);
+        var url = $selector.attr('data-url');
+        var pid = $selector.attr('data-pid');
+        var pidLook = $selector.attr('data-pid-look');
+
+        var backHtmlBtn = `<span class="arrow-back"></span>
+                <span
+                    class="back-mercaux-btn js-back-to-base-modal"
+                    data-url="${url}"
+                    data-pid=${pidLook}>
+                        Back
+                </span> `;
+
+        $(selectors.productBackBlock).append(backHtmlBtn);
+        $(selectors.productBackBlock).append("<span class='js-pid-look-child-product' data-pid-look='" + pidLook + "' />");
+
+        getProductData(url, pid, { childProduct: true });
+
+        // Analytics Mercaux
+        var productSKU = $(this).attr('data-product-sku');
+        trigger_FromProductPopUp_event(productSKU, pidLook);
+    });
+
+    /*
+    *  Handler for open modal with Looks event
+    */
+    $('body').on('click', selectors.openLookModal, function (e) {
+        e.preventDefault();
+        onProductDataLoad.call(this, { backBtn: false, childProduct: false });
+    });
+
+    /*
+    *  Handler for back button to move to base parent modal
+    */
+    $('body').on('click', selectors.backToBaseModal, function (e) {
+        e.preventDefault();
+        onProductDataLoad.call(this, { backBtn: true, childProduct: false });
+    });
+
+    /**
+     * On change window event listener
+     */
+    function onWindowChange() {
+        CURRENT_WINDOW_WIDTH = this.innerWidth;
+    }
+
+    /**
+      * Event listener method to handle product load logic
+      * @param {Object} options options object for modal handling
+      */
+    function onProductDataLoad(options) {
+        var $selector = $(this);
+
+        $(selectors.productBackBlock).empty();
+
+        var url = $selector.attr('data-url');
+        var pid = $selector.attr('data-pid');
+
+        // Analytics Mercaux
+        var sliderTargetAttr = $(this).attr('data-target');
+        if (sliderTargetAttr && pid) {
+            trigger_LookPopupDisplayed_event(pid);
+        }
+
+        getProductData(url, pid, options);
+    }
+
+    /**
+      * Method to handle product load logic from Controller API
+      * @param {string} url Endpoint URL to do request to get the data
+      * @param {string} pid Product ID
+      * @param {Object} options options object for modal handling
+      */
+    function getProductData(url, pid, options) {
+        var getUrl = url + '?pid=' + pid;
+
+        var isChildProduct = options && options.childProduct;
+        var isBackBtn = options && options.backBtn;
+
+        $jsModalMercaux.empty();
+
+        if (!pid) return;
+
+        $.ajax({
+            url: getUrl,
+            method: 'GET',
+            success: function (data) {
+                $jsModalMercaux.append(data);
+
+                if (isChildProduct || isBackBtn) {
+                    $('body').trigger('childModalProduct:loaded');
+                    return;
+                }
+                if (!isBackBtn || !isChildProduct) {
+                    $('body').trigger('lookModal:loaded');
+                    return;
+                }
+            },
+            error: function (e) {
+                console.error(e, 'Error modal!');
+            }
+        });
+    }
+
+    // Analytics Mercaux
+    $('body').on('click', '.js-product-look-parent-block', function (e) {
+        var $selector = $(e.target).parents('.js-product-look-parent-block');
+
+        setTimeout(function () {
+            var isProductAdded = $('.mini-cart-content').is(':visible');
+            var pidLook;
+            var productSKU;
+
+            // Trigger Analytic on mobile parent modal
+            if (isProductAdded && CURRENT_WINDOW_WIDTH <= BREAKPOINT_MOBILE) {
+                pidLook = $selector.attr('data-product-set-id');
+                productSKU = $selector.find('.product-title span.js-open-product-look').attr('data-product-sku');
+
+                trigger_FromAddToBasketMobile_event(productSKU, pidLook);
+            }
+
+            // Trigger Analytic on desktop parent modal
+            if (isProductAdded && CURRENT_WINDOW_WIDTH > BREAKPOINT_MOBILE) {
+                pidLook = $selector.attr('data-product-set-id');
+                productSKU = $selector.find('.product-title span.js-open-product-look').attr('data-product-sku');
+
+                trigger_ProductsAddedToBasket_event(productSKU, pidLook);
+            }
+        }, 1000);
+    });
+
+    /**
+     *  Logic for trigger analytic event
+     *  @param {string} lookID Product ID of Look type product
+     */
+    function trigger_LookPopupDisplayed_event(lookID) {
+        $('body').trigger('analyticsMercaux:LookPopupDisplayed', { lookID: lookID });
+    }
+
+    /**
+     *  Logic for trigger analytic event
+     *  @param {string} productSKU Product SKU
+     *  @param {string} lookID Product ID of Look type product
+     */
+    function trigger_FromProductPopUp_event(productSKU, lookID) {
+        $('body').trigger('analyticsMercaux:FromProductPopUp', { lookID: lookID, productSKU: productSKU });
+    }
+
+    /**
+     *  Logic for trigger analytic event
+     *  @param {string} productSKU Product SKU
+     *  @param {string} lookID Product ID of Look type product
+     */
+    function trigger_FromAddToBasketMobile_event(productSKU, lookID) {
+        $('body').trigger('analyticsMercaux:FromAddToBasketOnMobile', { lookID: lookID, productSKU: productSKU });
+    }
+
+    /**
+     *  Logic for trigger analytic event
+     *  @param {string} productSKU Product SKU
+     *  @param {string} lookID Product ID of Look type product
+     */
+    function trigger_ProductsAddedToBasket_event(productSKU, lookID) {
+        $('body').trigger('analyticsMercaux:ProductsAddedToBasket', { productSKU: productSKU, lookID: lookID });
+    }
+}
+
+module.exports = function () {
+    $(document).ready(function () {
+        init();
+    });
+};
+
+},{}],7:[function(require,module,exports){
+'use strict';
+
+var initOwlCarousel = require('./owlCarousel');
+var getProductSet = require('./getProductSet');
+var initModal = require('./modal');
+
+
+module.exports = function () {
+    initOwlCarousel();
+    getProductSet();
+    initModal();
+};
+
+},{"./getProductSet":6,"./modal":8,"./owlCarousel":9}],8:[function(require,module,exports){
+/* eslint-disable camelcase */
+'use strict';
+
+// Path to minicart.js file from app_storefront_core cartridge
+const minicartSetup = require('../../../../app_storefront_core/cartridge/js/minicart');
+// Path to product.js file from app_storefront_core cartridge
+const productSetup = require('../../../../app_storefront_core/cartridge/js/pages/product');
+const ratingLogic = require('../helpers/ratingLogic');
+
+window.MERCAUX_GLOBAL_ratingLogic = ratingLogic;
+
+/**
+ *  Init modal client-side logic
+ */
+function init() {
+    $(document).ready(function () {
+        initSizeDropdown();
+
+        $('body').on('hide.bs.modal', '#baseMercauxModal', function () {
+            $('#baseMercauxModal').find('.js-modal-mercaux').empty();
+            $('#pdpMainOld').attr('id', 'pdpMain');
+            $('#product-contentOld').attr('id', 'product-content');
+            $('#mini-cart').removeClass('openned-modal');
+        });
+
+        $('body').on('childModalProduct:loaded', function () {
+            minicartSetup.init();
+            productSetup.initializeEvents();
+        });
+
+        $('body').on('childProductContent.isml:loaded', function () {
+            ratingLogic.init();
+        });
+
+        $('body').on('lookModal:loaded', function () {
+            $('#pdpMain').attr('id', 'pdpMainOld');
+            $('#product-content').attr('id', 'product-contentOld');
+            $('#mini-cart').addClass('openned-modal');
+
+            minicartSetup.init();
+            productSetup.initializeEvents();
+        });
+
+        // Attach data to Mercaux Analytic in child Product modal
+        $('body').on('click', '.js-product-look-child-product', function (e) {
+            var $selector = $(e.target).parents('.js-product-look-child-product');
+            var $parentLookID = $(e.target).parents('.modal-body-mercaux').find('.js-pid-look-child-product').attr('data-pid-look') || null;
+
+            $('body').on('minicart:showed', function () {
+                var pidLook = $parentLookID;
+                var productSKU = $selector.find('h4.product-name').attr('data-product-sku');
+
+                trigger_ProductsAddedToBasket_event(productSKU, pidLook);
+            });
+        });
+
+        $('body').on('productVariationTileModal.isml:loaded', function (e, data) {
+           
+            var $productSelectedTile = $('.product[data-pid="' + data.selectedPID + '"]');
+            var $selectedSizeBtn = $productSelectedTile.find('.js-size-refinement-block .selectable.selected a.swatchanchor');
+            var $addToCartBtn = $productSelectedTile.find('button.add-to-cart');
+
+            var isMasterProduct = data.isMaster === "true";
+            if (isMasterProduct) {
+                $addToCartBtn.css('opacity', 1);
+                return;
+            }
+
+            if (!$addToCartBtn.disabled) {
+                $addToCartBtn.trigger('click');  
+                $addToCartBtn.css('opacity', 0.5).attr('disabled', 'disabled');
+            }
+
+            $('body').on('minicart:showed', function () {
+                setTimeout(function() {
+                    $selectedSizeBtn.trigger('click'); 
+                }, 1000);
+            }); 
+        });
+ 
+    });
+
+    /**
+     *  Logic for trigger analytic event
+     *  @param {string} productSKU product SKU
+     *  @param {string} lookID Look ID
+     */
+    function trigger_ProductsAddedToBasket_event(productSKU, lookID) {
+        $('body').trigger('analyticsMercaux:ProductsAddedToBasket', { productSKU: productSKU, lookID: lookID });
+    }
+
+    /**
+     *  Logic for Size dropdown of Add to Cart button on Parent Look popup
+     */
+    function initSizeDropdown() {
+        $('.product-size-ref-item .swatchanchor.disabled').on('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        $('.js-size-btn').each(function () {
+            var $button = $(this);
+            $button.on('click', function () {
+                $(this).find('button').trigger('change');
+            });
+        });
+
+        $('body').on('click', '.js-show-size-attr', function (e) {
+            var productTile = $(this).parents('.product-set-item');
+            var sizeBlockAttrs = productTile.find('.product-attr-block-parent');
+            var hasOpennedSizes = sizeBlockAttrs.hasClass('opened');
+
+            if (hasOpennedSizes) {
+                sizeBlockAttrs.hide('fast').removeClass('opened');
+                $(this).removeClass('hasOpened');
+            } else {
+                sizeBlockAttrs.show('fast').addClass('opened');
+                $(this).addClass('hasOpened');
+            }
+        });
+
+        $('body').on('mouseleave', '.modal-content-mercaux .product-set-item', function () {
+            var sizeBlockAttrs = $(this).find('.product-attr-block-parent.opened');
+            if (sizeBlockAttrs.length > 0) {
+                sizeBlockAttrs.hide('fast').removeClass('opened');
+                $(this).find('.add-to-cart-block .js-show-size-attr').removeClass('hasOpened');
+            }
+        });  
+    }
+}
+
+module.exports = init;
+
+},{"../../../../app_storefront_core/cartridge/js/minicart":19,"../../../../app_storefront_core/cartridge/js/pages/product":24,"../helpers/ratingLogic":2}],9:[function(require,module,exports){
+/* eslint-disable camelcase */
+'use strict';
+
+/**
+ * Init client-side JS code
+ */
+function init() {
+    $(document).ready(function () {
+        var owlMercaux = $('.owl-carousel');
+        owlMercaux.owlCarousel({
+            loop: false,
+            margin: 65,
+            nav: true,
+            dots: false,
+            mouseDrag: false,
+            touchDrag: false,
+            onInitialized: onOwlLoaded,
+            responsive: {
+                0: {
+                    items: 1,
+                    touchDrag: true,
+                    nav: true
+                },
+                600: {
+                    items: 3,
+                    touchDrag: true,
+                    nav: true
+                },
+                1000: {
+                    items: 3
+                }
+            }
+        });
+
+        /**
+         * OnLoad slider callback
+         * @param {Event} owlEvent event of loaded slider object
+         */
+        function onOwlLoaded(owlEvent) {
+            var $sliderBlock = $(owlEvent.target).parents('body').find('#SliderLooksCarousel');
+            if ($sliderBlock.length > 0) {
+                trigger_LookDisplayedInPage_event($sliderBlock);
+            }
+        }
+
+        insertShopTheLookBtn();
+    });
+}
+
+/**
+ *  Logic to handle insert Shop The Look btn on the PDP
+ */
+function insertShopTheLookBtn() {
+    var selectors = {
+        sliderID: '#SliderLooksCarousel',
+        blockButton: '.js-insert-shop-the-look-btn'
+    };
+    var isSliderOnPage = $(selectors.sliderID).length > 0;
+    var $destinationBtnBlock = $(selectors.blockButton);
+
+    if (!isSliderOnPage || $destinationBtnBlock.length < 1) {
+        $(selectors.blockButton).remove();
+    }
+
+    $('body').on('click', selectors.blockButton, function (e) {
+        e.preventDefault();
+        $('html, body').animate({
+            scrollTop: $(selectors.sliderID).offset().top
+        }, 1000);
+    });
+
+    if (isSliderOnPage) {
+        $(document).on('scroll', function () {
+            handleShopTheLookBtn(selectors);
+        });
+
+        handleShopTheLookBtn(selectors);
+    }
+}
+
+/**
+ *  Logic for trigger analytic event
+ *  @param {jQuery} $sliderBlock slider block selector
+ */
+function trigger_LookDisplayedInPage_event($sliderBlock) {
+    var slideItems = $sliderBlock.find('.js-look-item');
+    var looksIDs = [];
+
+    slideItems.each(function () {
+        var pid = $(this).attr('data-pid');
+        looksIDs.push(pid);
+    });
+
+    $('body').trigger('analyticsMercaux:LookDisplayedInPage', { looksIDs: looksIDs });
+}
+
+/**
+ *  Handle floating shop the look btn
+ *  @param {Object} selectors object with names of selector classNames and IDs
+ */
+function handleShopTheLookBtn(selectors) {
+    if (window.innerWidth > 568) {
+        return;
+    }
+
+    var sliderOffset = $(selectors.sliderID).offset().top;
+    var windowOffset = window.pageYOffset;
+
+    if (windowOffset + 500 > sliderOffset) {
+        $(selectors.blockButton).hide();
+    } else {
+        $(selectors.blockButton).show();
+    }
+}
+
+module.exports = init;
+
+},{}],10:[function(require,module,exports){
+(function (global){
+/*! https://mths.be/punycode v1.4.1 by @mathias */
+;(function(root) {
+
+	/** Detect free variables */
+	var freeExports = typeof exports == 'object' && exports &&
+		!exports.nodeType && exports;
+	var freeModule = typeof module == 'object' && module &&
+		!module.nodeType && module;
+	var freeGlobal = typeof global == 'object' && global;
+	if (
+		freeGlobal.global === freeGlobal ||
+		freeGlobal.window === freeGlobal ||
+		freeGlobal.self === freeGlobal
+	) {
+		root = freeGlobal;
+	}
+
+	/**
+	 * The `punycode` object.
+	 * @name punycode
+	 * @type Object
+	 */
+	var punycode,
+
+	/** Highest positive signed 32-bit float value */
+	maxInt = 2147483647, // aka. 0x7FFFFFFF or 2^31-1
+
+	/** Bootstring parameters */
+	base = 36,
+	tMin = 1,
+	tMax = 26,
+	skew = 38,
+	damp = 700,
+	initialBias = 72,
+	initialN = 128, // 0x80
+	delimiter = '-', // '\x2D'
+
+	/** Regular expressions */
+	regexPunycode = /^xn--/,
+	regexNonASCII = /[^\x20-\x7E]/, // unprintable ASCII chars + non-ASCII chars
+	regexSeparators = /[\x2E\u3002\uFF0E\uFF61]/g, // RFC 3490 separators
+
+	/** Error messages */
+	errors = {
+		'overflow': 'Overflow: input needs wider integers to process',
+		'not-basic': 'Illegal input >= 0x80 (not a basic code point)',
+		'invalid-input': 'Invalid input'
+	},
+
+	/** Convenience shortcuts */
+	baseMinusTMin = base - tMin,
+	floor = Math.floor,
+	stringFromCharCode = String.fromCharCode,
+
+	/** Temporary variable */
+	key;
+
+	/*--------------------------------------------------------------------------*/
+
+	/**
+	 * A generic error utility function.
+	 * @private
+	 * @param {String} type The error type.
+	 * @returns {Error} Throws a `RangeError` with the applicable error message.
+	 */
+	function error(type) {
+		throw new RangeError(errors[type]);
+	}
+
+	/**
+	 * A generic `Array#map` utility function.
+	 * @private
+	 * @param {Array} array The array to iterate over.
+	 * @param {Function} callback The function that gets called for every array
+	 * item.
+	 * @returns {Array} A new array of values returned by the callback function.
+	 */
+	function map(array, fn) {
+		var length = array.length;
+		var result = [];
+		while (length--) {
+			result[length] = fn(array[length]);
+		}
+		return result;
+	}
+
+	/**
+	 * A simple `Array#map`-like wrapper to work with domain name strings or email
+	 * addresses.
+	 * @private
+	 * @param {String} domain The domain name or email address.
+	 * @param {Function} callback The function that gets called for every
+	 * character.
+	 * @returns {Array} A new string of characters returned by the callback
+	 * function.
+	 */
+	function mapDomain(string, fn) {
+		var parts = string.split('@');
+		var result = '';
+		if (parts.length > 1) {
+			// In email addresses, only the domain name should be punycoded. Leave
+			// the local part (i.e. everything up to `@`) intact.
+			result = parts[0] + '@';
+			string = parts[1];
+		}
+		// Avoid `split(regex)` for IE8 compatibility. See #17.
+		string = string.replace(regexSeparators, '\x2E');
+		var labels = string.split('.');
+		var encoded = map(labels, fn).join('.');
+		return result + encoded;
+	}
+
+	/**
+	 * Creates an array containing the numeric code points of each Unicode
+	 * character in the string. While JavaScript uses UCS-2 internally,
+	 * this function will convert a pair of surrogate halves (each of which
+	 * UCS-2 exposes as separate characters) into a single code point,
+	 * matching UTF-16.
+	 * @see `punycode.ucs2.encode`
+	 * @see <https://mathiasbynens.be/notes/javascript-encoding>
+	 * @memberOf punycode.ucs2
+	 * @name decode
+	 * @param {String} string The Unicode input string (UCS-2).
+	 * @returns {Array} The new array of code points.
+	 */
+	function ucs2decode(string) {
+		var output = [],
+		    counter = 0,
+		    length = string.length,
+		    value,
+		    extra;
+		while (counter < length) {
+			value = string.charCodeAt(counter++);
+			if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
+				// high surrogate, and there is a next character
+				extra = string.charCodeAt(counter++);
+				if ((extra & 0xFC00) == 0xDC00) { // low surrogate
+					output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
+				} else {
+					// unmatched surrogate; only append this code unit, in case the next
+					// code unit is the high surrogate of a surrogate pair
+					output.push(value);
+					counter--;
+				}
+			} else {
+				output.push(value);
+			}
+		}
+		return output;
+	}
+
+	/**
+	 * Creates a string based on an array of numeric code points.
+	 * @see `punycode.ucs2.decode`
+	 * @memberOf punycode.ucs2
+	 * @name encode
+	 * @param {Array} codePoints The array of numeric code points.
+	 * @returns {String} The new Unicode string (UCS-2).
+	 */
+	function ucs2encode(array) {
+		return map(array, function(value) {
+			var output = '';
+			if (value > 0xFFFF) {
+				value -= 0x10000;
+				output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
+				value = 0xDC00 | value & 0x3FF;
+			}
+			output += stringFromCharCode(value);
+			return output;
+		}).join('');
+	}
+
+	/**
+	 * Converts a basic code point into a digit/integer.
+	 * @see `digitToBasic()`
+	 * @private
+	 * @param {Number} codePoint The basic numeric code point value.
+	 * @returns {Number} The numeric value of a basic code point (for use in
+	 * representing integers) in the range `0` to `base - 1`, or `base` if
+	 * the code point does not represent a value.
+	 */
+	function basicToDigit(codePoint) {
+		if (codePoint - 48 < 10) {
+			return codePoint - 22;
+		}
+		if (codePoint - 65 < 26) {
+			return codePoint - 65;
+		}
+		if (codePoint - 97 < 26) {
+			return codePoint - 97;
+		}
+		return base;
+	}
+
+	/**
+	 * Converts a digit/integer into a basic code point.
+	 * @see `basicToDigit()`
+	 * @private
+	 * @param {Number} digit The numeric value of a basic code point.
+	 * @returns {Number} The basic code point whose value (when used for
+	 * representing integers) is `digit`, which needs to be in the range
+	 * `0` to `base - 1`. If `flag` is non-zero, the uppercase form is
+	 * used; else, the lowercase form is used. The behavior is undefined
+	 * if `flag` is non-zero and `digit` has no uppercase form.
+	 */
+	function digitToBasic(digit, flag) {
+		//  0..25 map to ASCII a..z or A..Z
+		// 26..35 map to ASCII 0..9
+		return digit + 22 + 75 * (digit < 26) - ((flag != 0) << 5);
+	}
+
+	/**
+	 * Bias adaptation function as per section 3.4 of RFC 3492.
+	 * https://tools.ietf.org/html/rfc3492#section-3.4
+	 * @private
+	 */
+	function adapt(delta, numPoints, firstTime) {
+		var k = 0;
+		delta = firstTime ? floor(delta / damp) : delta >> 1;
+		delta += floor(delta / numPoints);
+		for (/* no initialization */; delta > baseMinusTMin * tMax >> 1; k += base) {
+			delta = floor(delta / baseMinusTMin);
+		}
+		return floor(k + (baseMinusTMin + 1) * delta / (delta + skew));
+	}
+
+	/**
+	 * Converts a Punycode string of ASCII-only symbols to a string of Unicode
+	 * symbols.
+	 * @memberOf punycode
+	 * @param {String} input The Punycode string of ASCII-only symbols.
+	 * @returns {String} The resulting string of Unicode symbols.
+	 */
+	function decode(input) {
+		// Don't use UCS-2
+		var output = [],
+		    inputLength = input.length,
+		    out,
+		    i = 0,
+		    n = initialN,
+		    bias = initialBias,
+		    basic,
+		    j,
+		    index,
+		    oldi,
+		    w,
+		    k,
+		    digit,
+		    t,
+		    /** Cached calculation results */
+		    baseMinusT;
+
+		// Handle the basic code points: let `basic` be the number of input code
+		// points before the last delimiter, or `0` if there is none, then copy
+		// the first basic code points to the output.
+
+		basic = input.lastIndexOf(delimiter);
+		if (basic < 0) {
+			basic = 0;
+		}
+
+		for (j = 0; j < basic; ++j) {
+			// if it's not a basic code point
+			if (input.charCodeAt(j) >= 0x80) {
+				error('not-basic');
+			}
+			output.push(input.charCodeAt(j));
+		}
+
+		// Main decoding loop: start just after the last delimiter if any basic code
+		// points were copied; start at the beginning otherwise.
+
+		for (index = basic > 0 ? basic + 1 : 0; index < inputLength; /* no final expression */) {
+
+			// `index` is the index of the next character to be consumed.
+			// Decode a generalized variable-length integer into `delta`,
+			// which gets added to `i`. The overflow checking is easier
+			// if we increase `i` as we go, then subtract off its starting
+			// value at the end to obtain `delta`.
+			for (oldi = i, w = 1, k = base; /* no condition */; k += base) {
+
+				if (index >= inputLength) {
+					error('invalid-input');
+				}
+
+				digit = basicToDigit(input.charCodeAt(index++));
+
+				if (digit >= base || digit > floor((maxInt - i) / w)) {
+					error('overflow');
+				}
+
+				i += digit * w;
+				t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
+
+				if (digit < t) {
+					break;
+				}
+
+				baseMinusT = base - t;
+				if (w > floor(maxInt / baseMinusT)) {
+					error('overflow');
+				}
+
+				w *= baseMinusT;
+
+			}
+
+			out = output.length + 1;
+			bias = adapt(i - oldi, out, oldi == 0);
+
+			// `i` was supposed to wrap around from `out` to `0`,
+			// incrementing `n` each time, so we'll fix that now:
+			if (floor(i / out) > maxInt - n) {
+				error('overflow');
+			}
+
+			n += floor(i / out);
+			i %= out;
+
+			// Insert `n` at position `i` of the output
+			output.splice(i++, 0, n);
+
+		}
+
+		return ucs2encode(output);
+	}
+
+	/**
+	 * Converts a string of Unicode symbols (e.g. a domain name label) to a
+	 * Punycode string of ASCII-only symbols.
+	 * @memberOf punycode
+	 * @param {String} input The string of Unicode symbols.
+	 * @returns {String} The resulting Punycode string of ASCII-only symbols.
+	 */
+	function encode(input) {
+		var n,
+		    delta,
+		    handledCPCount,
+		    basicLength,
+		    bias,
+		    j,
+		    m,
+		    q,
+		    k,
+		    t,
+		    currentValue,
+		    output = [],
+		    /** `inputLength` will hold the number of code points in `input`. */
+		    inputLength,
+		    /** Cached calculation results */
+		    handledCPCountPlusOne,
+		    baseMinusT,
+		    qMinusT;
+
+		// Convert the input in UCS-2 to Unicode
+		input = ucs2decode(input);
+
+		// Cache the length
+		inputLength = input.length;
+
+		// Initialize the state
+		n = initialN;
+		delta = 0;
+		bias = initialBias;
+
+		// Handle the basic code points
+		for (j = 0; j < inputLength; ++j) {
+			currentValue = input[j];
+			if (currentValue < 0x80) {
+				output.push(stringFromCharCode(currentValue));
+			}
+		}
+
+		handledCPCount = basicLength = output.length;
+
+		// `handledCPCount` is the number of code points that have been handled;
+		// `basicLength` is the number of basic code points.
+
+		// Finish the basic string - if it is not empty - with a delimiter
+		if (basicLength) {
+			output.push(delimiter);
+		}
+
+		// Main encoding loop:
+		while (handledCPCount < inputLength) {
+
+			// All non-basic code points < n have been handled already. Find the next
+			// larger one:
+			for (m = maxInt, j = 0; j < inputLength; ++j) {
+				currentValue = input[j];
+				if (currentValue >= n && currentValue < m) {
+					m = currentValue;
+				}
+			}
+
+			// Increase `delta` enough to advance the decoder's <n,i> state to <m,0>,
+			// but guard against overflow
+			handledCPCountPlusOne = handledCPCount + 1;
+			if (m - n > floor((maxInt - delta) / handledCPCountPlusOne)) {
+				error('overflow');
+			}
+
+			delta += (m - n) * handledCPCountPlusOne;
+			n = m;
+
+			for (j = 0; j < inputLength; ++j) {
+				currentValue = input[j];
+
+				if (currentValue < n && ++delta > maxInt) {
+					error('overflow');
+				}
+
+				if (currentValue == n) {
+					// Represent delta as a generalized variable-length integer
+					for (q = delta, k = base; /* no condition */; k += base) {
+						t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
+						if (q < t) {
+							break;
+						}
+						qMinusT = q - t;
+						baseMinusT = base - t;
+						output.push(
+							stringFromCharCode(digitToBasic(t + qMinusT % baseMinusT, 0))
+						);
+						q = floor(qMinusT / baseMinusT);
+					}
+
+					output.push(stringFromCharCode(digitToBasic(q, 0)));
+					bias = adapt(delta, handledCPCountPlusOne, handledCPCount == basicLength);
+					delta = 0;
+					++handledCPCount;
+				}
+			}
+
+			++delta;
+			++n;
+
+		}
+		return output.join('');
+	}
+
+	/**
+	 * Converts a Punycode string representing a domain name or an email address
+	 * to Unicode. Only the Punycoded parts of the input will be converted, i.e.
+	 * it doesn't matter if you call it on a string that has already been
+	 * converted to Unicode.
+	 * @memberOf punycode
+	 * @param {String} input The Punycoded domain name or email address to
+	 * convert to Unicode.
+	 * @returns {String} The Unicode representation of the given Punycode
+	 * string.
+	 */
+	function toUnicode(input) {
+		return mapDomain(input, function(string) {
+			return regexPunycode.test(string)
+				? decode(string.slice(4).toLowerCase())
+				: string;
+		});
+	}
+
+	/**
+	 * Converts a Unicode string representing a domain name or an email address to
+	 * Punycode. Only the non-ASCII parts of the domain name will be converted,
+	 * i.e. it doesn't matter if you call it with a domain that's already in
+	 * ASCII.
+	 * @memberOf punycode
+	 * @param {String} input The domain name or email address to convert, as a
+	 * Unicode string.
+	 * @returns {String} The Punycode representation of the given domain name or
+	 * email address.
+	 */
+	function toASCII(input) {
+		return mapDomain(input, function(string) {
+			return regexNonASCII.test(string)
+				? 'xn--' + encode(string)
+				: string;
+		});
+	}
+
+	/*--------------------------------------------------------------------------*/
+
+	/** Define the public API */
+	punycode = {
+		/**
+		 * A string representing the current Punycode.js version number.
+		 * @memberOf punycode
+		 * @type String
+		 */
+		'version': '1.4.1',
+		/**
+		 * An object of methods to convert from JavaScript's internal character
+		 * representation (UCS-2) to Unicode code points, and back.
+		 * @see <https://mathiasbynens.be/notes/javascript-encoding>
+		 * @memberOf punycode
+		 * @type Object
+		 */
+		'ucs2': {
+			'decode': ucs2decode,
+			'encode': ucs2encode
+		},
+		'decode': decode,
+		'encode': encode,
+		'toASCII': toASCII,
+		'toUnicode': toUnicode
+	};
+
+	/** Expose `punycode` */
+	// Some AMD build optimizers, like r.js, check for specific condition patterns
+	// like the following:
+	if (
+		typeof define == 'function' &&
+		typeof define.amd == 'object' &&
+		define.amd
+	) {
+		define('punycode', function() {
+			return punycode;
+		});
+	} else if (freeExports && freeModule) {
+		if (module.exports == freeExports) {
+			// in Node.js, io.js, or RingoJS v0.8.0+
+			freeModule.exports = punycode;
+		} else {
+			// in Narwhal or RingoJS v0.7.0-
+			for (key in punycode) {
+				punycode.hasOwnProperty(key) && (freeExports[key] = punycode[key]);
+			}
+		}
+	} else {
+		// in Rhino or a web browser
+		root.punycode = punycode;
+	}
+
+}(this));
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],11:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'use strict';
+
+// If obj.hasOwnProperty has been overridden, then calling
+// obj.hasOwnProperty(prop) will break.
+// See: https://github.com/joyent/node/issues/1707
+function hasOwnProperty(obj, prop) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
+module.exports = function(qs, sep, eq, options) {
+  sep = sep || '&';
+  eq = eq || '=';
+  var obj = {};
+
+  if (typeof qs !== 'string' || qs.length === 0) {
+    return obj;
+  }
+
+  var regexp = /\+/g;
+  qs = qs.split(sep);
+
+  var maxKeys = 1000;
+  if (options && typeof options.maxKeys === 'number') {
+    maxKeys = options.maxKeys;
+  }
+
+  var len = qs.length;
+  // maxKeys <= 0 means that we should not limit keys count
+  if (maxKeys > 0 && len > maxKeys) {
+    len = maxKeys;
+  }
+
+  for (var i = 0; i < len; ++i) {
+    var x = qs[i].replace(regexp, '%20'),
+        idx = x.indexOf(eq),
+        kstr, vstr, k, v;
+
+    if (idx >= 0) {
+      kstr = x.substr(0, idx);
+      vstr = x.substr(idx + 1);
+    } else {
+      kstr = x;
+      vstr = '';
+    }
+
+    k = decodeURIComponent(kstr);
+    v = decodeURIComponent(vstr);
+
+    if (!hasOwnProperty(obj, k)) {
+      obj[k] = v;
+    } else if (isArray(obj[k])) {
+      obj[k].push(v);
+    } else {
+      obj[k] = [obj[k], v];
+    }
+  }
+
+  return obj;
+};
+
+var isArray = Array.isArray || function (xs) {
+  return Object.prototype.toString.call(xs) === '[object Array]';
+};
+
+},{}],12:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'use strict';
+
+var stringifyPrimitive = function(v) {
+  switch (typeof v) {
+    case 'string':
+      return v;
+
+    case 'boolean':
+      return v ? 'true' : 'false';
+
+    case 'number':
+      return isFinite(v) ? v : '';
+
+    default:
+      return '';
+  }
+};
+
+module.exports = function(obj, sep, eq, name) {
+  sep = sep || '&';
+  eq = eq || '=';
+  if (obj === null) {
+    obj = undefined;
+  }
+
+  if (typeof obj === 'object') {
+    return map(objectKeys(obj), function(k) {
+      var ks = encodeURIComponent(stringifyPrimitive(k)) + eq;
+      if (isArray(obj[k])) {
+        return map(obj[k], function(v) {
+          return ks + encodeURIComponent(stringifyPrimitive(v));
+        }).join(sep);
+      } else {
+        return ks + encodeURIComponent(stringifyPrimitive(obj[k]));
+      }
+    }).join(sep);
+
+  }
+
+  if (!name) return '';
+  return encodeURIComponent(stringifyPrimitive(name)) + eq +
+         encodeURIComponent(stringifyPrimitive(obj));
+};
+
+var isArray = Array.isArray || function (xs) {
+  return Object.prototype.toString.call(xs) === '[object Array]';
+};
+
+function map (xs, f) {
+  if (xs.map) return xs.map(f);
+  var res = [];
+  for (var i = 0; i < xs.length; i++) {
+    res.push(f(xs[i], i));
+  }
+  return res;
+}
+
+var objectKeys = Object.keys || function (obj) {
+  var res = [];
+  for (var key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) res.push(key);
+  }
+  return res;
+};
+
+},{}],13:[function(require,module,exports){
+'use strict';
+
+exports.decode = exports.parse = require('./decode');
+exports.encode = exports.stringify = require('./encode');
+
+},{"./decode":11,"./encode":12}],14:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'use strict';
+
+var punycode = require('punycode');
+var util = require('./util');
+
+exports.parse = urlParse;
+exports.resolve = urlResolve;
+exports.resolveObject = urlResolveObject;
+exports.format = urlFormat;
+
+exports.Url = Url;
+
+function Url() {
+  this.protocol = null;
+  this.slashes = null;
+  this.auth = null;
+  this.host = null;
+  this.port = null;
+  this.hostname = null;
+  this.hash = null;
+  this.search = null;
+  this.query = null;
+  this.pathname = null;
+  this.path = null;
+  this.href = null;
+}
+
+// Reference: RFC 3986, RFC 1808, RFC 2396
+
+// define these here so at least they only have to be
+// compiled once on the first module load.
+var protocolPattern = /^([a-z0-9.+-]+:)/i,
+    portPattern = /:[0-9]*$/,
+
+    // Special case for a simple path URL
+    simplePathPattern = /^(\/\/?(?!\/)[^\?\s]*)(\?[^\s]*)?$/,
+
+    // RFC 2396: characters reserved for delimiting URLs.
+    // We actually just auto-escape these.
+    delims = ['<', '>', '"', '`', ' ', '\r', '\n', '\t'],
+
+    // RFC 2396: characters not allowed for various reasons.
+    unwise = ['{', '}', '|', '\\', '^', '`'].concat(delims),
+
+    // Allowed by RFCs, but cause of XSS attacks.  Always escape these.
+    autoEscape = ['\''].concat(unwise),
+    // Characters that are never ever allowed in a hostname.
+    // Note that any invalid chars are also handled, but these
+    // are the ones that are *expected* to be seen, so we fast-path
+    // them.
+    nonHostChars = ['%', '/', '?', ';', '#'].concat(autoEscape),
+    hostEndingChars = ['/', '?', '#'],
+    hostnameMaxLen = 255,
+    hostnamePartPattern = /^[+a-z0-9A-Z_-]{0,63}$/,
+    hostnamePartStart = /^([+a-z0-9A-Z_-]{0,63})(.*)$/,
+    // protocols that can allow "unsafe" and "unwise" chars.
+    unsafeProtocol = {
+      'javascript': true,
+      'javascript:': true
+    },
+    // protocols that never have a hostname.
+    hostlessProtocol = {
+      'javascript': true,
+      'javascript:': true
+    },
+    // protocols that always contain a // bit.
+    slashedProtocol = {
+      'http': true,
+      'https': true,
+      'ftp': true,
+      'gopher': true,
+      'file': true,
+      'http:': true,
+      'https:': true,
+      'ftp:': true,
+      'gopher:': true,
+      'file:': true
+    },
+    querystring = require('querystring');
+
+function urlParse(url, parseQueryString, slashesDenoteHost) {
+  if (url && util.isObject(url) && url instanceof Url) return url;
+
+  var u = new Url;
+  u.parse(url, parseQueryString, slashesDenoteHost);
+  return u;
+}
+
+Url.prototype.parse = function(url, parseQueryString, slashesDenoteHost) {
+  if (!util.isString(url)) {
+    throw new TypeError("Parameter 'url' must be a string, not " + typeof url);
+  }
+
+  // Copy chrome, IE, opera backslash-handling behavior.
+  // Back slashes before the query string get converted to forward slashes
+  // See: https://code.google.com/p/chromium/issues/detail?id=25916
+  var queryIndex = url.indexOf('?'),
+      splitter =
+          (queryIndex !== -1 && queryIndex < url.indexOf('#')) ? '?' : '#',
+      uSplit = url.split(splitter),
+      slashRegex = /\\/g;
+  uSplit[0] = uSplit[0].replace(slashRegex, '/');
+  url = uSplit.join(splitter);
+
+  var rest = url;
+
+  // trim before proceeding.
+  // This is to support parse stuff like "  http://foo.com  \n"
+  rest = rest.trim();
+
+  if (!slashesDenoteHost && url.split('#').length === 1) {
+    // Try fast path regexp
+    var simplePath = simplePathPattern.exec(rest);
+    if (simplePath) {
+      this.path = rest;
+      this.href = rest;
+      this.pathname = simplePath[1];
+      if (simplePath[2]) {
+        this.search = simplePath[2];
+        if (parseQueryString) {
+          this.query = querystring.parse(this.search.substr(1));
+        } else {
+          this.query = this.search.substr(1);
+        }
+      } else if (parseQueryString) {
+        this.search = '';
+        this.query = {};
+      }
+      return this;
+    }
+  }
+
+  var proto = protocolPattern.exec(rest);
+  if (proto) {
+    proto = proto[0];
+    var lowerProto = proto.toLowerCase();
+    this.protocol = lowerProto;
+    rest = rest.substr(proto.length);
+  }
+
+  // figure out if it's got a host
+  // user@server is *always* interpreted as a hostname, and url
+  // resolution will treat //foo/bar as host=foo,path=bar because that's
+  // how the browser resolves relative URLs.
+  if (slashesDenoteHost || proto || rest.match(/^\/\/[^@\/]+@[^@\/]+/)) {
+    var slashes = rest.substr(0, 2) === '//';
+    if (slashes && !(proto && hostlessProtocol[proto])) {
+      rest = rest.substr(2);
+      this.slashes = true;
+    }
+  }
+
+  if (!hostlessProtocol[proto] &&
+      (slashes || (proto && !slashedProtocol[proto]))) {
+
+    // there's a hostname.
+    // the first instance of /, ?, ;, or # ends the host.
+    //
+    // If there is an @ in the hostname, then non-host chars *are* allowed
+    // to the left of the last @ sign, unless some host-ending character
+    // comes *before* the @-sign.
+    // URLs are obnoxious.
+    //
+    // ex:
+    // http://a@b@c/ => user:a@b host:c
+    // http://a@b?@c => user:a host:c path:/?@c
+
+    // v0.12 TODO(isaacs): This is not quite how Chrome does things.
+    // Review our test case against browsers more comprehensively.
+
+    // find the first instance of any hostEndingChars
+    var hostEnd = -1;
+    for (var i = 0; i < hostEndingChars.length; i++) {
+      var hec = rest.indexOf(hostEndingChars[i]);
+      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
+        hostEnd = hec;
+    }
+
+    // at this point, either we have an explicit point where the
+    // auth portion cannot go past, or the last @ char is the decider.
+    var auth, atSign;
+    if (hostEnd === -1) {
+      // atSign can be anywhere.
+      atSign = rest.lastIndexOf('@');
+    } else {
+      // atSign must be in auth portion.
+      // http://a@b/c@d => host:b auth:a path:/c@d
+      atSign = rest.lastIndexOf('@', hostEnd);
+    }
+
+    // Now we have a portion which is definitely the auth.
+    // Pull that off.
+    if (atSign !== -1) {
+      auth = rest.slice(0, atSign);
+      rest = rest.slice(atSign + 1);
+      this.auth = decodeURIComponent(auth);
+    }
+
+    // the host is the remaining to the left of the first non-host char
+    hostEnd = -1;
+    for (var i = 0; i < nonHostChars.length; i++) {
+      var hec = rest.indexOf(nonHostChars[i]);
+      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
+        hostEnd = hec;
+    }
+    // if we still have not hit it, then the entire thing is a host.
+    if (hostEnd === -1)
+      hostEnd = rest.length;
+
+    this.host = rest.slice(0, hostEnd);
+    rest = rest.slice(hostEnd);
+
+    // pull out port.
+    this.parseHost();
+
+    // we've indicated that there is a hostname,
+    // so even if it's empty, it has to be present.
+    this.hostname = this.hostname || '';
+
+    // if hostname begins with [ and ends with ]
+    // assume that it's an IPv6 address.
+    var ipv6Hostname = this.hostname[0] === '[' &&
+        this.hostname[this.hostname.length - 1] === ']';
+
+    // validate a little.
+    if (!ipv6Hostname) {
+      var hostparts = this.hostname.split(/\./);
+      for (var i = 0, l = hostparts.length; i < l; i++) {
+        var part = hostparts[i];
+        if (!part) continue;
+        if (!part.match(hostnamePartPattern)) {
+          var newpart = '';
+          for (var j = 0, k = part.length; j < k; j++) {
+            if (part.charCodeAt(j) > 127) {
+              // we replace non-ASCII char with a temporary placeholder
+              // we need this to make sure size of hostname is not
+              // broken by replacing non-ASCII by nothing
+              newpart += 'x';
+            } else {
+              newpart += part[j];
+            }
+          }
+          // we test again with ASCII char only
+          if (!newpart.match(hostnamePartPattern)) {
+            var validParts = hostparts.slice(0, i);
+            var notHost = hostparts.slice(i + 1);
+            var bit = part.match(hostnamePartStart);
+            if (bit) {
+              validParts.push(bit[1]);
+              notHost.unshift(bit[2]);
+            }
+            if (notHost.length) {
+              rest = '/' + notHost.join('.') + rest;
+            }
+            this.hostname = validParts.join('.');
+            break;
+          }
+        }
+      }
+    }
+
+    if (this.hostname.length > hostnameMaxLen) {
+      this.hostname = '';
+    } else {
+      // hostnames are always lower case.
+      this.hostname = this.hostname.toLowerCase();
+    }
+
+    if (!ipv6Hostname) {
+      // IDNA Support: Returns a punycoded representation of "domain".
+      // It only converts parts of the domain name that
+      // have non-ASCII characters, i.e. it doesn't matter if
+      // you call it with a domain that already is ASCII-only.
+      this.hostname = punycode.toASCII(this.hostname);
+    }
+
+    var p = this.port ? ':' + this.port : '';
+    var h = this.hostname || '';
+    this.host = h + p;
+    this.href += this.host;
+
+    // strip [ and ] from the hostname
+    // the host field still retains them, though
+    if (ipv6Hostname) {
+      this.hostname = this.hostname.substr(1, this.hostname.length - 2);
+      if (rest[0] !== '/') {
+        rest = '/' + rest;
+      }
+    }
+  }
+
+  // now rest is set to the post-host stuff.
+  // chop off any delim chars.
+  if (!unsafeProtocol[lowerProto]) {
+
+    // First, make 100% sure that any "autoEscape" chars get
+    // escaped, even if encodeURIComponent doesn't think they
+    // need to be.
+    for (var i = 0, l = autoEscape.length; i < l; i++) {
+      var ae = autoEscape[i];
+      if (rest.indexOf(ae) === -1)
+        continue;
+      var esc = encodeURIComponent(ae);
+      if (esc === ae) {
+        esc = escape(ae);
+      }
+      rest = rest.split(ae).join(esc);
+    }
+  }
+
+
+  // chop off from the tail first.
+  var hash = rest.indexOf('#');
+  if (hash !== -1) {
+    // got a fragment string.
+    this.hash = rest.substr(hash);
+    rest = rest.slice(0, hash);
+  }
+  var qm = rest.indexOf('?');
+  if (qm !== -1) {
+    this.search = rest.substr(qm);
+    this.query = rest.substr(qm + 1);
+    if (parseQueryString) {
+      this.query = querystring.parse(this.query);
+    }
+    rest = rest.slice(0, qm);
+  } else if (parseQueryString) {
+    // no query string, but parseQueryString still requested
+    this.search = '';
+    this.query = {};
+  }
+  if (rest) this.pathname = rest;
+  if (slashedProtocol[lowerProto] &&
+      this.hostname && !this.pathname) {
+    this.pathname = '/';
+  }
+
+  //to support http.request
+  if (this.pathname || this.search) {
+    var p = this.pathname || '';
+    var s = this.search || '';
+    this.path = p + s;
+  }
+
+  // finally, reconstruct the href based on what has been validated.
+  this.href = this.format();
+  return this;
+};
+
+// format a parsed object into a url string
+function urlFormat(obj) {
+  // ensure it's an object, and not a string url.
+  // If it's an obj, this is a no-op.
+  // this way, you can call url_format() on strings
+  // to clean up potentially wonky urls.
+  if (util.isString(obj)) obj = urlParse(obj);
+  if (!(obj instanceof Url)) return Url.prototype.format.call(obj);
+  return obj.format();
+}
+
+Url.prototype.format = function() {
+  var auth = this.auth || '';
+  if (auth) {
+    auth = encodeURIComponent(auth);
+    auth = auth.replace(/%3A/i, ':');
+    auth += '@';
+  }
+
+  var protocol = this.protocol || '',
+      pathname = this.pathname || '',
+      hash = this.hash || '',
+      host = false,
+      query = '';
+
+  if (this.host) {
+    host = auth + this.host;
+  } else if (this.hostname) {
+    host = auth + (this.hostname.indexOf(':') === -1 ?
+        this.hostname :
+        '[' + this.hostname + ']');
+    if (this.port) {
+      host += ':' + this.port;
+    }
+  }
+
+  if (this.query &&
+      util.isObject(this.query) &&
+      Object.keys(this.query).length) {
+    query = querystring.stringify(this.query);
+  }
+
+  var search = this.search || (query && ('?' + query)) || '';
+
+  if (protocol && protocol.substr(-1) !== ':') protocol += ':';
+
+  // only the slashedProtocols get the //.  Not mailto:, xmpp:, etc.
+  // unless they had them to begin with.
+  if (this.slashes ||
+      (!protocol || slashedProtocol[protocol]) && host !== false) {
+    host = '//' + (host || '');
+    if (pathname && pathname.charAt(0) !== '/') pathname = '/' + pathname;
+  } else if (!host) {
+    host = '';
+  }
+
+  if (hash && hash.charAt(0) !== '#') hash = '#' + hash;
+  if (search && search.charAt(0) !== '?') search = '?' + search;
+
+  pathname = pathname.replace(/[?#]/g, function(match) {
+    return encodeURIComponent(match);
+  });
+  search = search.replace('#', '%23');
+
+  return protocol + host + pathname + search + hash;
+};
+
+function urlResolve(source, relative) {
+  return urlParse(source, false, true).resolve(relative);
+}
+
+Url.prototype.resolve = function(relative) {
+  return this.resolveObject(urlParse(relative, false, true)).format();
+};
+
+function urlResolveObject(source, relative) {
+  if (!source) return relative;
+  return urlParse(source, false, true).resolveObject(relative);
+}
+
+Url.prototype.resolveObject = function(relative) {
+  if (util.isString(relative)) {
+    var rel = new Url();
+    rel.parse(relative, false, true);
+    relative = rel;
+  }
+
+  var result = new Url();
+  var tkeys = Object.keys(this);
+  for (var tk = 0; tk < tkeys.length; tk++) {
+    var tkey = tkeys[tk];
+    result[tkey] = this[tkey];
+  }
+
+  // hash is always overridden, no matter what.
+  // even href="" will remove it.
+  result.hash = relative.hash;
+
+  // if the relative url is empty, then there's nothing left to do here.
+  if (relative.href === '') {
+    result.href = result.format();
+    return result;
+  }
+
+  // hrefs like //foo/bar always cut to the protocol.
+  if (relative.slashes && !relative.protocol) {
+    // take everything except the protocol from relative
+    var rkeys = Object.keys(relative);
+    for (var rk = 0; rk < rkeys.length; rk++) {
+      var rkey = rkeys[rk];
+      if (rkey !== 'protocol')
+        result[rkey] = relative[rkey];
+    }
+
+    //urlParse appends trailing / to urls like http://www.example.com
+    if (slashedProtocol[result.protocol] &&
+        result.hostname && !result.pathname) {
+      result.path = result.pathname = '/';
+    }
+
+    result.href = result.format();
+    return result;
+  }
+
+  if (relative.protocol && relative.protocol !== result.protocol) {
+    // if it's a known url protocol, then changing
+    // the protocol does weird things
+    // first, if it's not file:, then we MUST have a host,
+    // and if there was a path
+    // to begin with, then we MUST have a path.
+    // if it is file:, then the host is dropped,
+    // because that's known to be hostless.
+    // anything else is assumed to be absolute.
+    if (!slashedProtocol[relative.protocol]) {
+      var keys = Object.keys(relative);
+      for (var v = 0; v < keys.length; v++) {
+        var k = keys[v];
+        result[k] = relative[k];
+      }
+      result.href = result.format();
+      return result;
+    }
+
+    result.protocol = relative.protocol;
+    if (!relative.host && !hostlessProtocol[relative.protocol]) {
+      var relPath = (relative.pathname || '').split('/');
+      while (relPath.length && !(relative.host = relPath.shift()));
+      if (!relative.host) relative.host = '';
+      if (!relative.hostname) relative.hostname = '';
+      if (relPath[0] !== '') relPath.unshift('');
+      if (relPath.length < 2) relPath.unshift('');
+      result.pathname = relPath.join('/');
+    } else {
+      result.pathname = relative.pathname;
+    }
+    result.search = relative.search;
+    result.query = relative.query;
+    result.host = relative.host || '';
+    result.auth = relative.auth;
+    result.hostname = relative.hostname || relative.host;
+    result.port = relative.port;
+    // to support http.request
+    if (result.pathname || result.search) {
+      var p = result.pathname || '';
+      var s = result.search || '';
+      result.path = p + s;
+    }
+    result.slashes = result.slashes || relative.slashes;
+    result.href = result.format();
+    return result;
+  }
+
+  var isSourceAbs = (result.pathname && result.pathname.charAt(0) === '/'),
+      isRelAbs = (
+          relative.host ||
+          relative.pathname && relative.pathname.charAt(0) === '/'
+      ),
+      mustEndAbs = (isRelAbs || isSourceAbs ||
+                    (result.host && relative.pathname)),
+      removeAllDots = mustEndAbs,
+      srcPath = result.pathname && result.pathname.split('/') || [],
+      relPath = relative.pathname && relative.pathname.split('/') || [],
+      psychotic = result.protocol && !slashedProtocol[result.protocol];
+
+  // if the url is a non-slashed url, then relative
+  // links like ../.. should be able
+  // to crawl up to the hostname, as well.  This is strange.
+  // result.protocol has already been set by now.
+  // Later on, put the first path part into the host field.
+  if (psychotic) {
+    result.hostname = '';
+    result.port = null;
+    if (result.host) {
+      if (srcPath[0] === '') srcPath[0] = result.host;
+      else srcPath.unshift(result.host);
+    }
+    result.host = '';
+    if (relative.protocol) {
+      relative.hostname = null;
+      relative.port = null;
+      if (relative.host) {
+        if (relPath[0] === '') relPath[0] = relative.host;
+        else relPath.unshift(relative.host);
+      }
+      relative.host = null;
+    }
+    mustEndAbs = mustEndAbs && (relPath[0] === '' || srcPath[0] === '');
+  }
+
+  if (isRelAbs) {
+    // it's absolute.
+    result.host = (relative.host || relative.host === '') ?
+                  relative.host : result.host;
+    result.hostname = (relative.hostname || relative.hostname === '') ?
+                      relative.hostname : result.hostname;
+    result.search = relative.search;
+    result.query = relative.query;
+    srcPath = relPath;
+    // fall through to the dot-handling below.
+  } else if (relPath.length) {
+    // it's relative
+    // throw away the existing file, and take the new path instead.
+    if (!srcPath) srcPath = [];
+    srcPath.pop();
+    srcPath = srcPath.concat(relPath);
+    result.search = relative.search;
+    result.query = relative.query;
+  } else if (!util.isNullOrUndefined(relative.search)) {
+    // just pull out the search.
+    // like href='?foo'.
+    // Put this after the other two cases because it simplifies the booleans
+    if (psychotic) {
+      result.hostname = result.host = srcPath.shift();
+      //occationaly the auth can get stuck only in host
+      //this especially happens in cases like
+      //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
+      var authInHost = result.host && result.host.indexOf('@') > 0 ?
+                       result.host.split('@') : false;
+      if (authInHost) {
+        result.auth = authInHost.shift();
+        result.host = result.hostname = authInHost.shift();
+      }
+    }
+    result.search = relative.search;
+    result.query = relative.query;
+    //to support http.request
+    if (!util.isNull(result.pathname) || !util.isNull(result.search)) {
+      result.path = (result.pathname ? result.pathname : '') +
+                    (result.search ? result.search : '');
+    }
+    result.href = result.format();
+    return result;
+  }
+
+  if (!srcPath.length) {
+    // no path at all.  easy.
+    // we've already handled the other stuff above.
+    result.pathname = null;
+    //to support http.request
+    if (result.search) {
+      result.path = '/' + result.search;
+    } else {
+      result.path = null;
+    }
+    result.href = result.format();
+    return result;
+  }
+
+  // if a url ENDs in . or .., then it must get a trailing slash.
+  // however, if it ends in anything else non-slashy,
+  // then it must NOT get a trailing slash.
+  var last = srcPath.slice(-1)[0];
+  var hasTrailingSlash = (
+      (result.host || relative.host || srcPath.length > 1) &&
+      (last === '.' || last === '..') || last === '');
+
+  // strip single dots, resolve double dots to parent dir
+  // if the path tries to go above the root, `up` ends up > 0
+  var up = 0;
+  for (var i = srcPath.length; i >= 0; i--) {
+    last = srcPath[i];
+    if (last === '.') {
+      srcPath.splice(i, 1);
+    } else if (last === '..') {
+      srcPath.splice(i, 1);
+      up++;
+    } else if (up) {
+      srcPath.splice(i, 1);
+      up--;
+    }
+  }
+
+  // if the path is allowed to go above the root, restore leading ..s
+  if (!mustEndAbs && !removeAllDots) {
+    for (; up--; up) {
+      srcPath.unshift('..');
+    }
+  }
+
+  if (mustEndAbs && srcPath[0] !== '' &&
+      (!srcPath[0] || srcPath[0].charAt(0) !== '/')) {
+    srcPath.unshift('');
+  }
+
+  if (hasTrailingSlash && (srcPath.join('/').substr(-1) !== '/')) {
+    srcPath.push('');
+  }
+
+  var isAbsolute = srcPath[0] === '' ||
+      (srcPath[0] && srcPath[0].charAt(0) === '/');
+
+  // put the host back
+  if (psychotic) {
+    result.hostname = result.host = isAbsolute ? '' :
+                                    srcPath.length ? srcPath.shift() : '';
+    //occationaly the auth can get stuck only in host
+    //this especially happens in cases like
+    //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
+    var authInHost = result.host && result.host.indexOf('@') > 0 ?
+                     result.host.split('@') : false;
+    if (authInHost) {
+      result.auth = authInHost.shift();
+      result.host = result.hostname = authInHost.shift();
+    }
+  }
+
+  mustEndAbs = mustEndAbs || (result.host && srcPath.length);
+
+  if (mustEndAbs && !isAbsolute) {
+    srcPath.unshift('');
+  }
+
+  if (!srcPath.length) {
+    result.pathname = null;
+    result.path = null;
+  } else {
+    result.pathname = srcPath.join('/');
+  }
+
+  //to support request.http
+  if (!util.isNull(result.pathname) || !util.isNull(result.search)) {
+    result.path = (result.pathname ? result.pathname : '') +
+                  (result.search ? result.search : '');
+  }
+  result.auth = relative.auth || result.auth;
+  result.slashes = result.slashes || relative.slashes;
+  result.href = result.format();
+  return result;
+};
+
+Url.prototype.parseHost = function() {
+  var host = this.host;
+  var port = portPattern.exec(host);
+  if (port) {
+    port = port[0];
+    if (port !== ':') {
+      this.port = port.substr(1);
+    }
+    host = host.substr(0, host.length - port.length);
+  }
+  if (host) this.hostname = host;
+};
+
+},{"./util":15,"punycode":10,"querystring":13}],15:[function(require,module,exports){
+'use strict';
+
+module.exports = {
+  isString: function(arg) {
+    return typeof(arg) === 'string';
+  },
+  isObject: function(arg) {
+    return typeof(arg) === 'object' && arg !== null;
+  },
+  isNull: function(arg) {
+    return arg === null;
+  },
+  isNullOrUndefined: function(arg) {
+    return arg == null;
+  }
+};
+
+},{}],16:[function(require,module,exports){
 'use strict';
 
 var progress = require('./progress'),
@@ -107,7 +2367,7 @@ var load = function (options) {
 exports.getJson = getJson;
 exports.load = load;
 
-},{"./progress":14,"./util":18}],2:[function(require,module,exports){
+},{"./progress":29,"./util":33}],17:[function(require,module,exports){
 'use strict';
 
 var dialog = require('./dialog'),
@@ -461,7 +2721,7 @@ var bonusProductsView = {
 
 module.exports = bonusProductsView;
 
-},{"./dialog":3,"./page":5,"./util":18}],3:[function(require,module,exports){
+},{"./dialog":18,"./page":20,"./util":33}],18:[function(require,module,exports){
 'use strict';
 
 var ajax = require('./ajax'),
@@ -607,7 +2867,7 @@ var dialog = {
 
 module.exports = dialog;
 
-},{"./ajax":1,"./util":18,"imagesloaded":31,"lodash":32}],4:[function(require,module,exports){
+},{"./ajax":16,"./util":33,"imagesloaded":37,"lodash":38}],19:[function(require,module,exports){
 'use strict';
 
 var util = require('./util'),
@@ -690,7 +2950,7 @@ var minicart = {
 
 module.exports = minicart;
 
-},{"./bonus-products-view":2,"./util":18}],5:[function(require,module,exports){
+},{"./bonus-products-view":17,"./util":33}],20:[function(require,module,exports){
 'use strict';
 
 var util = require('./util');
@@ -713,7 +2973,7 @@ var page = {
 
 module.exports = page;
 
-},{"./util":18}],6:[function(require,module,exports){
+},{"./util":33}],21:[function(require,module,exports){
 'use strict';
 
 var dialog = require('../../dialog'),
@@ -794,7 +3054,7 @@ module.exports = function () {
     $('#add-all-to-cart').on('click', addAllToCart);
 };
 
-},{"../../dialog":3,"../../minicart":4,"../../page":5,"../../util":18,"lodash":32,"promise":33}],7:[function(require,module,exports){
+},{"../../dialog":18,"../../minicart":19,"../../page":20,"../../util":33,"lodash":38,"promise":39}],22:[function(require,module,exports){
 'use strict';
 
 var ajax =  require('../../ajax'),
@@ -862,7 +3122,7 @@ module.exports = function () {
     $('#pdpMain').on('change', '.pdpForm input[name="Quantity"]', getAvailability);
 };
 
-},{"../../ajax":1,"../../util":18}],8:[function(require,module,exports){
+},{"../../ajax":16,"../../util":33}],23:[function(require,module,exports){
 'use strict';
 var dialog = require('../../dialog');
 var util = require('../../util');
@@ -974,7 +3234,7 @@ module.exports.loadZoom = loadZoom;
 module.exports.setMainImage = setMainImage;
 module.exports.replaceImages = replaceImages;
 
-},{"../../dialog":3,"../../util":18,"lodash":32,"qs":43,"url":50}],9:[function(require,module,exports){
+},{"../../dialog":18,"../../util":33,"lodash":38,"qs":48,"url":14}],24:[function(require,module,exports){
 'use strict';
 
 var dialog = require('../../dialog'),
@@ -1053,7 +3313,7 @@ var product = {
 
 module.exports = product;
 
-},{"../../dialog":3,"../../storeinventory/product":16,"../../tooltip":17,"../../util":18,"./addToCart":6,"./availability":7,"./image":8,"./productNav":10,"./productSet":11,"./recommendations":12,"./variant":13}],10:[function(require,module,exports){
+},{"../../dialog":18,"../../storeinventory/product":31,"../../tooltip":32,"../../util":33,"./addToCart":21,"./availability":22,"./image":23,"./productNav":25,"./productSet":26,"./recommendations":27,"./variant":28}],25:[function(require,module,exports){
 'use strict';
 
 var ajax = require('../../ajax'),
@@ -1080,7 +3340,7 @@ module.exports = function () {
     });
 };
 
-},{"../../ajax":1,"../../util":18}],11:[function(require,module,exports){
+},{"../../ajax":16,"../../util":33}],26:[function(require,module,exports){
 'use strict';
 
 var ajax = require('../../ajax'),
@@ -1125,7 +3385,7 @@ module.exports = function () {
     });
 };
 
-},{"../../ajax":1,"../../tooltip":17,"../../util":18}],12:[function(require,module,exports){
+},{"../../ajax":16,"../../tooltip":32,"../../util":33}],27:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1160,7 +3420,7 @@ module.exports = function () {
         });
 };
 
-},{}],13:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 
 var ajax = require('../../ajax'),
@@ -1233,7 +3493,7 @@ module.exports = function () {
     });
 };
 
-},{"../../ajax":1,"../../progress":14,"../../storeinventory/product":16,"../../tooltip":17,"../../util":18,"./image":8}],14:[function(require,module,exports){
+},{"../../ajax":16,"../../progress":29,"../../storeinventory/product":31,"../../tooltip":32,"../../util":33,"./image":23}],29:[function(require,module,exports){
 'use strict';
 
 var $loader;
@@ -1266,7 +3526,7 @@ var hide = function () {
 exports.show = show;
 exports.hide = hide;
 
-},{}],15:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 'use strict';
 
 var _ = require('lodash'),
@@ -1448,7 +3708,7 @@ var storeinventory = {
 
 module.exports = storeinventory;
 
-},{"../dialog":3,"../util":18,"lodash":32,"promise":33}],16:[function(require,module,exports){
+},{"../dialog":18,"../util":33,"lodash":38,"promise":39}],31:[function(require,module,exports){
 'use strict';
 
 var _ = require('lodash'),
@@ -1544,7 +3804,7 @@ var productInventory = {
 
 module.exports = productInventory;
 
-},{"./":15,"lodash":32}],17:[function(require,module,exports){
+},{"./":30,"lodash":38}],32:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1570,7 +3830,7 @@ exports.init = function () {
     });
 };
 
-},{}],18:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 'use strict';
 
 var _ = require('lodash');
@@ -1842,799 +4102,7 @@ var util = {
 
 module.exports = util;
 
-},{"lodash":32}],19:[function(require,module,exports){
-/* eslint-disable no-console */
-/* eslint-disable camelcase */
-'use strict';
-/*
- * This file contains Logic to send Analytics data to the backend
- * endpoints via Analytics-Add controller
- */
-
-/**
- * Event name: Look displayed in a page
- * @param {EventListenerObject} e - Event listener object
- * @param {Array} looksIDs Product Look IDs
- * @param {string} endpointURL Endpoint URL of request to do Analytic request
- * @param {function} requestCb Request callback function
- */
-function lookDiplayedInPage_event(e, looksIDs, endpointURL, requestCb) {
-    var $body = $(e.target);
-
-    var data = {
-        event: 'Look Displayed in Page',
-        what: looksIDs,
-        from: {
-            type: null
-        },
-        when: { timestamp: Date.now() }
-    };
-
-    var pageData = getTypeOfEventPage($body);
-    data.from = pageData;
-
-    requestCb(endpointURL, data);
-}
-
-/**
- * Event name: Look pop-up displayed
- * @param {EventListenerObject} e - Event listener object
- * @param {string} lookID Product Look ID
- * @param {string} endpointURL Endpoint URL of request to do Analytic request
- * @param {function} requestCb Request callback function
- */
-function lookPopupDisplayed_event(e, lookID, endpointURL, requestCb) {
-    var $body = $(e.target);
-
-    var data = {
-        event: 'Look Popup Displayed',
-        what: [lookID],
-        from: {
-            type: null
-        },
-        when: { timestamp: Date.now() }
-    };
-
-    var pageData = getTypeOfEventPage($body);
-    data.from = pageData;
-
-    requestCb(endpointURL, data);
-}
-
-/**
- * Event name: From product pop-up (desktop only)
- * @param {EventListenerObject} e - Event listener object
- * @param {Object} data object with product data
- * @param {string} endpointURL Endpoint URL of request to do Analytic request
- * @param {function} requestCb Request callback function
- */
-function fromProductPopUp_event(e, data, endpointURL, requestCb) {
-    var lookID = data.lookID;
-    var productSKU = data.productSKU;
-
-    var dataEventObj = {
-        event: 'From Product pop-up',
-        what: [productSKU],
-        from: {
-            type: null
-        },
-        when: { timestamp: Date.now() }
-    };
-
-    if (lookID) {
-        dataEventObj.from.type = 'Look ID';
-        dataEventObj.from.lookID = lookID;
-    }
-
-    requestCb(endpointURL, dataEventObj);
-}
-
-/**
- * Event name: From add to basket button (mobile only)
- * @param {EventListenerObject} e - Event listener object
- * @param {Object} data object with product data
- * @param {string} endpointURL Endpoint URL of request to do Analytic request
- * @param {function} requestCb Request callback function
- */
-function fromAddToBasketBtn_event(e, data, endpointURL, requestCb) {
-    var lookID = data.lookID;
-    var productSKU = data.productSKU;
-
-    var dataEventObj = {
-        event: 'From Add to Basket button (Mobile)',
-        what: [productSKU],
-        from: {
-            type: null
-        },
-        when: { timestamp: Date.now() }
-    };
-
-    if (lookID) {
-        dataEventObj.from.type = 'Look ID';
-        dataEventObj.from.lookID = lookID;
-    }
-
-    requestCb(endpointURL, dataEventObj);
-}
-
-/**
- * Event name: Products added to basket
- * @param {EventListenerObject} e - Event listener object
- * @param {Object} data object with product data
- * @param {string} endpointURL Endpoint URL of request to do Analytic request
- * @param {function} requestCb Request callback function
- */
-function productsAddedToBasket_event(e, data, endpointURL, requestCb) {
-    var lookID = data.lookID;
-    var productSKU = data.productSKU;
-    var $body = $(e.target);
-
-    var dataEventObj = {
-        event: 'Products added to basket',
-        what: [productSKU],
-        from: {
-            type: null
-        },
-        place: null,
-        when: { timestamp: Date.now() }
-    };
-
-    if (lookID) {
-        dataEventObj.from.type = 'Look ID';
-        dataEventObj.from.lookID = lookID;
-    }
-
-    var pageData = getTypeOfEventPage($body);
-    dataEventObj.place = pageData;
-
-    requestCb(endpointURL, dataEventObj);
-}
-
-/**
- * Helper function to get type of Event page
- * @param {JQuery} $body - Body element
- * @returns {Object} Object with data of page type
- */
-function getTypeOfEventPage($body) {
-    var result = {
-        type: '',
-        pid: null
-    };
-
-    var isHomepage = $body.find('div[class*="home"]').length > 0 || $body.find('.home-main').length > 0;
-    var isProductDetailPage = $body.find('.product-detail').length > 0;
-    var isLooksGalleryPage = $body.find('#LooksGalleryPage').length > 0;
-
-    if (isHomepage) {
-        result.type = 'Homepage';
-    } else if (isLooksGalleryPage) {
-        result.type = 'LooksGalleryPage';
-    } else if (isProductDetailPage) {
-        result.type = 'ProductDetail';
-        result.pid = $body.find('.pdp-main').find("input[name='pid']").val();
-    }
-
-    return result;
-}
-
-/**
- *  Produces analytic requests to the backend side
- *  @param {string} endpointURL Endpoint URL of request to do Analytic request
- *  @param {Object} data contain object of analytic data for request
- */
-function makeAnalyticsRequest(endpointURL, data) {
-    fetch(endpointURL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    }).then(() => {
-        // console.log('Analytics was sent');
-    }).catch(e => {
-        console.log(e);
-    });
-}
-
-module.exports = function () {
-    $(document).ready(function () {
-        var $analyticTag = $('.js-mercaux-analytics-tag');
-        var endpointURL = $analyticTag.attr('data-mercaux-analytics-url');
-
-        if ($analyticTag.length < 1) {
-            console.error('Analytics tag of Mercaux is not defined');
-            return;
-        }
-
-        $('body').on('analyticsMercaux:LookDisplayedInPage', function (e, data) {
-            lookDiplayedInPage_event(e, data.looksIDs, endpointURL, makeAnalyticsRequest);
-        });
-
-        $('body').on('analyticsMercaux:LookPopupDisplayed', function (e, data) {
-            lookPopupDisplayed_event(e, data.lookID, endpointURL, makeAnalyticsRequest);
-        });
-
-        $('body').on('analyticsMercaux:FromProductPopUp', function (e, data) {
-            fromProductPopUp_event(e, data, endpointURL, makeAnalyticsRequest);
-        });
-
-        $('body').on('analyticsMercaux:FromAddToBasketOnMobile', function (e, data) {
-            fromAddToBasketBtn_event(e, data, endpointURL, makeAnalyticsRequest);
-        });
-
-        $('body').on('analyticsMercaux:ProductsAddedToBasket', function (e, data) {
-            productsAddedToBasket_event(e, data, endpointURL, makeAnalyticsRequest);
-        });
-    });
-};
-
-},{}],20:[function(require,module,exports){
-/* eslint-disable no-mixed-operators */
-/* eslint-disable one-var */
-'use strict';
-
-/**
- * copied from https://github.com/darkskyapp/string-hash
- * @param {string} str - String to be used for hash
- * @returns {number} unsigned int with bitshift
- */
-function hashFn(str) {
-    var hash = 5381,
-        i = str.length;
-
-    while (i) {
-        hash = (hash * 33) ^ str.charCodeAt(--i);
-    }
-    /* JavaScript does bitwise operations (like XOR, above) on 32-bit signed
-    * integers. Since we want the results to be always positive, convert the
-    * signed int to an unsigned by doing an unsigned bitshift. */
-    return hash >>> 0;
-}
-
-/**
- * Create rating based on hash ranging from 2-5
- * @param {number} pid Product ID
- * @returns {number} rating value
- */
-function getRating(pid) {
-    return hashFn(pid.toString()) % 30 / 10 + 2;
-}
-
-module.exports = {
-    init: function () {
-        $('.product-review-look').each(function (index, review) {
-            var pid = $(review).data('pid');
-            if (!pid) {
-                return;
-            }
-            // rating range from 2 - 5
-            var rating = getRating(pid);
-            var baseRating = Math.floor(rating);
-            var starsCount = 0;
-            for (var i = 0; i < baseRating; i++) {
-                $('.rating', review).append('<i class="fa fa-star"></i>');
-                starsCount++;
-            }
-            // give half star for anything in between
-            if (rating > baseRating) {
-                $('.rating', review).append('<i class="fa fa-star-half-o"></i>');
-                starsCount++;
-            }
-            if (starsCount < 5) {
-                for (var j = 0; j < 5 - starsCount; j++) {
-                    $('.rating', review).append('<i class="fa fa-star-o"></i>');
-                }
-            }
-        });
-    }
-};
-
-},{}],21:[function(require,module,exports){
-/*!
- * Generated using the Bootstrap Customizer (https://getbootstrap.com/docs/3.4/customize/)
- */
-
-/*!
- * Bootstrap v3.4.1 (https://getbootstrap.com/)
- * Copyright 2011-2020 Twitter, Inc.
- * Licensed under the MIT license
- */
-
-if("undefined"==typeof jQuery)throw new Error("Bootstrap's JavaScript requires jQuery");+function(t){"use strict";var e=t.fn.jquery.split(" ")[0].split(".");if(e[0]<2&&e[1]<9||1==e[0]&&9==e[1]&&e[2]<1||e[0]>3)throw new Error("Bootstrap's JavaScript requires jQuery version 1.9.1 or higher, but lower than version 4")}(jQuery),+function(t){"use strict";function e(e){return this.each(function(){var i=t(this),n=i.data("bs.alert");n||i.data("bs.alert",n=new s(this)),"string"==typeof e&&n[e].call(i)})}var i='[data-dismiss="alert"]',s=function(e){t(e).on("click",i,this.close)};s.VERSION="3.4.1",s.TRANSITION_DURATION=150,s.prototype.close=function(e){function i(){o.detach().trigger("closed.bs.alert").remove()}var n=t(this),a=n.attr("data-target");a||(a=n.attr("href"),a=a&&a.replace(/.*(?=#[^\s]*$)/,"")),a="#"===a?[]:a;var o=t(document).find(a);e&&e.preventDefault(),o.length||(o=n.closest(".alert")),o.trigger(e=t.Event("close.bs.alert")),e.isDefaultPrevented()||(o.removeClass("in"),t.support.transition&&o.hasClass("fade")?o.one("bsTransitionEnd",i).emulateTransitionEnd(s.TRANSITION_DURATION):i())};var n=t.fn.alert;t.fn.alert=e,t.fn.alert.Constructor=s,t.fn.alert.noConflict=function(){return t.fn.alert=n,this},t(document).on("click.bs.alert.data-api",i,s.prototype.close)}(jQuery),+function(t){"use strict";function e(e){return this.each(function(){var s=t(this),n=s.data("bs.button"),a="object"==typeof e&&e;n||s.data("bs.button",n=new i(this,a)),"toggle"==e?n.toggle():e&&n.setState(e)})}var i=function(e,s){this.$element=t(e),this.options=t.extend({},i.DEFAULTS,s),this.isLoading=!1};i.VERSION="3.4.1",i.DEFAULTS={loadingText:"loading..."},i.prototype.setState=function(e){var i="disabled",s=this.$element,n=s.is("input")?"val":"html",a=s.data();e+="Text",null==a.resetText&&s.data("resetText",s[n]()),setTimeout(t.proxy(function(){s[n](null==a[e]?this.options[e]:a[e]),"loadingText"==e?(this.isLoading=!0,s.addClass(i).attr(i,i).prop(i,!0)):this.isLoading&&(this.isLoading=!1,s.removeClass(i).removeAttr(i).prop(i,!1))},this),0)},i.prototype.toggle=function(){var t=!0,e=this.$element.closest('[data-toggle="buttons"]');if(e.length){var i=this.$element.find("input");"radio"==i.prop("type")?(i.prop("checked")&&(t=!1),e.find(".active").removeClass("active"),this.$element.addClass("active")):"checkbox"==i.prop("type")&&(i.prop("checked")!==this.$element.hasClass("active")&&(t=!1),this.$element.toggleClass("active")),i.prop("checked",this.$element.hasClass("active")),t&&i.trigger("change")}else this.$element.attr("aria-pressed",!this.$element.hasClass("active")),this.$element.toggleClass("active")};var s=t.fn.button;t.fn.button=e,t.fn.button.Constructor=i,t.fn.button.noConflict=function(){return t.fn.button=s,this},t(document).on("click.bs.button.data-api",'[data-toggle^="button"]',function(i){var s=t(i.target).closest(".btn");e.call(s,"toggle"),t(i.target).is('input[type="radio"], input[type="checkbox"]')||(i.preventDefault(),s.is("input,button")?s.trigger("focus"):s.find("input:visible,button:visible").first().trigger("focus"))}).on("focus.bs.button.data-api blur.bs.button.data-api",'[data-toggle^="button"]',function(e){t(e.target).closest(".btn").toggleClass("focus",/^focus(in)?$/.test(e.type))})}(jQuery),+function(t){"use strict";function e(e){return this.each(function(){var s=t(this),n=s.data("bs.carousel"),a=t.extend({},i.DEFAULTS,s.data(),"object"==typeof e&&e),o="string"==typeof e?e:a.slide;n||s.data("bs.carousel",n=new i(this,a)),"number"==typeof e?n.to(e):o?n[o]():a.interval&&n.pause().cycle()})}var i=function(e,i){this.$element=t(e),this.$indicators=this.$element.find(".carousel-indicators"),this.options=i,this.paused=null,this.sliding=null,this.interval=null,this.$active=null,this.$items=null,this.options.keyboard&&this.$element.on("keydown.bs.carousel",t.proxy(this.keydown,this)),"hover"==this.options.pause&&!("ontouchstart"in document.documentElement)&&this.$element.on("mouseenter.bs.carousel",t.proxy(this.pause,this)).on("mouseleave.bs.carousel",t.proxy(this.cycle,this))};i.VERSION="3.4.1",i.TRANSITION_DURATION=600,i.DEFAULTS={interval:5e3,pause:"hover",wrap:!0,keyboard:!0},i.prototype.keydown=function(t){if(!/input|textarea/i.test(t.target.tagName)){switch(t.which){case 37:this.prev();break;case 39:this.next();break;default:return}t.preventDefault()}},i.prototype.cycle=function(e){return e||(this.paused=!1),this.interval&&clearInterval(this.interval),this.options.interval&&!this.paused&&(this.interval=setInterval(t.proxy(this.next,this),this.options.interval)),this},i.prototype.getItemIndex=function(t){return this.$items=t.parent().children(".item"),this.$items.index(t||this.$active)},i.prototype.getItemForDirection=function(t,e){var i=this.getItemIndex(e),s="prev"==t&&0===i||"next"==t&&i==this.$items.length-1;if(s&&!this.options.wrap)return e;var n="prev"==t?-1:1,a=(i+n)%this.$items.length;return this.$items.eq(a)},i.prototype.to=function(t){var e=this,i=this.getItemIndex(this.$active=this.$element.find(".item.active"));return t>this.$items.length-1||0>t?void 0:this.sliding?this.$element.one("slid.bs.carousel",function(){e.to(t)}):i==t?this.pause().cycle():this.slide(t>i?"next":"prev",this.$items.eq(t))},i.prototype.pause=function(e){return e||(this.paused=!0),this.$element.find(".next, .prev").length&&t.support.transition&&(this.$element.trigger(t.support.transition.end),this.cycle(!0)),this.interval=clearInterval(this.interval),this},i.prototype.next=function(){return this.sliding?void 0:this.slide("next")},i.prototype.prev=function(){return this.sliding?void 0:this.slide("prev")},i.prototype.slide=function(e,s){var n=this.$element.find(".item.active"),a=s||this.getItemForDirection(e,n),o=this.interval,r="next"==e?"left":"right",l=this;if(a.hasClass("active"))return this.sliding=!1;var d=a[0],h=t.Event("slide.bs.carousel",{relatedTarget:d,direction:r});if(this.$element.trigger(h),!h.isDefaultPrevented()){if(this.sliding=!0,o&&this.pause(),this.$indicators.length){this.$indicators.find(".active").removeClass("active");var c=t(this.$indicators.children()[this.getItemIndex(a)]);c&&c.addClass("active")}var p=t.Event("slid.bs.carousel",{relatedTarget:d,direction:r});return t.support.transition&&this.$element.hasClass("slide")?(a.addClass(e),"object"==typeof a&&a.length&&a[0].offsetWidth,n.addClass(r),a.addClass(r),n.one("bsTransitionEnd",function(){a.removeClass([e,r].join(" ")).addClass("active"),n.removeClass(["active",r].join(" ")),l.sliding=!1,setTimeout(function(){l.$element.trigger(p)},0)}).emulateTransitionEnd(i.TRANSITION_DURATION)):(n.removeClass("active"),a.addClass("active"),this.sliding=!1,this.$element.trigger(p)),o&&this.cycle(),this}};var s=t.fn.carousel;t.fn.carousel=e,t.fn.carousel.Constructor=i,t.fn.carousel.noConflict=function(){return t.fn.carousel=s,this};var n=function(i){var s=t(this),n=s.attr("href");n&&(n=n.replace(/.*(?=#[^\s]+$)/,""));var a=s.attr("data-target")||n,o=t(document).find(a);if(o.hasClass("carousel")){var r=t.extend({},o.data(),s.data()),l=s.attr("data-slide-to");l&&(r.interval=!1),e.call(o,r),l&&o.data("bs.carousel").to(l),i.preventDefault()}};t(document).on("click.bs.carousel.data-api","[data-slide]",n).on("click.bs.carousel.data-api","[data-slide-to]",n),t(window).on("load",function(){t('[data-ride="carousel"]').each(function(){var i=t(this);e.call(i,i.data())})})}(jQuery),+function(t){"use strict";function e(e,s){return this.each(function(){var n=t(this),a=n.data("bs.modal"),o=t.extend({},i.DEFAULTS,n.data(),"object"==typeof e&&e);a||n.data("bs.modal",a=new i(this,o)),"string"==typeof e?a[e](s):o.show&&a.show(s)})}var i=function(e,i){this.options=i,this.$body=t(document.body),this.$element=t(e),this.$dialog=this.$element.find(".modal-dialog"),this.$backdrop=null,this.isShown=null,this.originalBodyPad=null,this.scrollbarWidth=0,this.ignoreBackdropClick=!1,this.fixedContent=".navbar-fixed-top, .navbar-fixed-bottom",this.options.remote&&this.$element.find(".modal-content").load(this.options.remote,t.proxy(function(){this.$element.trigger("loaded.bs.modal")},this))};i.VERSION="3.4.1",i.TRANSITION_DURATION=300,i.BACKDROP_TRANSITION_DURATION=150,i.DEFAULTS={backdrop:!0,keyboard:!0,show:!0},i.prototype.toggle=function(t){return this.isShown?this.hide():this.show(t)},i.prototype.show=function(e){var s=this,n=t.Event("show.bs.modal",{relatedTarget:e});this.$element.trigger(n),this.isShown||n.isDefaultPrevented()||(this.isShown=!0,this.checkScrollbar(),this.setScrollbar(),this.$body.addClass("modal-open"),this.escape(),this.resize(),this.$element.on("click.dismiss.bs.modal",'[data-dismiss="modal"]',t.proxy(this.hide,this)),this.$dialog.on("mousedown.dismiss.bs.modal",function(){s.$element.one("mouseup.dismiss.bs.modal",function(e){t(e.target).is(s.$element)&&(s.ignoreBackdropClick=!0)})}),this.backdrop(function(){var n=t.support.transition&&s.$element.hasClass("fade");s.$element.parent().length||s.$element.appendTo(s.$body),s.$element.show().scrollTop(0),s.adjustDialog(),n&&s.$element[0].offsetWidth,s.$element.addClass("in"),s.enforceFocus();var a=t.Event("shown.bs.modal",{relatedTarget:e});n?s.$dialog.one("bsTransitionEnd",function(){s.$element.trigger("focus").trigger(a)}).emulateTransitionEnd(i.TRANSITION_DURATION):s.$element.trigger("focus").trigger(a)}))},i.prototype.hide=function(e){e&&e.preventDefault(),e=t.Event("hide.bs.modal"),this.$element.trigger(e),this.isShown&&!e.isDefaultPrevented()&&(this.isShown=!1,this.escape(),this.resize(),t(document).off("focusin.bs.modal"),this.$element.removeClass("in").off("click.dismiss.bs.modal").off("mouseup.dismiss.bs.modal"),this.$dialog.off("mousedown.dismiss.bs.modal"),t.support.transition&&this.$element.hasClass("fade")?this.$element.one("bsTransitionEnd",t.proxy(this.hideModal,this)).emulateTransitionEnd(i.TRANSITION_DURATION):this.hideModal())},i.prototype.enforceFocus=function(){t(document).off("focusin.bs.modal").on("focusin.bs.modal",t.proxy(function(t){document===t.target||this.$element[0]===t.target||this.$element.has(t.target).length||this.$element.trigger("focus")},this))},i.prototype.escape=function(){this.isShown&&this.options.keyboard?this.$element.on("keydown.dismiss.bs.modal",t.proxy(function(t){27==t.which&&this.hide()},this)):this.isShown||this.$element.off("keydown.dismiss.bs.modal")},i.prototype.resize=function(){this.isShown?t(window).on("resize.bs.modal",t.proxy(this.handleUpdate,this)):t(window).off("resize.bs.modal")},i.prototype.hideModal=function(){var t=this;this.$element.hide(),this.backdrop(function(){t.$body.removeClass("modal-open"),t.resetAdjustments(),t.resetScrollbar(),t.$element.trigger("hidden.bs.modal")})},i.prototype.removeBackdrop=function(){this.$backdrop&&this.$backdrop.remove(),this.$backdrop=null},i.prototype.backdrop=function(e){var s=this,n=this.$element.hasClass("fade")?"fade":"";if(this.isShown&&this.options.backdrop){var a=t.support.transition&&n;if(this.$backdrop=t(document.createElement("div")).addClass("modal-backdrop "+n).appendTo(this.$body),this.$element.on("click.dismiss.bs.modal",t.proxy(function(t){return this.ignoreBackdropClick?void(this.ignoreBackdropClick=!1):void(t.target===t.currentTarget&&("static"==this.options.backdrop?this.$element[0].focus():this.hide()))},this)),a&&this.$backdrop[0].offsetWidth,this.$backdrop.addClass("in"),!e)return;a?this.$backdrop.one("bsTransitionEnd",e).emulateTransitionEnd(i.BACKDROP_TRANSITION_DURATION):e()}else if(!this.isShown&&this.$backdrop){this.$backdrop.removeClass("in");var o=function(){s.removeBackdrop(),e&&e()};t.support.transition&&this.$element.hasClass("fade")?this.$backdrop.one("bsTransitionEnd",o).emulateTransitionEnd(i.BACKDROP_TRANSITION_DURATION):o()}else e&&e()},i.prototype.handleUpdate=function(){this.adjustDialog()},i.prototype.adjustDialog=function(){var t=this.$element[0].scrollHeight>document.documentElement.clientHeight;this.$element.css({paddingLeft:!this.bodyIsOverflowing&&t?this.scrollbarWidth:"",paddingRight:this.bodyIsOverflowing&&!t?this.scrollbarWidth:""})},i.prototype.resetAdjustments=function(){this.$element.css({paddingLeft:"",paddingRight:""})},i.prototype.checkScrollbar=function(){var t=window.innerWidth;if(!t){var e=document.documentElement.getBoundingClientRect();t=e.right-Math.abs(e.left)}this.bodyIsOverflowing=document.body.clientWidth<t,this.scrollbarWidth=this.measureScrollbar()},i.prototype.setScrollbar=function(){var e=parseInt(this.$body.css("padding-right")||0,10);this.originalBodyPad=document.body.style.paddingRight||"";var i=this.scrollbarWidth;this.bodyIsOverflowing&&(this.$body.css("padding-right",e+i),t(this.fixedContent).each(function(e,s){var n=s.style.paddingRight,a=t(s).css("padding-right");t(s).data("padding-right",n).css("padding-right",parseFloat(a)+i+"px")}))},i.prototype.resetScrollbar=function(){this.$body.css("padding-right",this.originalBodyPad),t(this.fixedContent).each(function(e,i){var s=t(i).data("padding-right");t(i).removeData("padding-right"),i.style.paddingRight=s?s:""})},i.prototype.measureScrollbar=function(){var t=document.createElement("div");t.className="modal-scrollbar-measure",this.$body.append(t);var e=t.offsetWidth-t.clientWidth;return this.$body[0].removeChild(t),e};var s=t.fn.modal;t.fn.modal=e,t.fn.modal.Constructor=i,t.fn.modal.noConflict=function(){return t.fn.modal=s,this},t(document).on("click.bs.modal.data-api",'[data-toggle="modal"]',function(i){var s=t(this),n=s.attr("href"),a=s.attr("data-target")||n&&n.replace(/.*(?=#[^\s]+$)/,""),o=t(document).find(a),r=o.data("bs.modal")?"toggle":t.extend({remote:!/#/.test(n)&&n},o.data(),s.data());s.is("a")&&i.preventDefault(),o.one("show.bs.modal",function(t){t.isDefaultPrevented()||o.one("hidden.bs.modal",function(){s.is(":visible")&&s.trigger("focus")})}),e.call(o,r,this)})}(jQuery),+function(t){"use strict";function e(e){return this.each(function(){var s=t(this),n=s.data("bs.tab");n||s.data("bs.tab",n=new i(this)),"string"==typeof e&&n[e]()})}var i=function(e){this.element=t(e)};i.VERSION="3.4.1",i.TRANSITION_DURATION=150,i.prototype.show=function(){var e=this.element,i=e.closest("ul:not(.dropdown-menu)"),s=e.data("target");if(s||(s=e.attr("href"),s=s&&s.replace(/.*(?=#[^\s]*$)/,"")),!e.parent("li").hasClass("active")){var n=i.find(".active:last a"),a=t.Event("hide.bs.tab",{relatedTarget:e[0]}),o=t.Event("show.bs.tab",{relatedTarget:n[0]});if(n.trigger(a),e.trigger(o),!o.isDefaultPrevented()&&!a.isDefaultPrevented()){var r=t(document).find(s);this.activate(e.closest("li"),i),this.activate(r,r.parent(),function(){n.trigger({type:"hidden.bs.tab",relatedTarget:e[0]}),e.trigger({type:"shown.bs.tab",relatedTarget:n[0]})})}}},i.prototype.activate=function(e,s,n){function a(){o.removeClass("active").find("> .dropdown-menu > .active").removeClass("active").end().find('[data-toggle="tab"]').attr("aria-expanded",!1),e.addClass("active").find('[data-toggle="tab"]').attr("aria-expanded",!0),r?(e[0].offsetWidth,e.addClass("in")):e.removeClass("fade"),e.parent(".dropdown-menu").length&&e.closest("li.dropdown").addClass("active").end().find('[data-toggle="tab"]').attr("aria-expanded",!0),n&&n()}var o=s.find("> .active"),r=n&&t.support.transition&&(o.length&&o.hasClass("fade")||!!s.find("> .fade").length);o.length&&r?o.one("bsTransitionEnd",a).emulateTransitionEnd(i.TRANSITION_DURATION):a(),o.removeClass("in")};var s=t.fn.tab;t.fn.tab=e,t.fn.tab.Constructor=i,t.fn.tab.noConflict=function(){return t.fn.tab=s,this};var n=function(i){i.preventDefault(),e.call(t(this),"show")};t(document).on("click.bs.tab.data-api",'[data-toggle="tab"]',n).on("click.bs.tab.data-api",'[data-toggle="pill"]',n)}(jQuery),+function(t){"use strict";function e(e){return this.each(function(){var s=t(this),n=s.data("bs.affix"),a="object"==typeof e&&e;n||s.data("bs.affix",n=new i(this,a)),"string"==typeof e&&n[e]()})}var i=function(e,s){this.options=t.extend({},i.DEFAULTS,s);var n=this.options.target===i.DEFAULTS.target?t(this.options.target):t(document).find(this.options.target);this.$target=n.on("scroll.bs.affix.data-api",t.proxy(this.checkPosition,this)).on("click.bs.affix.data-api",t.proxy(this.checkPositionWithEventLoop,this)),this.$element=t(e),this.affixed=null,this.unpin=null,this.pinnedOffset=null,this.checkPosition()};i.VERSION="3.4.1",i.RESET="affix affix-top affix-bottom",i.DEFAULTS={offset:0,target:window},i.prototype.getState=function(t,e,i,s){var n=this.$target.scrollTop(),a=this.$element.offset(),o=this.$target.height();if(null!=i&&"top"==this.affixed)return i>n?"top":!1;if("bottom"==this.affixed)return null!=i?n+this.unpin<=a.top?!1:"bottom":t-s>=n+o?!1:"bottom";var r=null==this.affixed,l=r?n:a.top,d=r?o:e;return null!=i&&i>=n?"top":null!=s&&l+d>=t-s?"bottom":!1},i.prototype.getPinnedOffset=function(){if(this.pinnedOffset)return this.pinnedOffset;this.$element.removeClass(i.RESET).addClass("affix");var t=this.$target.scrollTop(),e=this.$element.offset();return this.pinnedOffset=e.top-t},i.prototype.checkPositionWithEventLoop=function(){setTimeout(t.proxy(this.checkPosition,this),1)},i.prototype.checkPosition=function(){if(this.$element.is(":visible")){var e=this.$element.height(),s=this.options.offset,n=s.top,a=s.bottom,o=Math.max(t(document).height(),t(document.body).height());"object"!=typeof s&&(a=n=s),"function"==typeof n&&(n=s.top(this.$element)),"function"==typeof a&&(a=s.bottom(this.$element));var r=this.getState(o,e,n,a);if(this.affixed!=r){null!=this.unpin&&this.$element.css("top","");var l="affix"+(r?"-"+r:""),d=t.Event(l+".bs.affix");if(this.$element.trigger(d),d.isDefaultPrevented())return;this.affixed=r,this.unpin="bottom"==r?this.getPinnedOffset():null,this.$element.removeClass(i.RESET).addClass(l).trigger(l.replace("affix","affixed")+".bs.affix")}"bottom"==r&&this.$element.offset({top:o-e-a})}};var s=t.fn.affix;t.fn.affix=e,t.fn.affix.Constructor=i,t.fn.affix.noConflict=function(){return t.fn.affix=s,this},t(window).on("load",function(){t('[data-spy="affix"]').each(function(){var i=t(this),s=i.data();s.offset=s.offset||{},null!=s.offsetBottom&&(s.offset.bottom=s.offsetBottom),null!=s.offsetTop&&(s.offset.top=s.offsetTop),e.call(i,s)})})}(jQuery),+function(t){"use strict";function e(e){var i,s=e.attr("data-target")||(i=e.attr("href"))&&i.replace(/.*(?=#[^\s]+$)/,"");return t(document).find(s)}function i(e){return this.each(function(){var i=t(this),n=i.data("bs.collapse"),a=t.extend({},s.DEFAULTS,i.data(),"object"==typeof e&&e);!n&&a.toggle&&/show|hide/.test(e)&&(a.toggle=!1),n||i.data("bs.collapse",n=new s(this,a)),"string"==typeof e&&n[e]()})}var s=function(e,i){this.$element=t(e),this.options=t.extend({},s.DEFAULTS,i),this.$trigger=t('[data-toggle="collapse"][href="#'+e.id+'"],[data-toggle="collapse"][data-target="#'+e.id+'"]'),this.transitioning=null,this.options.parent?this.$parent=this.getParent():this.addAriaAndCollapsedClass(this.$element,this.$trigger),this.options.toggle&&this.toggle()};s.VERSION="3.4.1",s.TRANSITION_DURATION=350,s.DEFAULTS={toggle:!0},s.prototype.dimension=function(){var t=this.$element.hasClass("width");return t?"width":"height"},s.prototype.show=function(){if(!this.transitioning&&!this.$element.hasClass("in")){var e,n=this.$parent&&this.$parent.children(".panel").children(".in, .collapsing");if(!(n&&n.length&&(e=n.data("bs.collapse"),e&&e.transitioning))){var a=t.Event("show.bs.collapse");if(this.$element.trigger(a),!a.isDefaultPrevented()){n&&n.length&&(i.call(n,"hide"),e||n.data("bs.collapse",null));var o=this.dimension();this.$element.removeClass("collapse").addClass("collapsing")[o](0).attr("aria-expanded",!0),this.$trigger.removeClass("collapsed").attr("aria-expanded",!0),this.transitioning=1;var r=function(){this.$element.removeClass("collapsing").addClass("collapse in")[o](""),this.transitioning=0,this.$element.trigger("shown.bs.collapse")};if(!t.support.transition)return r.call(this);var l=t.camelCase(["scroll",o].join("-"));this.$element.one("bsTransitionEnd",t.proxy(r,this)).emulateTransitionEnd(s.TRANSITION_DURATION)[o](this.$element[0][l])}}}},s.prototype.hide=function(){if(!this.transitioning&&this.$element.hasClass("in")){var e=t.Event("hide.bs.collapse");if(this.$element.trigger(e),!e.isDefaultPrevented()){var i=this.dimension();this.$element[i](this.$element[i]())[0].offsetHeight,this.$element.addClass("collapsing").removeClass("collapse in").attr("aria-expanded",!1),this.$trigger.addClass("collapsed").attr("aria-expanded",!1),this.transitioning=1;var n=function(){this.transitioning=0,this.$element.removeClass("collapsing").addClass("collapse").trigger("hidden.bs.collapse")};return t.support.transition?void this.$element[i](0).one("bsTransitionEnd",t.proxy(n,this)).emulateTransitionEnd(s.TRANSITION_DURATION):n.call(this)}}},s.prototype.toggle=function(){this[this.$element.hasClass("in")?"hide":"show"]()},s.prototype.getParent=function(){return t(document).find(this.options.parent).find('[data-toggle="collapse"][data-parent="'+this.options.parent+'"]').each(t.proxy(function(i,s){var n=t(s);this.addAriaAndCollapsedClass(e(n),n)},this)).end()},s.prototype.addAriaAndCollapsedClass=function(t,e){var i=t.hasClass("in");t.attr("aria-expanded",i),e.toggleClass("collapsed",!i).attr("aria-expanded",i)};var n=t.fn.collapse;t.fn.collapse=i,t.fn.collapse.Constructor=s,t.fn.collapse.noConflict=function(){return t.fn.collapse=n,this},t(document).on("click.bs.collapse.data-api",'[data-toggle="collapse"]',function(s){var n=t(this);n.attr("data-target")||s.preventDefault();var a=e(n),o=a.data("bs.collapse"),r=o?"toggle":n.data();i.call(a,r)})}(jQuery),+function(t){"use strict";function e(){var t=document.createElement("bootstrap"),e={WebkitTransition:"webkitTransitionEnd",MozTransition:"transitionend",OTransition:"oTransitionEnd otransitionend",transition:"transitionend"};for(var i in e)if(void 0!==t.style[i])return{end:e[i]};return!1}t.fn.emulateTransitionEnd=function(e){var i=!1,s=this;t(this).one("bsTransitionEnd",function(){i=!0});var n=function(){i||t(s).trigger(t.support.transition.end)};return setTimeout(n,e),this},t(function(){t.support.transition=e(),t.support.transition&&(t.event.special.bsTransitionEnd={bindType:t.support.transition.end,delegateType:t.support.transition.end,handle:function(e){return t(e.target).is(this)?e.handleObj.handler.apply(this,arguments):void 0}})})}(jQuery);
-},{}],22:[function(require,module,exports){
-'use strict';
-
-module.exports = function () {
-    $(document).ready(function () {
-        require('./bootstrap.custom.min');
-    });
-};
-
-},{"./bootstrap.custom.min":21}],23:[function(require,module,exports){
-'use strict';
-
-var sliderInit = require('./slider');
-var libsInit = require('./libs');
-var analyticsInit = require('./analyticsMercaux');
-
-analyticsInit();
-libsInit();
-sliderInit();
-
-},{"./analyticsMercaux":19,"./libs":22,"./slider":25}],24:[function(require,module,exports){
-/* eslint-disable camelcase */
-/* eslint-disable no-console */
-'use strict';
-
-/**
- * Init client-side JS code
- */
-function init() {
-    var selectors = {
-        openProductOfLook: '.js-open-product-look',
-        openLookModal: '.js-open-look-modal',
-        backToBaseModal: '.js-back-to-base-modal',
-        modalBody: '.modal-body',
-        jsModalMercaux: '.js-modal-mercaux',
-        productBackBlock: '.js-back-btn-block'
-    };
-
-    var $jsModalMercaux = $(selectors.jsModalMercaux);
-
-    var CURRENT_WINDOW_WIDTH = 0;
-    var BREAKPOINT_MOBILE = 728;
-
-    $(window).on('load', onWindowChange);
-    $(window).resize(onWindowChange);
-
-    /*
-    *  Handler for Open Product of Look button event
-    */
-    $('body').on('click', selectors.openProductOfLook, function (e) {
-        if (CURRENT_WINDOW_WIDTH <= BREAKPOINT_MOBILE) {
-            e.preventDefault();
-            return;
-        }
-        var $selector = $(this);
-        var url = $selector.attr('data-url');
-        var pid = $selector.attr('data-pid');
-        var pidLook = $selector.attr('data-pid-look');
-
-        var backHtmlBtn = `<span class="arrow-back"></span>
-                <span
-                    class="back-mercaux-btn js-back-to-base-modal"
-                    data-url="${url}"
-                    data-pid=${pidLook}>
-                        Back
-                </span> `;
-
-        $(selectors.productBackBlock).append(backHtmlBtn);
-        $(selectors.productBackBlock).append("<span class='js-pid-look-child-product' data-pid-look='" + pidLook + "' />");
-
-        getProductData(url, pid, { childProduct: true });
-
-        // Analytics Mercaux
-        var productSKU = $(this).attr('data-product-sku');
-        trigger_FromProductPopUp_event(productSKU, pidLook);
-    });
-
-    /*
-    *  Handler for open modal with Looks event
-    */
-    $('body').on('click', selectors.openLookModal, function (e) {
-        e.preventDefault();
-        onProductDataLoad.call(this, { backBtn: false, childProduct: false });
-    });
-
-    /*
-    *  Handler for back button to move to base parent modal
-    */
-    $('body').on('click', selectors.backToBaseModal, function (e) {
-        e.preventDefault();
-        onProductDataLoad.call(this, { backBtn: true, childProduct: false });
-    });
-
-    /**
-     * On change window event listener
-     */
-    function onWindowChange() {
-        CURRENT_WINDOW_WIDTH = this.innerWidth;
-    }
-
-    /**
-      * Event listener method to handle product load logic
-      * @param {Object} options options object for modal handling
-      */
-    function onProductDataLoad(options) {
-        var $selector = $(this);
-
-        $(selectors.productBackBlock).empty();
-
-        var url = $selector.attr('data-url');
-        var pid = $selector.attr('data-pid');
-
-        // Analytics Mercaux
-        var sliderTargetAttr = $(this).attr('data-target');
-        if (sliderTargetAttr && pid) {
-            trigger_LookPopupDisplayed_event(pid);
-        }
-
-        getProductData(url, pid, options);
-    }
-
-    /**
-      * Method to handle product load logic from Controller API
-      * @param {string} url Endpoint URL to do request to get the data
-      * @param {string} pid Product ID
-      * @param {Object} options options object for modal handling
-      */
-    function getProductData(url, pid, options) {
-        var getUrl = url + '?pid=' + pid;
-
-        var isChildProduct = options && options.childProduct;
-        var isBackBtn = options && options.backBtn;
-
-        $jsModalMercaux.empty();
-
-        if (!pid) return;
-
-        $.ajax({
-            url: getUrl,
-            method: 'GET',
-            success: function (data) {
-                $jsModalMercaux.append(data);
-
-                if (isChildProduct || isBackBtn) {
-                    $('body').trigger('childModalProduct:loaded');
-                    return;
-                }
-                if (!isBackBtn || !isChildProduct) {
-                    $('body').trigger('lookModal:loaded');
-                    return;
-                }
-            },
-            error: function (e) {
-                console.error(e, 'Error modal!');
-            }
-        });
-    }
-
-    // Analytics Mercaux
-    $('body').on('click', '.js-product-look-parent-block', function (e) {
-        var $selector = $(e.target).parents('.js-product-look-parent-block');
-
-        setTimeout(function () {
-            var isProductAdded = $('.mini-cart-content').is(':visible');
-            var pidLook;
-            var productSKU;
-
-            // Trigger Analytic on mobile parent modal
-            if (isProductAdded && CURRENT_WINDOW_WIDTH <= BREAKPOINT_MOBILE) {
-                pidLook = $selector.attr('data-product-set-id');
-                productSKU = $selector.find('.product-title span.js-open-product-look').attr('data-product-sku');
-
-                trigger_FromAddToBasketMobile_event(productSKU, pidLook);
-            }
-
-            // Trigger Analytic on desktop parent modal
-            if (isProductAdded && CURRENT_WINDOW_WIDTH > BREAKPOINT_MOBILE) {
-                pidLook = $selector.attr('data-product-set-id');
-                productSKU = $selector.find('.product-title span.js-open-product-look').attr('data-product-sku');
-
-                trigger_ProductsAddedToBasket_event(productSKU, pidLook);
-            }
-        }, 1000);
-    });
-
-    /**
-     *  Logic for trigger analytic event
-     *  @param {string} lookID Product ID of Look type product
-     */
-    function trigger_LookPopupDisplayed_event(lookID) {
-        $('body').trigger('analyticsMercaux:LookPopupDisplayed', { lookID: lookID });
-    }
-
-    /**
-     *  Logic for trigger analytic event
-     *  @param {string} productSKU Product SKU
-     *  @param {string} lookID Product ID of Look type product
-     */
-    function trigger_FromProductPopUp_event(productSKU, lookID) {
-        $('body').trigger('analyticsMercaux:FromProductPopUp', { lookID: lookID, productSKU: productSKU });
-    }
-
-    /**
-     *  Logic for trigger analytic event
-     *  @param {string} productSKU Product SKU
-     *  @param {string} lookID Product ID of Look type product
-     */
-    function trigger_FromAddToBasketMobile_event(productSKU, lookID) {
-        $('body').trigger('analyticsMercaux:FromAddToBasketOnMobile', { lookID: lookID, productSKU: productSKU });
-    }
-
-    /**
-     *  Logic for trigger analytic event
-     *  @param {string} productSKU Product SKU
-     *  @param {string} lookID Product ID of Look type product
-     */
-    function trigger_ProductsAddedToBasket_event(productSKU, lookID) {
-        $('body').trigger('analyticsMercaux:ProductsAddedToBasket', { productSKU: productSKU, lookID: lookID });
-    }
-}
-
-module.exports = function () {
-    $(document).ready(function () {
-        init();
-    });
-};
-
-},{}],25:[function(require,module,exports){
-'use strict';
-
-var initOwlCarousel = require('./owlCarousel');
-var getProductSet = require('./getProductSet');
-var initModal = require('./modal');
-
-
-module.exports = function () {
-    initOwlCarousel();
-    getProductSet();
-    initModal();
-};
-
-},{"./getProductSet":24,"./modal":26,"./owlCarousel":27}],26:[function(require,module,exports){
-/* eslint-disable camelcase */
-'use strict';
-
-// Path to minicart.js file from app_storefront_core cartridge
-const minicartSetup = require('../../../../app_storefront_core/cartridge/js/minicart');
-// Path to product.js file from app_storefront_core cartridge
-const productSetup = require('../../../../app_storefront_core/cartridge/js/pages/product');
-const ratingLogic = require('../helpers/ratingLogic');
-
-window.MERCAUX_GLOBAL_ratingLogic = ratingLogic;
-
-/**
- *  Init modal client-side logic
- */
-function init() {
-    $(document).ready(function () {
-        initSizeDropdown();
-
-        $('body').on('hide.bs.modal', '#baseMercauxModal', function () {
-            $('#baseMercauxModal').find('.js-modal-mercaux').empty();
-            $('#pdpMainOld').attr('id', 'pdpMain');
-            $('#product-contentOld').attr('id', 'product-content');
-            $('#mini-cart').removeClass('openned-modal');
-        });
-
-        $('body').on('childModalProduct:loaded', function () {
-            minicartSetup.init();
-            productSetup.initializeEvents();
-        });
-
-        $('body').on('childProductContent.isml:loaded', function () {
-            ratingLogic.init();
-        });
-
-        $('body').on('lookModal:loaded', function () {
-            $('#pdpMain').attr('id', 'pdpMainOld');
-            $('#product-content').attr('id', 'product-contentOld');
-            $('#mini-cart').addClass('openned-modal');
-
-            minicartSetup.init();
-            productSetup.initializeEvents();
-        });
-
-        // Attach data to Mercaux Analytic in child Product modal
-        $('body').on('click', '.js-product-look-child-product', function (e) {
-            var $selector = $(e.target).parents('.js-product-look-child-product');
-            var $parentLookID = $(e.target).parents('.modal-body-mercaux').find('.js-pid-look-child-product').attr('data-pid-look') || null;
-
-            $('body').on('minicart:showed', function () {
-                var pidLook = $parentLookID;
-                var productSKU = $selector.find('h4.product-name').attr('data-product-sku');
-
-                trigger_ProductsAddedToBasket_event(productSKU, pidLook);
-            });
-        });
-
-        $('body').on('productVariationTileModal.isml:loaded', function (e, data) {
-           
-            var $productSelectedTile = $('.product[data-pid="' + data.selectedPID + '"]');
-            var $selectedSizeBtn = $productSelectedTile.find('.js-size-refinement-block .selectable.selected a.swatchanchor');
-            var $addToCartBtn = $productSelectedTile.find('button.add-to-cart');
-
-            var isMasterProduct = data.isMaster === "true";
-            if (isMasterProduct) {
-                $addToCartBtn.css('opacity', 1);
-                return;
-            }
-
-            if (!$addToCartBtn.disabled) {
-                $addToCartBtn.trigger('click');  
-                $addToCartBtn.css('opacity', 0.5).attr('disabled', 'disabled');
-            }
-
-            $('body').on('minicart:showed', function () {
-                setTimeout(function() {
-                    $selectedSizeBtn.trigger('click'); 
-                }, 1000);
-            }); 
-        });
- 
-    });
-
-    /**
-     *  Logic for trigger analytic event
-     *  @param {string} productSKU product SKU
-     *  @param {string} lookID Look ID
-     */
-    function trigger_ProductsAddedToBasket_event(productSKU, lookID) {
-        $('body').trigger('analyticsMercaux:ProductsAddedToBasket', { productSKU: productSKU, lookID: lookID });
-    }
-
-    /**
-     *  Logic for Size dropdown of Add to Cart button on Parent Look popup
-     */
-    function initSizeDropdown() {
-        $('.product-size-ref-item .swatchanchor.disabled').on('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-        });
-
-        $('.js-size-btn').each(function () {
-            var $button = $(this);
-            $button.on('click', function () {
-                $(this).find('button').trigger('change');
-            });
-        });
-
-        $('body').on('click', '.js-show-size-attr', function (e) {
-            var productTile = $(this).parents('.product-set-item');
-            var sizeBlockAttrs = productTile.find('.product-attr-block-parent');
-            var hasOpennedSizes = sizeBlockAttrs.hasClass('opened');
-
-            if (hasOpennedSizes) {
-                sizeBlockAttrs.hide('fast').removeClass('opened');
-                $(this).removeClass('hasOpened');
-            } else {
-                sizeBlockAttrs.show('fast').addClass('opened');
-                $(this).addClass('hasOpened');
-            }
-        });
-
-        $('body').on('mouseleave', '.modal-content-mercaux .product-set-item', function () {
-            var sizeBlockAttrs = $(this).find('.product-attr-block-parent.opened');
-            if (sizeBlockAttrs.length > 0) {
-                sizeBlockAttrs.hide('fast').removeClass('opened');
-                $(this).find('.add-to-cart-block .js-show-size-attr').removeClass('hasOpened');
-            }
-        });  
-    }
-}
-
-module.exports = init;
-
-},{"../../../../app_storefront_core/cartridge/js/minicart":4,"../../../../app_storefront_core/cartridge/js/pages/product":9,"../helpers/ratingLogic":20}],27:[function(require,module,exports){
-/* eslint-disable camelcase */
-'use strict';
-
-/**
- * Init client-side JS code
- */
-function init() {
-    $(document).ready(function () {
-        var owlMercaux = $('.owl-carousel');
-        owlMercaux.owlCarousel({
-            loop: false,
-            margin: 65,
-            nav: true,
-            dots: false,
-            mouseDrag: false,
-            touchDrag: false,
-            onInitialized: onOwlLoaded,
-            responsive: {
-                0: {
-                    items: 1,
-                    touchDrag: true,
-                    nav: true
-                },
-                600: {
-                    items: 3,
-                    touchDrag: true,
-                    nav: true
-                },
-                1000: {
-                    items: 3
-                }
-            }
-        });
-
-        /**
-         * OnLoad slider callback
-         * @param {Event} owlEvent event of loaded slider object
-         */
-        function onOwlLoaded(owlEvent) {
-            var $sliderBlock = $(owlEvent.target).parents('body').find('#SliderLooksCarousel');
-            if ($sliderBlock.length > 0) {
-                trigger_LookDisplayedInPage_event($sliderBlock);
-            }
-        }
-
-        insertShopTheLookBtn();
-    });
-}
-
-/**
- *  Logic to handle insert Shop The Look btn on the PDP
- */
-function insertShopTheLookBtn() {
-    var selectors = {
-        sliderID: '#SliderLooksCarousel',
-        blockButton: '.js-insert-shop-the-look-btn'
-    };
-    var isSliderOnPage = $(selectors.sliderID).length > 0;
-    var $destinationBtnBlock = $(selectors.blockButton);
-
-    if (!isSliderOnPage || $destinationBtnBlock.length < 1) {
-        $(selectors.blockButton).remove();
-    }
-
-    $('body').on('click', selectors.blockButton, function (e) {
-        e.preventDefault();
-        $('html, body').animate({
-            scrollTop: $(selectors.sliderID).offset().top
-        }, 1000);
-    });
-
-    if (isSliderOnPage) {
-        $(document).on('scroll', function () {
-            handleShopTheLookBtn(selectors);   
-        });
-    
-        handleShopTheLookBtn(selectors);
-    }
-}
-
-/**
- *  Logic for trigger analytic event
- *  @param {jQuery} $sliderBlock slider block selector
- */
-function trigger_LookDisplayedInPage_event($sliderBlock) {
-    var slideItems = $sliderBlock.find('.js-look-item');
-    var looksIDs = [];
-
-    slideItems.each(function () {
-        var pid = $(this).attr('data-pid');
-        looksIDs.push(pid);
-    });
-
-    $('body').trigger('analyticsMercaux:LookDisplayedInPage', { looksIDs: looksIDs });
-}
-
-/**
- *  Handle floating shop the look btn
- *  @param {Object} selectors object with names of selector classNames and IDs
- */
-function handleShopTheLookBtn(selectors) {
-    if (window.innerWidth > 568) {
-        return;
-    }
-
-    var sliderOffset = $(selectors.sliderID).offset().top;
-    var windowOffset = window.pageYOffset;
-
-    if (windowOffset + 500 > sliderOffset) {
-        $(selectors.blockButton).hide();
-    } else {
-        $(selectors.blockButton).show();
-    }
-}
-
-module.exports = init;
-
-},{}],28:[function(require,module,exports){
+},{"lodash":38}],34:[function(require,module,exports){
 "use strict";
 
 // rawAsap provides everything we need except exception management.
@@ -2702,7 +4170,7 @@ RawTask.prototype.call = function () {
     }
 };
 
-},{"./raw":29}],29:[function(require,module,exports){
+},{"./raw":35}],35:[function(require,module,exports){
 (function (global){
 "use strict";
 
@@ -2929,7 +4397,7 @@ rawAsap.makeRequestCallFromTimer = makeRequestCallFromTimer;
 // https://github.com/tildeio/rsvp.js/blob/cddf7232546a9cf858524b75cde6f9edf72620a7/lib/rsvp/asap.js
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],30:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 /*!
  * eventie v1.0.6
  * event binding helper
@@ -3013,7 +4481,7 @@ if ( typeof define === 'function' && define.amd ) {
 
 })( window );
 
-},{}],31:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 /*!
  * imagesLoaded v3.2.0
  * JavaScript is all like "You images are done yet or what?"
@@ -3399,7 +4867,7 @@ function makeArray( obj ) {
 
 });
 
-},{"eventie":30,"wolfy87-eventemitter":52}],32:[function(require,module,exports){
+},{"eventie":36,"wolfy87-eventemitter":52}],38:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -20515,12 +21983,12 @@ function makeArray( obj ) {
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],33:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./lib')
 
-},{"./lib":38}],34:[function(require,module,exports){
+},{"./lib":44}],40:[function(require,module,exports){
 'use strict';
 
 var asap = require('asap/raw');
@@ -20735,7 +22203,7 @@ function doResolve(fn, promise) {
   }
 }
 
-},{"asap/raw":29}],35:[function(require,module,exports){
+},{"asap/raw":35}],41:[function(require,module,exports){
 'use strict';
 
 var Promise = require('./core.js');
@@ -20750,7 +22218,7 @@ Promise.prototype.done = function (onFulfilled, onRejected) {
   });
 };
 
-},{"./core.js":34}],36:[function(require,module,exports){
+},{"./core.js":40}],42:[function(require,module,exports){
 'use strict';
 
 //This file contains the ES6 extensions to the core Promises/A+ API
@@ -20859,7 +22327,7 @@ Promise.prototype['catch'] = function (onRejected) {
   return this.then(null, onRejected);
 };
 
-},{"./core.js":34}],37:[function(require,module,exports){
+},{"./core.js":40}],43:[function(require,module,exports){
 'use strict';
 
 var Promise = require('./core.js');
@@ -20877,7 +22345,7 @@ Promise.prototype['finally'] = function (f) {
   });
 };
 
-},{"./core.js":34}],38:[function(require,module,exports){
+},{"./core.js":40}],44:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./core.js');
@@ -20887,7 +22355,7 @@ require('./es6-extensions.js');
 require('./node-extensions.js');
 require('./synchronous.js');
 
-},{"./core.js":34,"./done.js":35,"./es6-extensions.js":36,"./finally.js":37,"./node-extensions.js":39,"./synchronous.js":40}],39:[function(require,module,exports){
+},{"./core.js":40,"./done.js":41,"./es6-extensions.js":42,"./finally.js":43,"./node-extensions.js":45,"./synchronous.js":46}],45:[function(require,module,exports){
 'use strict';
 
 // This file contains then/promise specific extensions that are only useful
@@ -21019,7 +22487,7 @@ Promise.prototype.nodeify = function (callback, ctx) {
   });
 };
 
-},{"./core.js":34,"asap":28}],40:[function(require,module,exports){
+},{"./core.js":40,"asap":34}],46:[function(require,module,exports){
 'use strict';
 
 var Promise = require('./core.js');
@@ -21083,544 +22551,7 @@ Promise.disableSynchronous = function() {
   Promise.prototype.getState = undefined;
 };
 
-},{"./core.js":34}],41:[function(require,module,exports){
-(function (global){
-/*! https://mths.be/punycode v1.4.1 by @mathias */
-;(function(root) {
-
-	/** Detect free variables */
-	var freeExports = typeof exports == 'object' && exports &&
-		!exports.nodeType && exports;
-	var freeModule = typeof module == 'object' && module &&
-		!module.nodeType && module;
-	var freeGlobal = typeof global == 'object' && global;
-	if (
-		freeGlobal.global === freeGlobal ||
-		freeGlobal.window === freeGlobal ||
-		freeGlobal.self === freeGlobal
-	) {
-		root = freeGlobal;
-	}
-
-	/**
-	 * The `punycode` object.
-	 * @name punycode
-	 * @type Object
-	 */
-	var punycode,
-
-	/** Highest positive signed 32-bit float value */
-	maxInt = 2147483647, // aka. 0x7FFFFFFF or 2^31-1
-
-	/** Bootstring parameters */
-	base = 36,
-	tMin = 1,
-	tMax = 26,
-	skew = 38,
-	damp = 700,
-	initialBias = 72,
-	initialN = 128, // 0x80
-	delimiter = '-', // '\x2D'
-
-	/** Regular expressions */
-	regexPunycode = /^xn--/,
-	regexNonASCII = /[^\x20-\x7E]/, // unprintable ASCII chars + non-ASCII chars
-	regexSeparators = /[\x2E\u3002\uFF0E\uFF61]/g, // RFC 3490 separators
-
-	/** Error messages */
-	errors = {
-		'overflow': 'Overflow: input needs wider integers to process',
-		'not-basic': 'Illegal input >= 0x80 (not a basic code point)',
-		'invalid-input': 'Invalid input'
-	},
-
-	/** Convenience shortcuts */
-	baseMinusTMin = base - tMin,
-	floor = Math.floor,
-	stringFromCharCode = String.fromCharCode,
-
-	/** Temporary variable */
-	key;
-
-	/*--------------------------------------------------------------------------*/
-
-	/**
-	 * A generic error utility function.
-	 * @private
-	 * @param {String} type The error type.
-	 * @returns {Error} Throws a `RangeError` with the applicable error message.
-	 */
-	function error(type) {
-		throw new RangeError(errors[type]);
-	}
-
-	/**
-	 * A generic `Array#map` utility function.
-	 * @private
-	 * @param {Array} array The array to iterate over.
-	 * @param {Function} callback The function that gets called for every array
-	 * item.
-	 * @returns {Array} A new array of values returned by the callback function.
-	 */
-	function map(array, fn) {
-		var length = array.length;
-		var result = [];
-		while (length--) {
-			result[length] = fn(array[length]);
-		}
-		return result;
-	}
-
-	/**
-	 * A simple `Array#map`-like wrapper to work with domain name strings or email
-	 * addresses.
-	 * @private
-	 * @param {String} domain The domain name or email address.
-	 * @param {Function} callback The function that gets called for every
-	 * character.
-	 * @returns {Array} A new string of characters returned by the callback
-	 * function.
-	 */
-	function mapDomain(string, fn) {
-		var parts = string.split('@');
-		var result = '';
-		if (parts.length > 1) {
-			// In email addresses, only the domain name should be punycoded. Leave
-			// the local part (i.e. everything up to `@`) intact.
-			result = parts[0] + '@';
-			string = parts[1];
-		}
-		// Avoid `split(regex)` for IE8 compatibility. See #17.
-		string = string.replace(regexSeparators, '\x2E');
-		var labels = string.split('.');
-		var encoded = map(labels, fn).join('.');
-		return result + encoded;
-	}
-
-	/**
-	 * Creates an array containing the numeric code points of each Unicode
-	 * character in the string. While JavaScript uses UCS-2 internally,
-	 * this function will convert a pair of surrogate halves (each of which
-	 * UCS-2 exposes as separate characters) into a single code point,
-	 * matching UTF-16.
-	 * @see `punycode.ucs2.encode`
-	 * @see <https://mathiasbynens.be/notes/javascript-encoding>
-	 * @memberOf punycode.ucs2
-	 * @name decode
-	 * @param {String} string The Unicode input string (UCS-2).
-	 * @returns {Array} The new array of code points.
-	 */
-	function ucs2decode(string) {
-		var output = [],
-		    counter = 0,
-		    length = string.length,
-		    value,
-		    extra;
-		while (counter < length) {
-			value = string.charCodeAt(counter++);
-			if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
-				// high surrogate, and there is a next character
-				extra = string.charCodeAt(counter++);
-				if ((extra & 0xFC00) == 0xDC00) { // low surrogate
-					output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
-				} else {
-					// unmatched surrogate; only append this code unit, in case the next
-					// code unit is the high surrogate of a surrogate pair
-					output.push(value);
-					counter--;
-				}
-			} else {
-				output.push(value);
-			}
-		}
-		return output;
-	}
-
-	/**
-	 * Creates a string based on an array of numeric code points.
-	 * @see `punycode.ucs2.decode`
-	 * @memberOf punycode.ucs2
-	 * @name encode
-	 * @param {Array} codePoints The array of numeric code points.
-	 * @returns {String} The new Unicode string (UCS-2).
-	 */
-	function ucs2encode(array) {
-		return map(array, function(value) {
-			var output = '';
-			if (value > 0xFFFF) {
-				value -= 0x10000;
-				output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
-				value = 0xDC00 | value & 0x3FF;
-			}
-			output += stringFromCharCode(value);
-			return output;
-		}).join('');
-	}
-
-	/**
-	 * Converts a basic code point into a digit/integer.
-	 * @see `digitToBasic()`
-	 * @private
-	 * @param {Number} codePoint The basic numeric code point value.
-	 * @returns {Number} The numeric value of a basic code point (for use in
-	 * representing integers) in the range `0` to `base - 1`, or `base` if
-	 * the code point does not represent a value.
-	 */
-	function basicToDigit(codePoint) {
-		if (codePoint - 48 < 10) {
-			return codePoint - 22;
-		}
-		if (codePoint - 65 < 26) {
-			return codePoint - 65;
-		}
-		if (codePoint - 97 < 26) {
-			return codePoint - 97;
-		}
-		return base;
-	}
-
-	/**
-	 * Converts a digit/integer into a basic code point.
-	 * @see `basicToDigit()`
-	 * @private
-	 * @param {Number} digit The numeric value of a basic code point.
-	 * @returns {Number} The basic code point whose value (when used for
-	 * representing integers) is `digit`, which needs to be in the range
-	 * `0` to `base - 1`. If `flag` is non-zero, the uppercase form is
-	 * used; else, the lowercase form is used. The behavior is undefined
-	 * if `flag` is non-zero and `digit` has no uppercase form.
-	 */
-	function digitToBasic(digit, flag) {
-		//  0..25 map to ASCII a..z or A..Z
-		// 26..35 map to ASCII 0..9
-		return digit + 22 + 75 * (digit < 26) - ((flag != 0) << 5);
-	}
-
-	/**
-	 * Bias adaptation function as per section 3.4 of RFC 3492.
-	 * https://tools.ietf.org/html/rfc3492#section-3.4
-	 * @private
-	 */
-	function adapt(delta, numPoints, firstTime) {
-		var k = 0;
-		delta = firstTime ? floor(delta / damp) : delta >> 1;
-		delta += floor(delta / numPoints);
-		for (/* no initialization */; delta > baseMinusTMin * tMax >> 1; k += base) {
-			delta = floor(delta / baseMinusTMin);
-		}
-		return floor(k + (baseMinusTMin + 1) * delta / (delta + skew));
-	}
-
-	/**
-	 * Converts a Punycode string of ASCII-only symbols to a string of Unicode
-	 * symbols.
-	 * @memberOf punycode
-	 * @param {String} input The Punycode string of ASCII-only symbols.
-	 * @returns {String} The resulting string of Unicode symbols.
-	 */
-	function decode(input) {
-		// Don't use UCS-2
-		var output = [],
-		    inputLength = input.length,
-		    out,
-		    i = 0,
-		    n = initialN,
-		    bias = initialBias,
-		    basic,
-		    j,
-		    index,
-		    oldi,
-		    w,
-		    k,
-		    digit,
-		    t,
-		    /** Cached calculation results */
-		    baseMinusT;
-
-		// Handle the basic code points: let `basic` be the number of input code
-		// points before the last delimiter, or `0` if there is none, then copy
-		// the first basic code points to the output.
-
-		basic = input.lastIndexOf(delimiter);
-		if (basic < 0) {
-			basic = 0;
-		}
-
-		for (j = 0; j < basic; ++j) {
-			// if it's not a basic code point
-			if (input.charCodeAt(j) >= 0x80) {
-				error('not-basic');
-			}
-			output.push(input.charCodeAt(j));
-		}
-
-		// Main decoding loop: start just after the last delimiter if any basic code
-		// points were copied; start at the beginning otherwise.
-
-		for (index = basic > 0 ? basic + 1 : 0; index < inputLength; /* no final expression */) {
-
-			// `index` is the index of the next character to be consumed.
-			// Decode a generalized variable-length integer into `delta`,
-			// which gets added to `i`. The overflow checking is easier
-			// if we increase `i` as we go, then subtract off its starting
-			// value at the end to obtain `delta`.
-			for (oldi = i, w = 1, k = base; /* no condition */; k += base) {
-
-				if (index >= inputLength) {
-					error('invalid-input');
-				}
-
-				digit = basicToDigit(input.charCodeAt(index++));
-
-				if (digit >= base || digit > floor((maxInt - i) / w)) {
-					error('overflow');
-				}
-
-				i += digit * w;
-				t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
-
-				if (digit < t) {
-					break;
-				}
-
-				baseMinusT = base - t;
-				if (w > floor(maxInt / baseMinusT)) {
-					error('overflow');
-				}
-
-				w *= baseMinusT;
-
-			}
-
-			out = output.length + 1;
-			bias = adapt(i - oldi, out, oldi == 0);
-
-			// `i` was supposed to wrap around from `out` to `0`,
-			// incrementing `n` each time, so we'll fix that now:
-			if (floor(i / out) > maxInt - n) {
-				error('overflow');
-			}
-
-			n += floor(i / out);
-			i %= out;
-
-			// Insert `n` at position `i` of the output
-			output.splice(i++, 0, n);
-
-		}
-
-		return ucs2encode(output);
-	}
-
-	/**
-	 * Converts a string of Unicode symbols (e.g. a domain name label) to a
-	 * Punycode string of ASCII-only symbols.
-	 * @memberOf punycode
-	 * @param {String} input The string of Unicode symbols.
-	 * @returns {String} The resulting Punycode string of ASCII-only symbols.
-	 */
-	function encode(input) {
-		var n,
-		    delta,
-		    handledCPCount,
-		    basicLength,
-		    bias,
-		    j,
-		    m,
-		    q,
-		    k,
-		    t,
-		    currentValue,
-		    output = [],
-		    /** `inputLength` will hold the number of code points in `input`. */
-		    inputLength,
-		    /** Cached calculation results */
-		    handledCPCountPlusOne,
-		    baseMinusT,
-		    qMinusT;
-
-		// Convert the input in UCS-2 to Unicode
-		input = ucs2decode(input);
-
-		// Cache the length
-		inputLength = input.length;
-
-		// Initialize the state
-		n = initialN;
-		delta = 0;
-		bias = initialBias;
-
-		// Handle the basic code points
-		for (j = 0; j < inputLength; ++j) {
-			currentValue = input[j];
-			if (currentValue < 0x80) {
-				output.push(stringFromCharCode(currentValue));
-			}
-		}
-
-		handledCPCount = basicLength = output.length;
-
-		// `handledCPCount` is the number of code points that have been handled;
-		// `basicLength` is the number of basic code points.
-
-		// Finish the basic string - if it is not empty - with a delimiter
-		if (basicLength) {
-			output.push(delimiter);
-		}
-
-		// Main encoding loop:
-		while (handledCPCount < inputLength) {
-
-			// All non-basic code points < n have been handled already. Find the next
-			// larger one:
-			for (m = maxInt, j = 0; j < inputLength; ++j) {
-				currentValue = input[j];
-				if (currentValue >= n && currentValue < m) {
-					m = currentValue;
-				}
-			}
-
-			// Increase `delta` enough to advance the decoder's <n,i> state to <m,0>,
-			// but guard against overflow
-			handledCPCountPlusOne = handledCPCount + 1;
-			if (m - n > floor((maxInt - delta) / handledCPCountPlusOne)) {
-				error('overflow');
-			}
-
-			delta += (m - n) * handledCPCountPlusOne;
-			n = m;
-
-			for (j = 0; j < inputLength; ++j) {
-				currentValue = input[j];
-
-				if (currentValue < n && ++delta > maxInt) {
-					error('overflow');
-				}
-
-				if (currentValue == n) {
-					// Represent delta as a generalized variable-length integer
-					for (q = delta, k = base; /* no condition */; k += base) {
-						t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
-						if (q < t) {
-							break;
-						}
-						qMinusT = q - t;
-						baseMinusT = base - t;
-						output.push(
-							stringFromCharCode(digitToBasic(t + qMinusT % baseMinusT, 0))
-						);
-						q = floor(qMinusT / baseMinusT);
-					}
-
-					output.push(stringFromCharCode(digitToBasic(q, 0)));
-					bias = adapt(delta, handledCPCountPlusOne, handledCPCount == basicLength);
-					delta = 0;
-					++handledCPCount;
-				}
-			}
-
-			++delta;
-			++n;
-
-		}
-		return output.join('');
-	}
-
-	/**
-	 * Converts a Punycode string representing a domain name or an email address
-	 * to Unicode. Only the Punycoded parts of the input will be converted, i.e.
-	 * it doesn't matter if you call it on a string that has already been
-	 * converted to Unicode.
-	 * @memberOf punycode
-	 * @param {String} input The Punycoded domain name or email address to
-	 * convert to Unicode.
-	 * @returns {String} The Unicode representation of the given Punycode
-	 * string.
-	 */
-	function toUnicode(input) {
-		return mapDomain(input, function(string) {
-			return regexPunycode.test(string)
-				? decode(string.slice(4).toLowerCase())
-				: string;
-		});
-	}
-
-	/**
-	 * Converts a Unicode string representing a domain name or an email address to
-	 * Punycode. Only the non-ASCII parts of the domain name will be converted,
-	 * i.e. it doesn't matter if you call it with a domain that's already in
-	 * ASCII.
-	 * @memberOf punycode
-	 * @param {String} input The domain name or email address to convert, as a
-	 * Unicode string.
-	 * @returns {String} The Punycode representation of the given domain name or
-	 * email address.
-	 */
-	function toASCII(input) {
-		return mapDomain(input, function(string) {
-			return regexNonASCII.test(string)
-				? 'xn--' + encode(string)
-				: string;
-		});
-	}
-
-	/*--------------------------------------------------------------------------*/
-
-	/** Define the public API */
-	punycode = {
-		/**
-		 * A string representing the current Punycode.js version number.
-		 * @memberOf punycode
-		 * @type String
-		 */
-		'version': '1.4.1',
-		/**
-		 * An object of methods to convert from JavaScript's internal character
-		 * representation (UCS-2) to Unicode code points, and back.
-		 * @see <https://mathiasbynens.be/notes/javascript-encoding>
-		 * @memberOf punycode
-		 * @type Object
-		 */
-		'ucs2': {
-			'decode': ucs2decode,
-			'encode': ucs2encode
-		},
-		'decode': decode,
-		'encode': encode,
-		'toASCII': toASCII,
-		'toUnicode': toUnicode
-	};
-
-	/** Expose `punycode` */
-	// Some AMD build optimizers, like r.js, check for specific condition patterns
-	// like the following:
-	if (
-		typeof define == 'function' &&
-		typeof define.amd == 'object' &&
-		define.amd
-	) {
-		define('punycode', function() {
-			return punycode;
-		});
-	} else if (freeExports && freeModule) {
-		if (module.exports == freeExports) {
-			// in Node.js, io.js, or RingoJS v0.8.0+
-			freeModule.exports = punycode;
-		} else {
-			// in Narwhal or RingoJS v0.7.0-
-			for (key in punycode) {
-				punycode.hasOwnProperty(key) && (freeExports[key] = punycode[key]);
-			}
-		}
-	} else {
-		// in Rhino or a web browser
-		root.punycode = punycode;
-	}
-
-}(this));
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],42:[function(require,module,exports){
+},{"./core.js":40}],47:[function(require,module,exports){
 'use strict';
 
 var replace = String.prototype.replace;
@@ -21648,7 +22579,7 @@ module.exports = util.assign(
     Format
 );
 
-},{"./utils":46}],43:[function(require,module,exports){
+},{"./utils":51}],48:[function(require,module,exports){
 'use strict';
 
 var stringify = require('./stringify');
@@ -21661,7 +22592,7 @@ module.exports = {
     stringify: stringify
 };
 
-},{"./formats":42,"./parse":44,"./stringify":45}],44:[function(require,module,exports){
+},{"./formats":47,"./parse":49,"./stringify":50}],49:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -21911,7 +22842,7 @@ module.exports = function (str, opts) {
     return utils.compact(obj);
 };
 
-},{"./utils":46}],45:[function(require,module,exports){
+},{"./utils":51}],50:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -22192,7 +23123,7 @@ module.exports = function (object, opts) {
     return joined.length > 0 ? prefix + joined : '';
 };
 
-},{"./formats":42,"./utils":46}],46:[function(require,module,exports){
+},{"./formats":47,"./utils":51}],51:[function(require,module,exports){
 'use strict';
 
 var has = Object.prototype.hasOwnProperty;
@@ -22428,937 +23359,6 @@ module.exports = {
     isBuffer: isBuffer,
     isRegExp: isRegExp,
     merge: merge
-};
-
-},{}],47:[function(require,module,exports){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-'use strict';
-
-// If obj.hasOwnProperty has been overridden, then calling
-// obj.hasOwnProperty(prop) will break.
-// See: https://github.com/joyent/node/issues/1707
-function hasOwnProperty(obj, prop) {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-}
-
-module.exports = function(qs, sep, eq, options) {
-  sep = sep || '&';
-  eq = eq || '=';
-  var obj = {};
-
-  if (typeof qs !== 'string' || qs.length === 0) {
-    return obj;
-  }
-
-  var regexp = /\+/g;
-  qs = qs.split(sep);
-
-  var maxKeys = 1000;
-  if (options && typeof options.maxKeys === 'number') {
-    maxKeys = options.maxKeys;
-  }
-
-  var len = qs.length;
-  // maxKeys <= 0 means that we should not limit keys count
-  if (maxKeys > 0 && len > maxKeys) {
-    len = maxKeys;
-  }
-
-  for (var i = 0; i < len; ++i) {
-    var x = qs[i].replace(regexp, '%20'),
-        idx = x.indexOf(eq),
-        kstr, vstr, k, v;
-
-    if (idx >= 0) {
-      kstr = x.substr(0, idx);
-      vstr = x.substr(idx + 1);
-    } else {
-      kstr = x;
-      vstr = '';
-    }
-
-    k = decodeURIComponent(kstr);
-    v = decodeURIComponent(vstr);
-
-    if (!hasOwnProperty(obj, k)) {
-      obj[k] = v;
-    } else if (isArray(obj[k])) {
-      obj[k].push(v);
-    } else {
-      obj[k] = [obj[k], v];
-    }
-  }
-
-  return obj;
-};
-
-var isArray = Array.isArray || function (xs) {
-  return Object.prototype.toString.call(xs) === '[object Array]';
-};
-
-},{}],48:[function(require,module,exports){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-'use strict';
-
-var stringifyPrimitive = function(v) {
-  switch (typeof v) {
-    case 'string':
-      return v;
-
-    case 'boolean':
-      return v ? 'true' : 'false';
-
-    case 'number':
-      return isFinite(v) ? v : '';
-
-    default:
-      return '';
-  }
-};
-
-module.exports = function(obj, sep, eq, name) {
-  sep = sep || '&';
-  eq = eq || '=';
-  if (obj === null) {
-    obj = undefined;
-  }
-
-  if (typeof obj === 'object') {
-    return map(objectKeys(obj), function(k) {
-      var ks = encodeURIComponent(stringifyPrimitive(k)) + eq;
-      if (isArray(obj[k])) {
-        return map(obj[k], function(v) {
-          return ks + encodeURIComponent(stringifyPrimitive(v));
-        }).join(sep);
-      } else {
-        return ks + encodeURIComponent(stringifyPrimitive(obj[k]));
-      }
-    }).join(sep);
-
-  }
-
-  if (!name) return '';
-  return encodeURIComponent(stringifyPrimitive(name)) + eq +
-         encodeURIComponent(stringifyPrimitive(obj));
-};
-
-var isArray = Array.isArray || function (xs) {
-  return Object.prototype.toString.call(xs) === '[object Array]';
-};
-
-function map (xs, f) {
-  if (xs.map) return xs.map(f);
-  var res = [];
-  for (var i = 0; i < xs.length; i++) {
-    res.push(f(xs[i], i));
-  }
-  return res;
-}
-
-var objectKeys = Object.keys || function (obj) {
-  var res = [];
-  for (var key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) res.push(key);
-  }
-  return res;
-};
-
-},{}],49:[function(require,module,exports){
-'use strict';
-
-exports.decode = exports.parse = require('./decode');
-exports.encode = exports.stringify = require('./encode');
-
-},{"./decode":47,"./encode":48}],50:[function(require,module,exports){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-'use strict';
-
-var punycode = require('punycode');
-var util = require('./util');
-
-exports.parse = urlParse;
-exports.resolve = urlResolve;
-exports.resolveObject = urlResolveObject;
-exports.format = urlFormat;
-
-exports.Url = Url;
-
-function Url() {
-  this.protocol = null;
-  this.slashes = null;
-  this.auth = null;
-  this.host = null;
-  this.port = null;
-  this.hostname = null;
-  this.hash = null;
-  this.search = null;
-  this.query = null;
-  this.pathname = null;
-  this.path = null;
-  this.href = null;
-}
-
-// Reference: RFC 3986, RFC 1808, RFC 2396
-
-// define these here so at least they only have to be
-// compiled once on the first module load.
-var protocolPattern = /^([a-z0-9.+-]+:)/i,
-    portPattern = /:[0-9]*$/,
-
-    // Special case for a simple path URL
-    simplePathPattern = /^(\/\/?(?!\/)[^\?\s]*)(\?[^\s]*)?$/,
-
-    // RFC 2396: characters reserved for delimiting URLs.
-    // We actually just auto-escape these.
-    delims = ['<', '>', '"', '`', ' ', '\r', '\n', '\t'],
-
-    // RFC 2396: characters not allowed for various reasons.
-    unwise = ['{', '}', '|', '\\', '^', '`'].concat(delims),
-
-    // Allowed by RFCs, but cause of XSS attacks.  Always escape these.
-    autoEscape = ['\''].concat(unwise),
-    // Characters that are never ever allowed in a hostname.
-    // Note that any invalid chars are also handled, but these
-    // are the ones that are *expected* to be seen, so we fast-path
-    // them.
-    nonHostChars = ['%', '/', '?', ';', '#'].concat(autoEscape),
-    hostEndingChars = ['/', '?', '#'],
-    hostnameMaxLen = 255,
-    hostnamePartPattern = /^[+a-z0-9A-Z_-]{0,63}$/,
-    hostnamePartStart = /^([+a-z0-9A-Z_-]{0,63})(.*)$/,
-    // protocols that can allow "unsafe" and "unwise" chars.
-    unsafeProtocol = {
-      'javascript': true,
-      'javascript:': true
-    },
-    // protocols that never have a hostname.
-    hostlessProtocol = {
-      'javascript': true,
-      'javascript:': true
-    },
-    // protocols that always contain a // bit.
-    slashedProtocol = {
-      'http': true,
-      'https': true,
-      'ftp': true,
-      'gopher': true,
-      'file': true,
-      'http:': true,
-      'https:': true,
-      'ftp:': true,
-      'gopher:': true,
-      'file:': true
-    },
-    querystring = require('querystring');
-
-function urlParse(url, parseQueryString, slashesDenoteHost) {
-  if (url && util.isObject(url) && url instanceof Url) return url;
-
-  var u = new Url;
-  u.parse(url, parseQueryString, slashesDenoteHost);
-  return u;
-}
-
-Url.prototype.parse = function(url, parseQueryString, slashesDenoteHost) {
-  if (!util.isString(url)) {
-    throw new TypeError("Parameter 'url' must be a string, not " + typeof url);
-  }
-
-  // Copy chrome, IE, opera backslash-handling behavior.
-  // Back slashes before the query string get converted to forward slashes
-  // See: https://code.google.com/p/chromium/issues/detail?id=25916
-  var queryIndex = url.indexOf('?'),
-      splitter =
-          (queryIndex !== -1 && queryIndex < url.indexOf('#')) ? '?' : '#',
-      uSplit = url.split(splitter),
-      slashRegex = /\\/g;
-  uSplit[0] = uSplit[0].replace(slashRegex, '/');
-  url = uSplit.join(splitter);
-
-  var rest = url;
-
-  // trim before proceeding.
-  // This is to support parse stuff like "  http://foo.com  \n"
-  rest = rest.trim();
-
-  if (!slashesDenoteHost && url.split('#').length === 1) {
-    // Try fast path regexp
-    var simplePath = simplePathPattern.exec(rest);
-    if (simplePath) {
-      this.path = rest;
-      this.href = rest;
-      this.pathname = simplePath[1];
-      if (simplePath[2]) {
-        this.search = simplePath[2];
-        if (parseQueryString) {
-          this.query = querystring.parse(this.search.substr(1));
-        } else {
-          this.query = this.search.substr(1);
-        }
-      } else if (parseQueryString) {
-        this.search = '';
-        this.query = {};
-      }
-      return this;
-    }
-  }
-
-  var proto = protocolPattern.exec(rest);
-  if (proto) {
-    proto = proto[0];
-    var lowerProto = proto.toLowerCase();
-    this.protocol = lowerProto;
-    rest = rest.substr(proto.length);
-  }
-
-  // figure out if it's got a host
-  // user@server is *always* interpreted as a hostname, and url
-  // resolution will treat //foo/bar as host=foo,path=bar because that's
-  // how the browser resolves relative URLs.
-  if (slashesDenoteHost || proto || rest.match(/^\/\/[^@\/]+@[^@\/]+/)) {
-    var slashes = rest.substr(0, 2) === '//';
-    if (slashes && !(proto && hostlessProtocol[proto])) {
-      rest = rest.substr(2);
-      this.slashes = true;
-    }
-  }
-
-  if (!hostlessProtocol[proto] &&
-      (slashes || (proto && !slashedProtocol[proto]))) {
-
-    // there's a hostname.
-    // the first instance of /, ?, ;, or # ends the host.
-    //
-    // If there is an @ in the hostname, then non-host chars *are* allowed
-    // to the left of the last @ sign, unless some host-ending character
-    // comes *before* the @-sign.
-    // URLs are obnoxious.
-    //
-    // ex:
-    // http://a@b@c/ => user:a@b host:c
-    // http://a@b?@c => user:a host:c path:/?@c
-
-    // v0.12 TODO(isaacs): This is not quite how Chrome does things.
-    // Review our test case against browsers more comprehensively.
-
-    // find the first instance of any hostEndingChars
-    var hostEnd = -1;
-    for (var i = 0; i < hostEndingChars.length; i++) {
-      var hec = rest.indexOf(hostEndingChars[i]);
-      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
-        hostEnd = hec;
-    }
-
-    // at this point, either we have an explicit point where the
-    // auth portion cannot go past, or the last @ char is the decider.
-    var auth, atSign;
-    if (hostEnd === -1) {
-      // atSign can be anywhere.
-      atSign = rest.lastIndexOf('@');
-    } else {
-      // atSign must be in auth portion.
-      // http://a@b/c@d => host:b auth:a path:/c@d
-      atSign = rest.lastIndexOf('@', hostEnd);
-    }
-
-    // Now we have a portion which is definitely the auth.
-    // Pull that off.
-    if (atSign !== -1) {
-      auth = rest.slice(0, atSign);
-      rest = rest.slice(atSign + 1);
-      this.auth = decodeURIComponent(auth);
-    }
-
-    // the host is the remaining to the left of the first non-host char
-    hostEnd = -1;
-    for (var i = 0; i < nonHostChars.length; i++) {
-      var hec = rest.indexOf(nonHostChars[i]);
-      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
-        hostEnd = hec;
-    }
-    // if we still have not hit it, then the entire thing is a host.
-    if (hostEnd === -1)
-      hostEnd = rest.length;
-
-    this.host = rest.slice(0, hostEnd);
-    rest = rest.slice(hostEnd);
-
-    // pull out port.
-    this.parseHost();
-
-    // we've indicated that there is a hostname,
-    // so even if it's empty, it has to be present.
-    this.hostname = this.hostname || '';
-
-    // if hostname begins with [ and ends with ]
-    // assume that it's an IPv6 address.
-    var ipv6Hostname = this.hostname[0] === '[' &&
-        this.hostname[this.hostname.length - 1] === ']';
-
-    // validate a little.
-    if (!ipv6Hostname) {
-      var hostparts = this.hostname.split(/\./);
-      for (var i = 0, l = hostparts.length; i < l; i++) {
-        var part = hostparts[i];
-        if (!part) continue;
-        if (!part.match(hostnamePartPattern)) {
-          var newpart = '';
-          for (var j = 0, k = part.length; j < k; j++) {
-            if (part.charCodeAt(j) > 127) {
-              // we replace non-ASCII char with a temporary placeholder
-              // we need this to make sure size of hostname is not
-              // broken by replacing non-ASCII by nothing
-              newpart += 'x';
-            } else {
-              newpart += part[j];
-            }
-          }
-          // we test again with ASCII char only
-          if (!newpart.match(hostnamePartPattern)) {
-            var validParts = hostparts.slice(0, i);
-            var notHost = hostparts.slice(i + 1);
-            var bit = part.match(hostnamePartStart);
-            if (bit) {
-              validParts.push(bit[1]);
-              notHost.unshift(bit[2]);
-            }
-            if (notHost.length) {
-              rest = '/' + notHost.join('.') + rest;
-            }
-            this.hostname = validParts.join('.');
-            break;
-          }
-        }
-      }
-    }
-
-    if (this.hostname.length > hostnameMaxLen) {
-      this.hostname = '';
-    } else {
-      // hostnames are always lower case.
-      this.hostname = this.hostname.toLowerCase();
-    }
-
-    if (!ipv6Hostname) {
-      // IDNA Support: Returns a punycoded representation of "domain".
-      // It only converts parts of the domain name that
-      // have non-ASCII characters, i.e. it doesn't matter if
-      // you call it with a domain that already is ASCII-only.
-      this.hostname = punycode.toASCII(this.hostname);
-    }
-
-    var p = this.port ? ':' + this.port : '';
-    var h = this.hostname || '';
-    this.host = h + p;
-    this.href += this.host;
-
-    // strip [ and ] from the hostname
-    // the host field still retains them, though
-    if (ipv6Hostname) {
-      this.hostname = this.hostname.substr(1, this.hostname.length - 2);
-      if (rest[0] !== '/') {
-        rest = '/' + rest;
-      }
-    }
-  }
-
-  // now rest is set to the post-host stuff.
-  // chop off any delim chars.
-  if (!unsafeProtocol[lowerProto]) {
-
-    // First, make 100% sure that any "autoEscape" chars get
-    // escaped, even if encodeURIComponent doesn't think they
-    // need to be.
-    for (var i = 0, l = autoEscape.length; i < l; i++) {
-      var ae = autoEscape[i];
-      if (rest.indexOf(ae) === -1)
-        continue;
-      var esc = encodeURIComponent(ae);
-      if (esc === ae) {
-        esc = escape(ae);
-      }
-      rest = rest.split(ae).join(esc);
-    }
-  }
-
-
-  // chop off from the tail first.
-  var hash = rest.indexOf('#');
-  if (hash !== -1) {
-    // got a fragment string.
-    this.hash = rest.substr(hash);
-    rest = rest.slice(0, hash);
-  }
-  var qm = rest.indexOf('?');
-  if (qm !== -1) {
-    this.search = rest.substr(qm);
-    this.query = rest.substr(qm + 1);
-    if (parseQueryString) {
-      this.query = querystring.parse(this.query);
-    }
-    rest = rest.slice(0, qm);
-  } else if (parseQueryString) {
-    // no query string, but parseQueryString still requested
-    this.search = '';
-    this.query = {};
-  }
-  if (rest) this.pathname = rest;
-  if (slashedProtocol[lowerProto] &&
-      this.hostname && !this.pathname) {
-    this.pathname = '/';
-  }
-
-  //to support http.request
-  if (this.pathname || this.search) {
-    var p = this.pathname || '';
-    var s = this.search || '';
-    this.path = p + s;
-  }
-
-  // finally, reconstruct the href based on what has been validated.
-  this.href = this.format();
-  return this;
-};
-
-// format a parsed object into a url string
-function urlFormat(obj) {
-  // ensure it's an object, and not a string url.
-  // If it's an obj, this is a no-op.
-  // this way, you can call url_format() on strings
-  // to clean up potentially wonky urls.
-  if (util.isString(obj)) obj = urlParse(obj);
-  if (!(obj instanceof Url)) return Url.prototype.format.call(obj);
-  return obj.format();
-}
-
-Url.prototype.format = function() {
-  var auth = this.auth || '';
-  if (auth) {
-    auth = encodeURIComponent(auth);
-    auth = auth.replace(/%3A/i, ':');
-    auth += '@';
-  }
-
-  var protocol = this.protocol || '',
-      pathname = this.pathname || '',
-      hash = this.hash || '',
-      host = false,
-      query = '';
-
-  if (this.host) {
-    host = auth + this.host;
-  } else if (this.hostname) {
-    host = auth + (this.hostname.indexOf(':') === -1 ?
-        this.hostname :
-        '[' + this.hostname + ']');
-    if (this.port) {
-      host += ':' + this.port;
-    }
-  }
-
-  if (this.query &&
-      util.isObject(this.query) &&
-      Object.keys(this.query).length) {
-    query = querystring.stringify(this.query);
-  }
-
-  var search = this.search || (query && ('?' + query)) || '';
-
-  if (protocol && protocol.substr(-1) !== ':') protocol += ':';
-
-  // only the slashedProtocols get the //.  Not mailto:, xmpp:, etc.
-  // unless they had them to begin with.
-  if (this.slashes ||
-      (!protocol || slashedProtocol[protocol]) && host !== false) {
-    host = '//' + (host || '');
-    if (pathname && pathname.charAt(0) !== '/') pathname = '/' + pathname;
-  } else if (!host) {
-    host = '';
-  }
-
-  if (hash && hash.charAt(0) !== '#') hash = '#' + hash;
-  if (search && search.charAt(0) !== '?') search = '?' + search;
-
-  pathname = pathname.replace(/[?#]/g, function(match) {
-    return encodeURIComponent(match);
-  });
-  search = search.replace('#', '%23');
-
-  return protocol + host + pathname + search + hash;
-};
-
-function urlResolve(source, relative) {
-  return urlParse(source, false, true).resolve(relative);
-}
-
-Url.prototype.resolve = function(relative) {
-  return this.resolveObject(urlParse(relative, false, true)).format();
-};
-
-function urlResolveObject(source, relative) {
-  if (!source) return relative;
-  return urlParse(source, false, true).resolveObject(relative);
-}
-
-Url.prototype.resolveObject = function(relative) {
-  if (util.isString(relative)) {
-    var rel = new Url();
-    rel.parse(relative, false, true);
-    relative = rel;
-  }
-
-  var result = new Url();
-  var tkeys = Object.keys(this);
-  for (var tk = 0; tk < tkeys.length; tk++) {
-    var tkey = tkeys[tk];
-    result[tkey] = this[tkey];
-  }
-
-  // hash is always overridden, no matter what.
-  // even href="" will remove it.
-  result.hash = relative.hash;
-
-  // if the relative url is empty, then there's nothing left to do here.
-  if (relative.href === '') {
-    result.href = result.format();
-    return result;
-  }
-
-  // hrefs like //foo/bar always cut to the protocol.
-  if (relative.slashes && !relative.protocol) {
-    // take everything except the protocol from relative
-    var rkeys = Object.keys(relative);
-    for (var rk = 0; rk < rkeys.length; rk++) {
-      var rkey = rkeys[rk];
-      if (rkey !== 'protocol')
-        result[rkey] = relative[rkey];
-    }
-
-    //urlParse appends trailing / to urls like http://www.example.com
-    if (slashedProtocol[result.protocol] &&
-        result.hostname && !result.pathname) {
-      result.path = result.pathname = '/';
-    }
-
-    result.href = result.format();
-    return result;
-  }
-
-  if (relative.protocol && relative.protocol !== result.protocol) {
-    // if it's a known url protocol, then changing
-    // the protocol does weird things
-    // first, if it's not file:, then we MUST have a host,
-    // and if there was a path
-    // to begin with, then we MUST have a path.
-    // if it is file:, then the host is dropped,
-    // because that's known to be hostless.
-    // anything else is assumed to be absolute.
-    if (!slashedProtocol[relative.protocol]) {
-      var keys = Object.keys(relative);
-      for (var v = 0; v < keys.length; v++) {
-        var k = keys[v];
-        result[k] = relative[k];
-      }
-      result.href = result.format();
-      return result;
-    }
-
-    result.protocol = relative.protocol;
-    if (!relative.host && !hostlessProtocol[relative.protocol]) {
-      var relPath = (relative.pathname || '').split('/');
-      while (relPath.length && !(relative.host = relPath.shift()));
-      if (!relative.host) relative.host = '';
-      if (!relative.hostname) relative.hostname = '';
-      if (relPath[0] !== '') relPath.unshift('');
-      if (relPath.length < 2) relPath.unshift('');
-      result.pathname = relPath.join('/');
-    } else {
-      result.pathname = relative.pathname;
-    }
-    result.search = relative.search;
-    result.query = relative.query;
-    result.host = relative.host || '';
-    result.auth = relative.auth;
-    result.hostname = relative.hostname || relative.host;
-    result.port = relative.port;
-    // to support http.request
-    if (result.pathname || result.search) {
-      var p = result.pathname || '';
-      var s = result.search || '';
-      result.path = p + s;
-    }
-    result.slashes = result.slashes || relative.slashes;
-    result.href = result.format();
-    return result;
-  }
-
-  var isSourceAbs = (result.pathname && result.pathname.charAt(0) === '/'),
-      isRelAbs = (
-          relative.host ||
-          relative.pathname && relative.pathname.charAt(0) === '/'
-      ),
-      mustEndAbs = (isRelAbs || isSourceAbs ||
-                    (result.host && relative.pathname)),
-      removeAllDots = mustEndAbs,
-      srcPath = result.pathname && result.pathname.split('/') || [],
-      relPath = relative.pathname && relative.pathname.split('/') || [],
-      psychotic = result.protocol && !slashedProtocol[result.protocol];
-
-  // if the url is a non-slashed url, then relative
-  // links like ../.. should be able
-  // to crawl up to the hostname, as well.  This is strange.
-  // result.protocol has already been set by now.
-  // Later on, put the first path part into the host field.
-  if (psychotic) {
-    result.hostname = '';
-    result.port = null;
-    if (result.host) {
-      if (srcPath[0] === '') srcPath[0] = result.host;
-      else srcPath.unshift(result.host);
-    }
-    result.host = '';
-    if (relative.protocol) {
-      relative.hostname = null;
-      relative.port = null;
-      if (relative.host) {
-        if (relPath[0] === '') relPath[0] = relative.host;
-        else relPath.unshift(relative.host);
-      }
-      relative.host = null;
-    }
-    mustEndAbs = mustEndAbs && (relPath[0] === '' || srcPath[0] === '');
-  }
-
-  if (isRelAbs) {
-    // it's absolute.
-    result.host = (relative.host || relative.host === '') ?
-                  relative.host : result.host;
-    result.hostname = (relative.hostname || relative.hostname === '') ?
-                      relative.hostname : result.hostname;
-    result.search = relative.search;
-    result.query = relative.query;
-    srcPath = relPath;
-    // fall through to the dot-handling below.
-  } else if (relPath.length) {
-    // it's relative
-    // throw away the existing file, and take the new path instead.
-    if (!srcPath) srcPath = [];
-    srcPath.pop();
-    srcPath = srcPath.concat(relPath);
-    result.search = relative.search;
-    result.query = relative.query;
-  } else if (!util.isNullOrUndefined(relative.search)) {
-    // just pull out the search.
-    // like href='?foo'.
-    // Put this after the other two cases because it simplifies the booleans
-    if (psychotic) {
-      result.hostname = result.host = srcPath.shift();
-      //occationaly the auth can get stuck only in host
-      //this especially happens in cases like
-      //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
-      var authInHost = result.host && result.host.indexOf('@') > 0 ?
-                       result.host.split('@') : false;
-      if (authInHost) {
-        result.auth = authInHost.shift();
-        result.host = result.hostname = authInHost.shift();
-      }
-    }
-    result.search = relative.search;
-    result.query = relative.query;
-    //to support http.request
-    if (!util.isNull(result.pathname) || !util.isNull(result.search)) {
-      result.path = (result.pathname ? result.pathname : '') +
-                    (result.search ? result.search : '');
-    }
-    result.href = result.format();
-    return result;
-  }
-
-  if (!srcPath.length) {
-    // no path at all.  easy.
-    // we've already handled the other stuff above.
-    result.pathname = null;
-    //to support http.request
-    if (result.search) {
-      result.path = '/' + result.search;
-    } else {
-      result.path = null;
-    }
-    result.href = result.format();
-    return result;
-  }
-
-  // if a url ENDs in . or .., then it must get a trailing slash.
-  // however, if it ends in anything else non-slashy,
-  // then it must NOT get a trailing slash.
-  var last = srcPath.slice(-1)[0];
-  var hasTrailingSlash = (
-      (result.host || relative.host || srcPath.length > 1) &&
-      (last === '.' || last === '..') || last === '');
-
-  // strip single dots, resolve double dots to parent dir
-  // if the path tries to go above the root, `up` ends up > 0
-  var up = 0;
-  for (var i = srcPath.length; i >= 0; i--) {
-    last = srcPath[i];
-    if (last === '.') {
-      srcPath.splice(i, 1);
-    } else if (last === '..') {
-      srcPath.splice(i, 1);
-      up++;
-    } else if (up) {
-      srcPath.splice(i, 1);
-      up--;
-    }
-  }
-
-  // if the path is allowed to go above the root, restore leading ..s
-  if (!mustEndAbs && !removeAllDots) {
-    for (; up--; up) {
-      srcPath.unshift('..');
-    }
-  }
-
-  if (mustEndAbs && srcPath[0] !== '' &&
-      (!srcPath[0] || srcPath[0].charAt(0) !== '/')) {
-    srcPath.unshift('');
-  }
-
-  if (hasTrailingSlash && (srcPath.join('/').substr(-1) !== '/')) {
-    srcPath.push('');
-  }
-
-  var isAbsolute = srcPath[0] === '' ||
-      (srcPath[0] && srcPath[0].charAt(0) === '/');
-
-  // put the host back
-  if (psychotic) {
-    result.hostname = result.host = isAbsolute ? '' :
-                                    srcPath.length ? srcPath.shift() : '';
-    //occationaly the auth can get stuck only in host
-    //this especially happens in cases like
-    //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
-    var authInHost = result.host && result.host.indexOf('@') > 0 ?
-                     result.host.split('@') : false;
-    if (authInHost) {
-      result.auth = authInHost.shift();
-      result.host = result.hostname = authInHost.shift();
-    }
-  }
-
-  mustEndAbs = mustEndAbs || (result.host && srcPath.length);
-
-  if (mustEndAbs && !isAbsolute) {
-    srcPath.unshift('');
-  }
-
-  if (!srcPath.length) {
-    result.pathname = null;
-    result.path = null;
-  } else {
-    result.pathname = srcPath.join('/');
-  }
-
-  //to support request.http
-  if (!util.isNull(result.pathname) || !util.isNull(result.search)) {
-    result.path = (result.pathname ? result.pathname : '') +
-                  (result.search ? result.search : '');
-  }
-  result.auth = relative.auth || result.auth;
-  result.slashes = result.slashes || relative.slashes;
-  result.href = result.format();
-  return result;
-};
-
-Url.prototype.parseHost = function() {
-  var host = this.host;
-  var port = portPattern.exec(host);
-  if (port) {
-    port = port[0];
-    if (port !== ':') {
-      this.port = port.substr(1);
-    }
-    host = host.substr(0, host.length - port.length);
-  }
-  if (host) this.hostname = host;
-};
-
-},{"./util":51,"punycode":41,"querystring":49}],51:[function(require,module,exports){
-'use strict';
-
-module.exports = {
-  isString: function(arg) {
-    return typeof(arg) === 'string';
-  },
-  isObject: function(arg) {
-    return typeof(arg) === 'object' && arg !== null;
-  },
-  isNull: function(arg) {
-    return arg === null;
-  },
-  isNullOrUndefined: function(arg) {
-    return arg == null;
-  }
 };
 
 },{}],52:[function(require,module,exports){
@@ -23837,4 +23837,4 @@ module.exports = {
     }
 }.call(this));
 
-},{}]},{},[23]);
+},{}]},{},[5]);
