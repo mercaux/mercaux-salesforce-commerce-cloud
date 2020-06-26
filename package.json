@@ -1,6 +1,6 @@
 {
   "name": "int_mercaux",
-  "version": "1.0.0",
+  "version": "20.7.0",
   "description": "LINK cartridge for Mercaux implementation",
   "main": "index.js",
   "engines": {
