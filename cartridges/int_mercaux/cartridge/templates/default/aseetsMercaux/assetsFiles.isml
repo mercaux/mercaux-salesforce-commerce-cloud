@@ -11,7 +11,7 @@
     // JSs 
     
     // OWL Carousel minified source (v 2.3.4) file connect below
-    // assets.addJs('/js/${your_libs_folder_in_static}/owl.carousel.min.js');
+    assets.addJs('/js/lib/owl.carousel.min.js');
     
     assets.addJs('/js/slider/index.js'); 
     assets.addJs('/js/analyticsMercaux/index.js'); 
@@ -20,8 +20,8 @@
     // CSSs
 
     // OWL Carousel minified CSS files (v 2.3.4) connect below 
-    // assets.addCss('/css/${your_libs_folder_in_static}/owl/owl.carousel.min.css');
-    // assets.addCss('/css/${your_libs_folder_in_static}/owl/owl.theme.default.min.css');
+    assets.addCss('/css/lib/owl.carousel.min.css');
+    assets.addCss('/css/lib/owl.theme.default.min.css');
  
     assets.addCss('/css/index.css'); 
 </isscript>
