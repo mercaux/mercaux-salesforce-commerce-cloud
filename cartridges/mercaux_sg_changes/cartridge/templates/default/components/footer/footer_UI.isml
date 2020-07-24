@@ -32,7 +32,7 @@
 <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('mercaux_GlobalEnableStatus')}">
 <!-- Mercaux JS Assets Include -->
 <span class="js-mercaux-analytics-tag" data-mercaux-analytics-url="${URLUtils.url('Analytics-Add')}"></span>
-<script defer src="${URLUtils.staticURL('/js/owl.carousel.min.js')}"></script>
+<script defer src="${URLUtils.staticURL('/js/lib/owl.carousel.min.js')}"></script>
 <script defer src="${URLUtils.staticURL('/js/mercauxApp.js')}"></script>
 </isif>
 
