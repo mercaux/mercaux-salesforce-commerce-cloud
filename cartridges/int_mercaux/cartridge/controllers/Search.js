@@ -39,7 +39,8 @@ server.append('ShowAjax', cache.applyShortPromotionSensitiveCache, consentTracki
 
 server.append('UpdateGrid', function (req, res, next) {
     var viewData = res.getViewData();
-    var categoryID = viewData.apiProductSearch.categoryID;
+    var productSearch = viewData.productSearch;
+    var categoryID = productSearch.category.id;
 
     this.on('route:BeforeComplete', function (req, res) {
         if (categoryID === LOOKS_CAT_ID) {
