@@ -6,6 +6,7 @@ var cache = require('*/cartridge/scripts/middleware/cache');
 var pageMetaData = require('*/cartridge/scripts/middleware/pageMetaData');
 var consentTracking = require('*/cartridge/scripts/middleware/consentTracking');
 var Site = require('dw/system/Site');
+var ProductSearchModel = require('dw/catalog/ProductSearchModel');
 
 server.extend(module.superModule);
 var LOOKS_CAT_ID = Site.current.getCustomPreferenceValue('mercaux_CategoryID') || 'Looks';
@@ -38,9 +39,14 @@ server.append('ShowAjax', cache.applyShortPromotionSensitiveCache, consentTracki
 }, pageMetaData.computedPageMetaData);
 
 server.append('UpdateGrid', function (req, res, next) {
-    var viewData = res.getViewData();
-    var productSearch = viewData.productSearch;
-    var categoryID = productSearch.category.id;
+    var searchHelper = require('*/cartridge/scripts/helpers/searchHelpers');
+    var apiProductSearch = res.getViewData().apiProductSearch;
+
+    if (!apiProductSearch) {
+        apiProductSearch = new ProductSearchModel();
+        searchHelper.setupSearch(apiProductSearch, req.querystring);
+    }
+    var categoryID = apiProductSearch.categoryID;
 
     this.on('route:BeforeComplete', function (req, res) {
         if (categoryID === LOOKS_CAT_ID) {
