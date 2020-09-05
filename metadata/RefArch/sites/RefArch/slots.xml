@@ -18,7 +18,10 @@ P.s Amount of products in the slider, you can set up in Custom Preferences/Looks
         <description>Show Looks slider with selected Product IDs at the Homepage</description>
         <template>slots/homepage-looks-slider-slot.isml</template>
         <enabled-flag>true</enabled-flag>
-        <content></content>
+        <content>
+            <products>
+            </products>
+        </content>
     </slot-configuration>
 
 </slot-configurations>
