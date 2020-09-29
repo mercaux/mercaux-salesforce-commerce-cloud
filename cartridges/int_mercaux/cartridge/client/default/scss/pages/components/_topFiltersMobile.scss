@@ -174,12 +174,15 @@
                 .checkmark {
                     right: 0;
                     left: inherit;
-                    border: 2px solid #666;
+                    border: solid #666;
                     border-radius: 50%;
 
+                    @include rem(border-width, 2px);
                     &::after {
-                        border: 2px solid #fff;
+                        border: solid #fff;
                         border-radius: 50%;
+
+                        @include rem(border-width, 2px);
                     }
                 }
 
@@ -194,7 +197,7 @@
 .looks-top-filters-sortBy.mobile {
     .checkmark-mobile {
         right: 0;
-        border: 2px solid #666;
+        border: solid #666;
         border-radius: 50%;
         position: absolute;
         top: 0;
@@ -202,13 +205,16 @@
         z-index: 0;
         @include rem(height, 22px);
         @include rem(width, 22px);
+        @include rem(border-width, 2px);
 
         &::after {
             content: "";
             position: absolute;
             display: none;
-            border: 2px solid #fff;
+            border: solid #fff;
             border-radius: 50%;
+
+            @include rem(border-width, 2px);
         }
     }
 
@@ -248,8 +254,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            border: 2px #fff solid;
+            border: #fff solid;
             border-radius: 50%;
+
+            @include rem(border-width, 2px);
         }
     }
 }

@@ -34,8 +34,12 @@
 }
 
 .icon-chevron::before {
+    @include rem(border-top-width, 2px);
+    @include rem(border-right-width, 2px);
+
+    border-bottom-width: 0;
+    border-left-width: 0;
     border-style: solid;
-    border-width: 2px 2px 0 0;
     content: "";
     display: inline-block;
     position: relative;

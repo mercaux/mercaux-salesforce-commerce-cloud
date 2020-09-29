@@ -52,7 +52,11 @@
                     @include rem(height, 12px);
 
                     content: '';
-                    border-width: 2px 2px 0 0;
+                    @include rem(border-top-width, 2px);
+                    @include rem(border-right-width, 2px);
+
+                    border-bottom-width: 0;
+                    border-left-width: 0;
                     border-style: solid;
                     border-color: #999;
                     transition: 0.2s ease;
@@ -265,10 +269,12 @@
 
                     @media (min-width: $xs) and (max-width: $sm) {
                         @include rem(margin-bottom, 25px);
+                        @include rem(border-bottom-width, 1px);
 
                         width: 100%;
                         margin-left: 0;
-                        border-bottom: 1px solid #e0e0e0;
+                        border-bottom-style: solid;
+                        border-bottom-color: #e0e0e0;
                         flex-direction: row;
                     }
 
@@ -372,7 +378,7 @@
                         left: 0;
                         top: 0;
                         width: 100%;
-                        height: calc(100% - 30px);
+                        height: calc(100% - 1.875rem);
                         overflow-y: auto;
                         background: #fff;
                         margin-top: 0;
@@ -389,7 +395,7 @@
                             margin: 0 auto;
                         }
 
-                        @media screen and (max-width: 439px) { /* stylelint-disable-line scss/media-feature-value-dollar-variable */
+                        @media screen and (max-width: 27.44rem) { /* stylelint-disable-line scss/media-feature-value-dollar-variable */
                             @include rem(bottom, 54px);
 
                             height: 100%;
@@ -399,11 +405,14 @@
                     .product-size-ref {
                         background: #fff;
                         color: #000;
-                        border: 1px #cbcbcb solid;
+                        border: solid #cbcbcb;
                         @include rem(font-size, 13px);
+                        @include rem(border-width, 1px);
 
                         .product-size-ref-title {
-                            border-bottom: 1px solid #a0a0a0;
+                            border-bottom: solid #a0a0a0;
+
+                            @include rem(border-bottom-width, 1px);
                             @include rem(padding-left, 9px);
                             @include rem(padding-right, 9px);
                             @include rem(padding-top, 6px);
@@ -420,7 +429,8 @@
                                 width: 100%;
                                 outline: none;
                                 text-align: left;
-                                border-bottom: 1px solid #cbcbcb;
+                                border-bottom: solid #cbcbcb;
+                                @include rem(border-bottom-width, 1px);
                                 @include rem(padding-left, 9px);
                                 @include rem(padding-right, 9px);
                                 @include rem(padding-top, 6px);
@@ -435,7 +445,7 @@
                                 }
 
                                 &:active {
-                                    box-shadow: 1px 1px 7px -6px #000 inset;
+                                    box-shadow: 0.0625rem 0.0625rem 0.4375rem -0.375rem #000 inset;
                                 }
                             }
                         }

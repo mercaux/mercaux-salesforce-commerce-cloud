@@ -14,9 +14,10 @@
 
         button {
             background: #fff 0 0 no-repeat padding-box;
-            border: 1px solid #707070;
+            border: solid #707070;
             display: flex;
             align-items: center;
+            @include rem(border-width, 1px);
             @include rem(padding-top, 5px);
             @include rem(padding-right, 5px);
             @include rem(padding-bottom, 5px);
