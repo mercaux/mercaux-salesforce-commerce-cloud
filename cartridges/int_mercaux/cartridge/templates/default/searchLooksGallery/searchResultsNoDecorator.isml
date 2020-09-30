@@ -1,15 +1,15 @@
-<div class="container search-results">
+<div class="container search-results" id="LooksGalleryPage">
     <isif condition="${pdict.productSearch.productIds.length > 0}">
         <isinclude template="searchLooksGallery/topFilters/desktopFilters" />
         <isinclude template="searchLooksGallery/topFilters/mobileFilters" />
     </isif>
 
     <isinclude template="searchLooksGallery/topFilters/selectedRefinements" />
-    
-    <div class="row">
-        <isif condition="${pdict.productSearch.productIds.length > 0}"> 
+
+    <div>
+        <isif condition="${pdict.productSearch.productIds.length > 0}">
             <!--- Product Grid --->
-            <div class="row product-grid" itemtype="http://schema.org/SomeProducts" itemid="#product">
+            <div class="row product-grid flex-grid" itemtype="http://schema.org/SomeProducts" itemid="#product">
                 <isinclude template="searchLooksGallery/productGrid" />
             </div>
         </isif>

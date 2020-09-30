@@ -9,26 +9,19 @@ $(document).ready(function () {
         margin: 65,
         nav: true,
         dots: false,
-        mouseDrag: false,
-        touchDrag: false,
+        mouseDrag: true,
+        touchDrag: true,
         onInitialized: onOwlLoaded,
         responsive: {
             0: {
                 items: 1,
-                touchDrag: true,
-                nav: true
+                nav: false
             },
             600: {
                 items: 3,
-                touchDrag: true,
                 nav: false
             },
             1000: {
-                items: 3,
-                touchDrag: true,
-                nav: false
-            },
-            1280: {
                 items: 3
             }
         }
