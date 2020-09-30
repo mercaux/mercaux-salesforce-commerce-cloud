@@ -1,4 +1,4 @@
-.modal-wrapper-internal {
+header~#maincontent .modal-wrapper-internal {
 
     @media (max-width: $xs) {
         display: flex;
@@ -43,7 +43,7 @@
             font-weight: 600;
 
             a {
-                color: #000 !important;
+                color: #000;
             }
         }
 
@@ -336,7 +336,7 @@
             text-align: right;
 
             a {
-                color: #000 !important;
+                color: #000;
                 text-decoration: underline;
 
                 &:hover {

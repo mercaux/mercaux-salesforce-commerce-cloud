@@ -1,4 +1,4 @@
-.flex-grid {
+header~#maincontent .flex-grid {
     display: flex;
     flex-wrap: wrap;
     @include rem(margin-right, -7px);
@@ -72,7 +72,7 @@
                         a {
                             @include rem(font-size, 18px);
 
-                            color: #000 !important;
+                            color: #000;
 
                             @media (min-width: $xs) and (max-width: $sm-e) {
                                 @include rem(font-size, 13px);

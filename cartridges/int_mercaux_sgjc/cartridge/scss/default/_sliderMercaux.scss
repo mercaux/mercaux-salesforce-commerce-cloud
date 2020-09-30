@@ -16,10 +16,6 @@
         }
     }
 
-    .owl-carousel {
-        z-index: inherit;
-    }
-
     .flex-container {
         display: flex;
         justify-content: space-between;
@@ -176,7 +172,7 @@
         z-index: 2;
     }
 
-    a {
+    a.btn-primary:not(:disabled) {
         @include rem(width, 210px);
         @include rem(height, 37px);
         @include rem(line-height, 37px);
@@ -216,9 +212,9 @@
 
         &:active,
         &:hover {
-            color: #000 !important;
-            background-color: #dcdcdc !important;
-            border-color: #dcdcdc !important;
+            color: #000;
+            background-color: #dcdcdc;
+            border-color: #dcdcdc;
         }
 
         @media screen and (max-width: 35.5rem) { /* stylelint-disable-line */
@@ -245,9 +241,9 @@
 
             &:active,
             &:hover {
-                color: #fff !important;
-                background-color: #000 !important;
-                border-color: #000 !important;
+                color: #fff;
+                background-color: #000;
+                border-color: #000;
             }
         }
     }

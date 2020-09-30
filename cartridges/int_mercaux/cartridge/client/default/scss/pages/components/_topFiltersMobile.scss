@@ -118,7 +118,7 @@
 
             button.collapsed {
                 .icon-accord-item::after {
-                    display: block !important;
+                    display: block;
                 }
             }
         }
@@ -202,7 +202,6 @@
         position: absolute;
         top: 0;
         background-color: #fff;
-        z-index: 0;
         @include rem(height, 22px);
         @include rem(width, 22px);
         @include rem(border-width, 2px);
@@ -233,7 +232,6 @@
             width: 100%;
             margin-bottom: 0;
             cursor: pointer;
-            z-index: 0;
             @include rem(padding-left, 30px);
         }
 

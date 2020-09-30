@@ -17,7 +17,7 @@
     }
 
     .refinements-wrapper-parent .refinement-bar {
-        display: block !important;
+        display: block;
     }
 
     .refinements .accordion-mobile {
@@ -70,7 +70,7 @@
 
     .flex-item-header {
         position: relative;
-        z-index: 2;
+        z-index: 2; // required for refinement bar to make expanded refinemnt looks solid
         top: 0;
         right: 0;
         display: inline-block;
@@ -101,7 +101,7 @@
     .flex-item-body {
         position: absolute;
         left: 0;
-        z-index: 1;
+        z-index: 1; // required for refinement bar to make expanded refinemnt looks solid
         width: 95%;
         height: auto;
         background-color: #fff;
@@ -224,7 +224,6 @@
         left: 0;
         background-color: #fff;
         border: #000 solid;
-        z-index: 0;
         @include rem(height, 22px);
         @include rem(width, 22px);
         @include rem(border-radius, 5px);
@@ -260,7 +259,7 @@
             opacity: 0;
             cursor: pointer;
             width: 100%;
-            z-index: 1;
+            display: none;
         }
 
         &:hover input ~ .checkmark {

@@ -30,7 +30,7 @@
             .back-mercaux-btn {
                 @include rem(margin-left, 7px);
 
-                color: #999 !important;
+                color: #999;
             }
 
             a:hover {
@@ -327,7 +327,6 @@
 
                     .add-to-cart-block {
                         position: relative;
-                        z-index: 1;
 
                         .add-to-cart-overlay {
                             position: absolute;
@@ -335,7 +334,6 @@
                             top: 0;
                             width: 100%;
                             height: 100%;
-                            z-index: 2;
                             cursor: pointer;
                             display: none;
                         }
@@ -383,7 +381,6 @@
                         background: #fff;
                         margin-top: 0;
                         display: none;
-                        z-index: 2;
 
                         @media screen and (max-width: $sm) {
                             @include rem(left, 2px);
@@ -458,9 +455,6 @@
 
 .modal-mercaux-wrapper {
     .modal {
-        padding-right: 0 !important;
-        z-index: 99;
-
         .modal-content {
             @include rem(min-height, 650px);
 
@@ -489,8 +483,4 @@
             position: relative;
         }
     }
-}
-
-.modal-backdrop {
-    z-index: 98;
 }
