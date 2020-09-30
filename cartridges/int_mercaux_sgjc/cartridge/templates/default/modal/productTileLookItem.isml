@@ -32,12 +32,12 @@
         <h5 class="product-title">
             <span data-url="${URLUtils.url('Mercaux-ShowModal')}" data-pid="${product.ID}"  data-pid-look="${productSetID}" data-product-sku="${pdict.Product.manufacturerSKU}" 
                 class="open-modal child-call-btn js-open-product-look">
-                     <isprint value="${pdict.Product.name}" encoding="off"/>
+                     <isprint value="${pdict.Product.name}" />
             </span>
         </h5> 
         
         <div class="product-number display-none">
-			${Resource.msg('product.item','product',null)} <isprint value="${ pdict.Product.ID }" encoding="off"/>
+			${Resource.msg('product.item','product',null)} <isprint value="${ pdict.Product.ID }" />
 		</div>
         
         <div class="price-block flex-container mobile-flex-container">

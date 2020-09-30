@@ -29,7 +29,7 @@
 			<isif condition="${attr.hasSwatch}">
 				<li class="attribute">
 					<div class="label">
-						 ${attr.resourceGlobalSelect} <isprint value="${attr.displayName}" encoding="off" />
+						 ${attr.resourceGlobalSelect} <isprint value="${attr.displayName}" />
 					</div>
 					<div class="value">
 						<ul class="swatches ${attr.attributeId.toLowerCase()}">
@@ -44,16 +44,16 @@
 												<isif condition="${attrValue.isColorSwatch}">
 													<img src="${attrValue.swatchImageUrl}" alt="${attrValue.displayValue}"> 
 												<iselse/>
-													<isprint value="${attrValue.displayValue}" encoding="off" />
+													<isprint value="${attrValue.displayValue}" />
 												</isif>  
 											</a>
 
 											<isif condition="${attrValue.isColorSwatch}"> 
-												<isprint value="${attrValue.displayValue}" encoding="off"/>
+												<isprint value="${attrValue.displayValue}" />
 											</isif>
 										<iselse/>
 											<a class="swatchanchor swatch-circle" title="${attrValue.resourceVariationNotAvailable}">
-												<isprint value="${attrValue.displayValue}" encoding="off" />
+												<isprint value="${attrValue.displayValue}" />
 											</a>
 										</isif>
 									</li>
@@ -80,18 +80,18 @@
 				<iscomment>Drop down list</iscomment>
 				<li class="attribute variant-dropdown">
 					<span class="label va-${attr.attributeId}">
-						 ${attr.resourceGlobalSelect} <isprint value="${attr.displayName}" encoding="off"/>
+						 ${attr.resourceGlobalSelect} <isprint value="${attr.displayName}" />
 					</span>
 					<div class="value">
 						<select class="variation-select" id="va-${attr.attributeId}" name="${'dwvar_' + attr.masterId + '_' + attr.attributeId}">
-							<option value="" class="emptytext">${attr.resourceGlobalSelect} <isprint value="${attr.displayName}" encoding="off"/></option>
+							<option value="" class="emptytext">${attr.resourceGlobalSelect} <isprint value="${attr.displayName}" /></option>
 							<isloop items="${attr.values}" var="attrValue">
 								<iscomment>filter out unorderable variation attribute values</iscomment>
 								<isif condition="${attrValue.isOrderableInMaster}">
 									<isif condition="${attrValue.isAvailable}">
 										<option value="${attrValue.optionValue}<isif condition="${!attr.uuid}">&uuid=${attr.uuidStringValue}</isif>"
 											data-lgimg='<isif condition="${attrValue.largeImage}">${attrValue.largeImage}</isif>' <isprint value="${attrValue.selected}" encoding="off"/>>
-											<isprint value="${(attrValue.displayValue)}" encoding="off"/>
+											<isprint value="${(attrValue.displayValue)}" />
 										</option>
 									</isif>
 								</isif>

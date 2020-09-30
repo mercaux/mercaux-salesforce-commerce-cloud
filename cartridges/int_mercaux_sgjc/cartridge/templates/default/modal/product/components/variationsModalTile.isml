@@ -44,8 +44,8 @@
 												<a class="swatchanchor"
 													href="${attrValue.linkUrl + '&mercauxTileModal=true&parentLookID=' + productSetID}"
 													title="${attrValue.resourceVariationsLabel}">
-														<isprint value="${attrValue.displayValue}" encoding="off" />
-														<isprint value="${' - In Stock'}" encoding="off" />
+														<isprint value="${attrValue.displayValue}" />
+														<isprint value="${' - In Stock'}" />
 												</a>
 											</div>
 										<iselse/>
@@ -53,8 +53,8 @@
 												<a class="swatchanchor disabled"
 													href=""
 													title="${attrValue.displayValue}">
-														<isprint value="${attrValue.displayValue}" encoding="off" />
-														<isprint value="${' - Not In Stock'}" encoding="off" />
+														<isprint value="${attrValue.displayValue}" />
+														<isprint value="${' - Not In Stock'}" />
 												</a>
 											</div>
 										</isif>

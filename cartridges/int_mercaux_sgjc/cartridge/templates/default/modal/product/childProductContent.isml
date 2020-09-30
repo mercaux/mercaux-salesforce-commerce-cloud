@@ -193,7 +193,7 @@
 				</div>
 				 
 				<div class="product-number product-id flex-container">
-					<span itemprop="productID" data-masterid="${masterId}"><isprint value="${productNumber}" encoding="off" /></span>
+					<span itemprop="productID" data-masterid="${masterId}"><isprint value="${productNumber}" /></span>
 
 					<isinclude template="modal/product/components/availabilityParent"/>
 

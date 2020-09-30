@@ -14,7 +14,7 @@
             </div>
             <div class="price price-desktop-hidden">
                 <isset name="price" value="${product.price}" scope="page" />
-                <isinclude template="modal/product/components/pricing/main" />
+                <isinclude template="product/components/pricing/main" />
             </div>
             <div class="add-wishlist add-wishlist-desktop-hidden">
                 <div class="add-wishlist-wrapper">
@@ -35,7 +35,7 @@
                     <!-- Prices -->
                     <div class="prices">
                         <isset name="price" value="${product.price}" scope="page" />
-                        <isinclude template="modal/product/components/pricing/main" />
+                        <isinclude template="product/components/pricing/main" />
                     </div>
 
                     <isinclude template="modal/product/components/pidRating" />

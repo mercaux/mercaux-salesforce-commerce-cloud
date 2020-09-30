@@ -37,7 +37,7 @@
                     <isif condition="${AttributeGroup.ID != 'mainAttributes'}">
                         <isset name="group" value="${AttributeGroup}" scope="page" />
                         <h3>
-                            <isprint value="${group.getDisplayName()}" encoding="off" />
+                            <isprint value="${group.getDisplayName()}" />
                         </h3>
                         <isinclude template="product/components/group" />
                     </isif>

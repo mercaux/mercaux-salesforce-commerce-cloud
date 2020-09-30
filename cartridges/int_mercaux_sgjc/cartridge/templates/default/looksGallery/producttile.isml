@@ -38,7 +38,7 @@
 			<div class="pdp-link">
 				<a href="#" class="js-open-look-modal" data-custom-open="modal-1" data-toggle="modal"
 				data-target="#baseMercauxModal" data-url="${URLUtils.url('Mercaux-ShowModal')}" data-pid="${Product.ID}">
-					<isprint value="${Product.name}" encoding="off" />
+					<isprint value="${Product.name}" />
 				</a>
 			</div> 
 		</div>
