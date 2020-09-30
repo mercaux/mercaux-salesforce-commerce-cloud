@@ -1,32 +1,21 @@
 <iscontent type="text/html" charset="UTF-8" compact="true"/>
-<isscript>
-	var avm = pdict.Product.availabilityModel;
-	pdict.available = avm.availabilityStatus==dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_IN_STOCK
-					&& avm.inventoryRecord != null
-					&& avm.inventoryRecord.stockLevel.available;
+<isset name="avm" value="${pdict.Product.availabilityModel}" scope="page" />
+<isset name="available" value="${avm.availabilityStatus==dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_IN_STOCK && avm.inventoryRecord != null && avm.inventoryRecord.stockLevel.available}" scope="pdict" />
 
-    var imageCongig = {
-        scaleWidth: 172,
-        scaleHeight: 172,
-        scaleMode: 'fit'
-    }; 
+<isif condition="${pdict.isVariationSelected}">
+    <isset name="productSetID" value="${pdict.parentLookID}" scope="page" />
+<iselse/>
+    <isset name="productSetID" value="${OrigProduct.ID}" scope="page" />
+</isif>
 
-    var productImage = pdict.Product.getImages('large')[0];
-    var productImageAbsURL = productImage.getAbsImageURL(imageCongig); 
-    var productSetID;
-
-    if (pdict.isVariationSelected) {
-        productSetID = pdict.parentLookID;
-    } else {
-        productSetID = OrigProduct.ID;
-    }
-</isscript>
+<isset name="imageCongig" value="${require('*/cartridge/scripts/util/utils').imageCongig}" scope="page" />
+<isset name="productImage" value="${pdict.Product.getImages('large')[0]}" scope="page" />
+<isset name="productImageAbsURL" value="${productImage.getAbsImageURL(imageCongig)}" scope="page" />
 <isset name="product" value="${pdict.Product}" scope="page" />
 <isset name="productID" value="${pdict.Product.ID}" scope="page" />
 
 
-<div class="product mobile-flex-container" data-pid="${pdict.Product.ID}">
- 
+<div class="product mobile-flex-container ${OrigProduct.ID}" data-pid="${pdict.Product.ID}">
     <div class="product-image-border product-set-image">
         <span data-url="${URLUtils.url('Mercaux-ShowModal')}" data-product-sku="${pdict.Product.manufacturerSKU}" 
             data-pid="${pdict.Product.ID}" data-pid-look="${productSetID}"

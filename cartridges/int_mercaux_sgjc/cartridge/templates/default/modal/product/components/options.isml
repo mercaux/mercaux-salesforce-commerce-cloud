@@ -36,10 +36,8 @@
 										<iselse/>
 											<isset name="selected" value="" scope="page"/>
 										</isif>
-										<isscript>
-											var optionPrice = POM.getPrice(OptionValue);
-											var combinedPrice = optionPrice.add(empty(pdict.displayPrice) ? 0 : pdict.displayPrice);
-										</isscript>
+										<isset name="optionPrice" value="${POM.getPrice(OptionValue)}" scope="page" />
+										<isset name="combinedPrice" value="${optionPrice.add(empty(pdict.displayPrice) ? 0 : pdict.displayPrice)}" scope="page" />
 										<option value="${OptionValue.ID}" data-combined="${dw.util.StringUtils.formatMoney(combinedPrice)}" <isprint value="${selected}" encoding="off"/>>[<isprint value="${POM.getPrice(OptionValue)}" encoding="off" />] <isprint value="${OptionValue.getDisplayValue()}" encoding="off" /></option>
 									</isloop>
 								</select>

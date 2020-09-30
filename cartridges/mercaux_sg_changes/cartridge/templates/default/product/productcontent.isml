@@ -1,6 +1,6 @@
 <isif condition="${pdict.resetAttributes}">
 	<isscript>
-		var ProductUtils = require('*/cartridge/scripts/product/ProductUtils.js');
+		var ProductUtils = require('~/cartridge/scripts/product/ProductUtils.js');
 		var url = dw.web.URLUtils.url('Product-Variation', 'pid', pdict.Product.ID, 'format', 'ajax');
 		var qs = ProductUtils.getQueryString(pdict.CurrentHttpParameterMap, ["source", "uuid", "Quantity"]);
 		if (qs && qs.length>0) { url+="&"+qs; }
@@ -43,7 +43,7 @@
 		}
 	</isscript>
 	<div class="product-number">
-		${Resource.msg('product.item','product',null)} <span itemprop="productID" data-masterid="${masterId}"><isprint value="${productNumber}" encoding="off"/></span>
+		${Resource.msg('product.item','product',null)} <span itemprop="productID" data-masterid="${masterId}"><isprint value="${productNumber}"/></span>
 	</div>
 
 	<iscomment>
@@ -98,7 +98,7 @@
 				=============================================================
 			</iscomment>
 
-			<h2 class="visually-hidden">${Resource.msg('product.addtocart.title', 'int_mercaux_common', null)}</h2>
+			<h2 class="visually-hidden">Add to cart options</h2>
 			<isinclude template="product/components/options"/>
 
 			<iscomment>
@@ -109,7 +109,7 @@
 			<isinclude template="product/components/promotions"/>
 
 			<div class="product-add-to-cart">
-				<h2 class="visually-hidden">${Resource.msg('product.productoptions.title', 'int_mercaux_common', null)}</h2>
+				<h2 class="visually-hidden">Product Actions</h2>
 
 				<iscomment>
 					availability
@@ -219,28 +219,29 @@
 					};
 				</isscript>
 				<input type="hidden" name="pid" id="pid" value="${pid}" />
+				<input type="hidden" name="cgid" id="cgid" value="{pdict.CurrentHttpParameterMap.cgid.value}" />
 				<isif condition="${!disabledAttr}">
 					<button id="add-to-cart" type="submit" title="${buttonTitle}" value="${buttonTitle}" class="button-fancy-large add-to-cart">${buttonTitle}</button>
 					<isapplepay sku="${pdict.Product.ID}"></isapplepay>
-					
-					<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('mercaux_GlobalEnableStatus') && !isQuickView}">
+									
 					<!-- Mercuax Shop The Look button *	*** start -->
+					<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('mercaux_GlobalEnableStatus') && !isQuickView}">
 					<div class="shop-the-look-btn js-insert-shop-the-look-btn" data-slider-id="SliderLooksCarousel">
 						<a href="#SliderLooksCarousel" class="btn-primary"><span class="wrapped-with-icon">${Resource.msg('button.shopthelook', 'int_mercaux_common', null)}</span></a>		
 					</div>
-					<!-- Mercuax Shop The Look button  **** end -->
 					</isif>
-
+					<!-- Mercuax Shop The Look button  **** end -->
 					
 				<iselse> 
-					<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('mercaux_GlobalEnableStatus') && !isQuickView}">
+					
 					<!-- Mercuax Shop The Look button *	*** start -->
+					<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('mercaux_GlobalEnableStatus') && !isQuickView}">
 					<div class="shop-the-look-btn js-insert-shop-the-look-btn" data-slider-id="SliderLooksCarousel">
 						<a href="#SliderLooksCarousel" class="btn-primary"><span class="wrapped-with-icon">${Resource.msg('button.shopthelook', 'int_mercaux_common', null)}</span></a>						
 					</div>
-					<!-- Mercuax Shop The Look button  **** end -->
 					</isif>
-
+					<!-- Mercuax Shop The Look button  **** end -->
+					
 					<isscript>
 						var pvm = pdict.Product.getVariationModel();
 						var it = pvm.getProductVariationAttributes().iterator();
@@ -273,7 +274,7 @@
 
 	<div class="product-actions">
 		<isscript>
-			var Url = require('*/cartridge/scripts/util/Url');
+			var Url = require('~/cartridge/scripts/util/Url');
 			pdict.url = Url.getCurrent(pdict);
 			pdict.title = pdict.Product.name;
 		</isscript>

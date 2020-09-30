@@ -3,14 +3,12 @@
     =============================================================
 </iscomment>
 
-<isscript>
-    let product = pdict.Product;
-    let variationModel = pdict.CurrentVariationModel || product.getVariationModel();
-    let selectedVariant = variationModel.getSelectedVariant();
-    let availableForInStorePickup = selectedVariant ? selectedVariant.custom.availableForInStorePickup : product.custom
-        .availableForInStorePickup;
-    let isStorePickUpEnabled = dw.system.Site.getCurrent().getCustomPreferenceValue('enableStorePickUp');
-</isscript>
+<isset name="product" value="${pdict.Product}" scope="page" />
+<isset name="variationModel" value="${pdict.CurrentVariationModel || product.getVariationModel()}" scope="page" />
+<isset name="selectedVariant" value="${variationModel.getSelectedVariant()}" scope="page" />
+<isset name="availableForInStorePickup" value="${selectedVariant ? selectedVariant.custom.availableForInStorePickup : product.custom.availableForInStorePickup}" scope="page" />
+<isset name="isStorePickUpEnabled" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('enableStorePickUp')}" scope="page" />
+
 <isif condition="${isStorePickUpEnabled && availableForInStorePickup}">
     <div class="availability-storepickup">
         <div class="availability-web">

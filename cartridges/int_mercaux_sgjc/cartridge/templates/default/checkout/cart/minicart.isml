@@ -14,20 +14,11 @@
 <iscomment> the mini cart total which is always visible</iscomment>
 <div class="mini-cart-total">
 	<isif condition="${(pdict.Basket != null) && (pdict.Basket.productLineItems.size() + pdict.Basket.giftCertificateLineItems.size() > 0 )}">
-		<isscript>
-			// calculate the total number of items in the cart by adding quantities together
-			// do not count bonus line items
-			var cartQty : Number = 0;
-			var pliIt : dw.util.Iterator = pdict.Basket.productLineItems.iterator();
+		<isset name="cartQty" value="${0}" scope="page" />
+		<isloop items="${pdict.Basket.productLineItems}" var="pli">
+			<isset name="cartQty" value="${cartQty + pli.quantity}" scope="page" />
+		</isloop>
 
-			while (pliIt.hasNext()) {
-				var pli : dw.order.ProductLineItem = pliIt.next();
-				cartQty += pli.quantity;
-			}
-
-			// add the gift certificates to cart quantity
-			cartQty += pdict.Basket.giftCertificateLineItems.size();
-		</isscript>
 		<a class="mini-cart-link" href="${URLUtils.https('Cart-Show')}" title="${Resource.msg('minicart.viewcart','checkout',null)}">
 			<i class="minicart-icon fa fa-shopping-cart"></i>
 			<span class="minicart-quantity">

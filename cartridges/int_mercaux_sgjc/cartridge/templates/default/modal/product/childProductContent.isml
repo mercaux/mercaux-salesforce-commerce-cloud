@@ -3,47 +3,40 @@
 </script>
 
 <isif condition="${pdict.resetAttributes}">
-	<isscript>
-		var ProductUtils = require('*/cartridge/scripts/product/ProductUtils.js');
-		var url = dw.web.URLUtils.url('Product-Variation', 'pid', pdict.Product.ID, 'format', 'ajax');
-		var qs = ProductUtils.getQueryString(pdict.CurrentHttpParameterMap, ["source", "uuid", "Quantity"]);
-		if (qs && qs.length>0) { url+="&"+qs; }
-	</isscript>
+	<isset name="ProductUtils" value="${require('*/cartridge/scripts/product/ProductUtils.js')}" scope="page" />
+	<isset name="url" value="${dw.web.URLUtils.url('Product-Variation', 'pid', pdict.Product.ID, 'format', 'ajax')}" scope="page" />
+	<isset name="qs" value="${ProductUtils.getQueryString(pdict.CurrentHttpParameterMap, ["source", "uuid", "Quantity"])}" scope="page" />
+	<isif condition="${qs && qs.length > 0}">
+		<isset name="url" value="${"&"+qs}" scope="page" />
+	</isif>
 	<isinclude url="${url}"/>
 <iselse/>
 	<isset name="isQuickView" value="${pdict.CurrentHttpParameterMap.source.stringValue == 'quickview' || pdict.CurrentHttpParameterMap.source.stringValue == 'cart' || pdict.CurrentHttpParameterMap.source.stringValue == 'giftregistry' || pdict.CurrentHttpParameterMap.source.stringValue == 'wishlist'}" scope="page"/>
-	<isscript>
-		let product = pdict.Product;
-		let masterId = product.isVariant() || product.isVariationGroup() ? product.getMasterProduct().getID() : product.getID();
-		let variationModel = pdict.CurrentVariationModel || product.getVariationModel();
-		let selectedVariant = variationModel.getSelectedVariant();
+	<isset name="product" value="${pdict.Product}" scope="page" />
+	<isset name="masterId" value="${product.isVariant() || product.isVariationGroup() ? product.getMasterProduct().getID() : product.getID()}" scope="page" />
+	<isset name="variationModel" value="${pdict.CurrentVariationModel || product.getVariationModel()}" scope="page" />
+	<isset name="selectedVariant" value="${variationModel.getSelectedVariant()}" scope="page" />
 
-		let avm = selectedVariant ? selectedVariant.getAvailabilityModel() : product.getAvailabilityModel();
-		pdict.isProductAvailable = avm.availability > 0;
+	<isset name="avm" value="${selectedVariant ? selectedVariant.getAvailabilityModel() : product.getAvailabilityModel()}" scope="page" />
+	<isset name="isProductAvailable" value="${avm.availability > 0}" scope="pdict" />
 
-		let availableCount = "0";
-		if (pdict.isProductAvailable && !empty(avm.inventoryRecord)) {
-			availableCount = avm.inventoryRecord.perpetual ? "999" : avm.inventoryRecord.ATS.value.toFixed().toString();
-		}
-	</isscript>
+	<isset name="availableCount" value="0" scope="page" />
+	<isif condition="${pdict.isProductAvailable && !empty(avm.inventoryRecord)}">
+		<isset name="availableCount" value="${avm.inventoryRecord.perpetual ? "999" : avm.inventoryRecord.ATS.value.toFixed().toString()}" scope="page" />
+	</isif>
+
 	<iscomment>
 		primary details
 		=============================================================
 	</iscomment> 
 	<span class="visually-hidden" itemprop="url">${URLUtils.http('Product-Show','pid', pdict.Product.ID)}</span>
-
-	<isscript>
-		let productNumber = masterId;
-
-		if (pdict.isProductAvailable) {
-			let product = pdict.Product;
-			let variationModel = pdict.CurrentVariationModel || product.getVariationModel();
-			let selectedVariant = variationModel.getSelectedVariant();
-			productNumber = selectedVariant
-				? selectedVariant.getID()
-				: product.getID();
-		}
-	</isscript>
+	<isset name="productNumber" value="${masterId}" scope="page" />
+	<isif condition="${pdict.isProductAvailable)}">
+		<isset name="product" value="${pdict.Product}" scope="page" />
+		<isset name="variationModel" value="${pdict.CurrentVariationModel || product.getVariationModel()}" scope="page" />
+		<isset name="selectedVariant" value="${variationModel.getSelectedVariant()}" scope="page" />
+		<isset name="productNumber" value="${selectedVariant ? selectedVariant.getID() : product.getID()}" scope="page" />
+	</isif>
 
 	<iscomment>
 		reviews
@@ -71,11 +64,9 @@
 	<isinclude template="product/components/pricing"/>
 	
 	<div class="product-actions">
-		<isscript>
-			var Url = require('*/cartridge/scripts/util/Url');
-			pdict.url = Url.getCurrent(pdict);
-			pdict.title = pdict.Product.name;
-		</isscript>
+		<isset name="Url" value="${require('*/cartridge/scripts/util/Url')}" scope="page" />
+		<isset name="url" value="${Url.getCurrent(pdict)}" scope="pdict" />
+		<isset name="title" value="${pdict.Product.name}" scope="pdict" />
 
 		<isif condition="${pdict.CurrentHttpParameterMap.source && pdict.CurrentHttpParameterMap.source.stringValue != 'giftregistry'}">
 			<isif condition="${pdict.isProductAvailable && !pdict.Product.bundle && !(pdict.Product.master || pdict.Product.variationGroup)}">
@@ -150,22 +141,15 @@
 						add to cart submit
 						=============================================================
 					</iscomment>
-
-					<isscript>
-						var updateSources = ["cart", "giftregistry", "wishlist"];
-						var source = pdict.CurrentHttpParameterMap.source.stringValue;
-						var buttonTitle = dw.web.Resource.msg('global.addtocart','locale','Add to Cart');
-						var plid = null;
-						if (updateSources.indexOf(source) > -1) {
-							buttonTitle = dw.web.Resource.msg('global.update','locale','Update');
-							if (pdict.CurrentHttpParameterMap.productlistid && pdict.CurrentHttpParameterMap.productlistid.stringValue) {
-								plid = pdict.CurrentHttpParameterMap.productlistid.stringValue;
-							}
-						} else {
-							// Only pass on white-listed sources
-							source = null;
-						}
-					</isscript>
+					<isset name="updateSources" value="${['cart', 'giftregistry', 'wishlist']}" scope="page" />
+					<isset name="source" value="${pdict.CurrentHttpParameterMap.source.stringValue}" scope="page" />
+					<isset name="buttonTitle" value="${dw.web.Resource.msg('global.addtocart','locale','Add to Cart')}" scope="page" />
+					<isif condition="${updateSources.indexOf(source) > -1}">
+						<isset name="buttonTitle" value="${dw.web.Resource.msg('global.update','locale','Update')}" scope="page" />
+						<isset name="plid" value="${pdict.CurrentHttpParameterMap.productlistid ? pdict.CurrentHttpParameterMap.productlistid.stringValue : null}" scope="page" />
+					<iselse>
+						<isset name="source" value="${null}" scope="page" />
+					</isif>
 
 					<isset name="cartAction" value="add" scope="page"/>
 
@@ -180,21 +164,20 @@
 						<input type="hidden" name="productlistid" id="productlistid" value="${plid}" />
 					</isif>
 					<input type="hidden" name="cartAction" id="cartAction" value="${cartAction}" />
-					<isscript>
-						let product = pdict.Product;
-						let pid = pdict.Product.getID();
-						let disabledAttr = pdict.isProductAvailable && !product.master ? '' : ' disabled="disabled"';
 
-						if (product.isVariationGroup()) {
-							let variationModel = pdict.CurrentVariationModel || product.getVariationModel();
-							let selectedVariant = variationModel.getSelectedVariant();
-							if (selectedVariant) {
-								pid = selectedVariant.getID();
-							} else {
-								disabledAttr = ' disabled="disabled"';
-							}
-						};
-					</isscript>
+					<isset name="product" value="${pdict.Product}" scope="page" />
+					<isset name="pid" value="${pdict.Product.getID()}" scope="page" />
+					<isset name="disabledAttr" value="${pdict.isProductAvailable && !product.master ? '' : ' disabled=\"disabled\"'}" scope="page" />
+					<isif condition="${product.isVariationGroup()}">
+						<isset name="variationModel" value="${pdict.CurrentVariationModel || product.getVariationModel()}" scope="page" />
+						<isset name="selectedVariant" value="${variationModel.getSelectedVariant()}" scope="page" />
+						<isif condition="${selectedVariant}">
+							<isset name="pid" value="${selectedVariant.getID()}" scope="page" />
+						<iselse>
+							<isset name="disabledAttr" value="${' disabled=\"disabled\"'}" scope="page" />
+						</isif>
+					</isif>
+
 					<input type="hidden" name="pid" id="pid" value="${pid}" />
 					<isif condition="${!disabledAttr}">
 						<div class="add-bag-button">
@@ -202,26 +185,8 @@
 							<isapplepay sku="${pdict.Product.ID}"></isapplepay>
 						</div>
 					<iselse>
-					
-						<isscript>
-							var pvm = pdict.Product.getVariationModel();
-							var it = pvm.getProductVariationAttributes().iterator();
-							var array = [];
-							var options = '';
-							var requiredOptions = '';
-							while (it.hasNext()) {
-								var text = it.next();
-								array.push(text.displayName);
-							}
-							options = array.join(', ');
-							var lastIndex = options.lastIndexOf(',');
-							if (lastIndex > 0 && options.length > 1 && array.length > 1) {
-								requiredOptions = options.substr(0,lastIndex) + ' ' + Resource.msg('product.attributedivider', 'product', null) + options.substr(lastIndex+1, options.length);
-							} else {
-								requiredOptions = options;
-							}
-							var buttonTitleDisabledSelectVariation = StringUtils.format(Resource.msg('product.missingval','product', null), requiredOptions);
-						</isscript>
+						<isset name="requiredOptions" value="${require('*/cartridge/scripts/util/utils').requiredOptions(pdict.Product.getVariationModel())}" scope="page" />
+						<isset name="buttonTitleDisabledSelectVariation" value="${StringUtils.format(Resource.msg('product.missingval','product', null), requiredOptions)}" scope="page" />
 						<button id="add-to-cart" type="button" title="${buttonTitleDisabledSelectVariation}" value="${buttonTitleDisabledSelectVariation}" class="button-fancy-large add-to-cart-disabled"<isprint value="${disabledAttr}" encoding="off"/>>${buttonTitle}</button>
 					</isif>
 
