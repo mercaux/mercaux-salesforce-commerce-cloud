@@ -687,19 +687,17 @@ function init() {
             margin: 65,
             nav: true,
             dots: false,
-            mouseDrag: false,
-            touchDrag: false,
+            mouseDrag: true,
+            touchDrag: true,
             onInitialized: onOwlLoaded,
             responsive: {
                 0: {
                     items: 1,
-                    touchDrag: true,
-                    nav: true
+                    nav: false
                 },
                 600: {
                     items: 3,
-                    touchDrag: true,
-                    nav: true
+                    nav: false
                 },
                 1000: {
                     items: 3
@@ -2736,7 +2734,7 @@ var dialog = {
      * @param {Object} params  params.target can be an id selector or an jquery object
      */
     create: function (params) {
-        var $target, id;
+        var $target, defaultDialog = false;
 
         if (_.isString(params.target)) {
             if (params.target.charAt(0) === '#') {
@@ -2748,15 +2746,21 @@ var dialog = {
             $target = params.target;
         } else {
             $target = $('#dialog-container');
+            defaultDialog = true;
         }
 
         // if no element found, create one
         if ($target.length === 0) {
-            if ($target.selector && $target.selector.charAt(0) === '#') {
-                id = $target.selector.substr(1);
-                $target = $('<div>').attr('id', id).addClass('dialog-content').appendTo('body');
+            if ($target.attr('id')) {
+                $target = $('<div>')
+                    .attr('id', $target.attr('id'))
+                    .addClass('dialog-content')
+                    .appendTo('body');
+            } else if (defaultDialog) {
+                $target = $('<div>').attr('id', 'dialog-container').addClass('dialog-content').appendTo('body');
             }
         }
+
 
         // create the dialog
         this.$container = $target;
@@ -2892,7 +2896,7 @@ var minicart = {
         this.$content = this.$el.find('.mini-cart-content');
 
         $('.mini-cart-product').eq(0).find('.mini-cart-toggle').addClass('fa-caret-down');
-        $('.mini-cart-product').not(':first').addClass('collapsed')
+        $('.mini-cart-product').not(':eq(0)').addClass('collapsed')
             .find('.mini-cart-toggle').addClass('fa-caret-right');
 
         $('.mini-cart-toggle').on('click', function () {
