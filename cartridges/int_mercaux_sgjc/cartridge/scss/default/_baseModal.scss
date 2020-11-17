@@ -40,7 +40,7 @@
                 @include rem(margin-left, 7px);
                 @include rem(margin-top, 4px);
 
-                color: #999 !important;
+                color: #999;
             }
 
             a:hover {
@@ -62,7 +62,10 @@
                     @include rem(height, 12px);
 
                     content: '';
-                    border-width: 2px 2px 0 0;
+                    @include rem(border-top-width, 2px);
+                    @include rem(border-right-width, 2px);
+                    border-bottom-width: 0;
+                    border-left-width: 0;
                     border-style: solid;
                     border-color: #999;
                     transition: 0.2s ease;
@@ -301,10 +304,11 @@
 
                     @media (min-width: $xs) and (max-width: $sm) {
                         @include rem(margin-bottom, 25px);
+                        @include rem(border-bottom-width, 1px);
 
                         width: 100%;
                         margin-left: 0;
-                        border-bottom: 1px solid #e0e0e0;
+                        border-bottom: solid #e0e0e0;
                     }
 
                     .product-image-border {
@@ -365,7 +369,6 @@
 
                     .add-to-cart-block {
                         position: relative;
-                        z-index: 1;
 
                         .product-add-to-cart {
                             padding: 0;
@@ -378,7 +381,6 @@
                             top: 0;
                             width: 100%;
                             height: 100%;
-                            z-index: 2;
                             cursor: pointer;
                             display: none;
                         }
@@ -422,12 +424,11 @@
                         left: 0;
                         top: 0;
                         width: 100%;
-                        height: calc(100% - 30px);
+                        height: calc(100% - 1.875rem);
                         overflow-y: auto;
                         margin-top: 0;
                         background: #fff;
                         display: none;
-                        z-index: 2;
 
                         @media screen and (max-width: $sm) {
                             right: 0;
@@ -438,7 +439,7 @@
                             @include rem(height, 200px);
                         }
 
-                        @media screen and (max-width: 439px) { /* stylelint-disable-line scss/media-feature-value-dollar-variable */
+                        @media screen and (max-width: 27.44rem) { /* stylelint-disable-line scss/media-feature-value-dollar-variable */
                             @include rem(bottom, 54px);
 
                             height: 100%;
@@ -464,8 +465,9 @@
                             @include rem(padding-right, 9px);
                             @include rem(padding-top, 6px);
                             @include rem(padding-bottom, 6px);
-
-                            border: 1px solid #a0a0a0;
+                            
+                            border: solid #a0a0a0;
+                            @include rem(border-width, 1px);
                         }
 
                         .product-size-ref-item {
@@ -474,15 +476,21 @@
                                 border-top: 0;
                                 background: #fff;
                                 color: #000;
-                                border-left: 1px #cbcbcb solid;
-                                border-right: 1px #cbcbcb solid;
+                                border-left: #cbcbcb solid;
+                                border-right: #cbcbcb solid;
+                                border-bottom: #cbcbcb solid;
+
+                                @include rem(border-left-width, 1px);
+                                @include rem(border-right-width, 1px);
+                                @include rem(border-bottom-width, 1px);
+                                
                                 min-width: auto;
                                 min-height: auto;
-                                line-height: 22px;
+                                @include rem(line-height, 22px);
                                 margin: 0;
                                 outline: none;
                                 text-align: left;
-                                border-bottom: 1px solid #cbcbcb;
+                                
                                 @include rem(padding-left, 9px);
                                 @include rem(padding-right, 9px);
                                 @include rem(padding-top, 6px);
@@ -506,7 +514,7 @@
                                 }
 
                                 &:active {
-                                    box-shadow: 1px 1px 7px -6px #000 inset;
+                                    box-shadow: 0.0625rem 0.0625rem 0.4375rem -0.375rem #000 inset;
                                 }
                             }
                         }
@@ -519,7 +527,7 @@
 
 .modal-mercaux-wrapper {
     .modal {
-        padding-right: 0 !important;
+        padding-right: 0;
         z-index: 18;
 
         .modal-content {
@@ -529,7 +537,7 @@
         }
 
         .modal-dialog {
-            width: calc(100% - 40px);
+            width: calc(100% - 2.5rem);
             @include rem(max-width, 1140px);
             @include rem(margin-top, 30px);
             @include rem(margin-bottom, 30px);
@@ -554,7 +562,7 @@
 }
 
 .modal-backdrop {
-    z-index: 17 !important;
+    z-index: 17;
 }
 
 #mini-cart.openned-modal {

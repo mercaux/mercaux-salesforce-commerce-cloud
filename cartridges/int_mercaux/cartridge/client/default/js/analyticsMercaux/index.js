@@ -179,14 +179,24 @@ function getTypeOfEventPage($body) {
  *  @param {Object} data contain object of analytic data for request
  */
 function makeAnalyticsRequest(endpointURL, data) {
-    fetch(endpointURL, {
+    var $analyticTag = $('.js-mercaux-analytics-tag');
+    var csrfendpointURL = $analyticTag.attr('data-mercaux-analytics-csrf-url');
+    fetch(csrfendpointURL, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    }).then(() => {
-      
+    }).then((response) => {
+        return response.json();
+    }).then((responseData) => {
+        data.csrf_token = responseData.csrf.token;
+        fetch(endpointURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: $.param(data)
+        }).then(() => {
+        }).catch(e => {
+            console.log(e);
+        });
     }).catch(e => {
         console.log(e);
     });

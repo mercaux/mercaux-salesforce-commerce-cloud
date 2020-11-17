@@ -18,79 +18,7 @@
 <isset name="Product" value="${pdict.product}" scope="page"/>
 
 <isif condition="${!empty(Product)}">
-	<iscomment>
-		Get the colors selectable from the current product master or variant range if we
-		need to determine them based on a search result.
-	</iscomment>
-	<isscript>
-
-		var PromotionMgr = require('dw/campaign/PromotionMgr');
-		
-		// set default settings
-		/*
-			Relies on the fact that the represented product is a variant if color slicing is enabled
-		 	See script API doc @ProductSearchHit.product
-		*/
-		var showswatches = pdict.showswatches || Product.isMaster();
-		var showpricing = pdict.showpricing || false;
-		var showpromotion = pdict.showpromotion || false;
-		var showrating = pdict.showrating || false;
-		var showcompare = pdict.showcompare || false;
-		var lookImage = pdict.lookImage; 
-
-		var selectableColors = new dw.util.ArrayList();
-		var imageSize = 'medium';
-		var PVM = Product.variationModel; 
-		var colorVarAttr, selectedColor, imageSource, image;
-		if (PVM) {
-			colorVarAttr = PVM.getProductVariationAttribute('color');
-			if (colorVarAttr) {
-				selectableColors = PVM.getFilteredValues(colorVarAttr);
-			}
-			if (Product.variationGroup && colorVarAttr) {
-				imageSource = selectedColor = PVM.getSelectedValue(colorVarAttr);
-				if (!imageSource) {
-					if (!PVM.variants.isEmpty()) {
-						imageSource = PVM.defaultVariant;
-						if (imageSource) {
-							selectedColor = PVM.getVariationValue(imageSource, colorVarAttr);
-						}
-					}
-				}
-			} else if (Product.isMaster() && PVM.defaultVariant) {
-				if (colorVarAttr) {
-					imageSource = PVM.defaultVariant;
-					selectedColor = imageSource.variationModel.getSelectedValue(colorVarAttr);
-				} else {
-					imageSource = PVM.master;
-				}
-			} else if (Product.isVariant() && colorVarAttr) {
-				imageSource = selectedColor = PVM.getSelectedValue(colorVarAttr);
-				if (!imageSource) {
-					if (!PVM.variants.isEmpty()) {
-						imageSource = PVM.variants[0];
-						selectedColor = imageSource.variationModel.getSelectedValue(colorVarAttr);
-					}
-				}
-			} else {
-				// standard product, product set or bundle
-				imageSource = Product;
-			}
-		} else {
-			imageSource = Product;
-		}
-		image = imageSource.getImage(imageSize, 0);
-
-		// Generate link to product detail page: by default it's just the product of the product search hit.
-		// If a color variation is available, the first color is used as link URL.
-
-		//RAP-3006 - added cgid because the breadcumb will not work otherwise.  It needs to pass the category ID
-		// in order to show the proper category the user clicked on
-		var productUrl = URLUtils.url('Product-Show', 'pid', Product.ID, 'cgid', pdict.CurrentHttpParameterMap.cgid);
-		if (selectedColor) {
-			productUrl = Product.variationModel.urlSelectVariationValue('Product-Show', colorVarAttr, selectedColor) + '&cgid=' + pdict.CurrentHttpParameterMap.cgid;
-		}
-	</isscript>
+	<isset name="lookImage" value="${pdict.lookImage}" scope="page" />
 	<div class="product-tile mercaux-product-tile" id="${Product.UUID}" data-itemid="${Product.ID}"><!-- dwMarker="product" dwContentID="${Product.UUID}" -->
 		<iscomment>Image</iscomment>
 		<iscomment>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</iscomment>
@@ -110,7 +38,7 @@
 			<div class="pdp-link">
 				<a href="#" class="js-open-look-modal" data-custom-open="modal-1" data-toggle="modal"
 				data-target="#baseMercauxModal" data-url="${URLUtils.url('Mercaux-ShowModal')}" data-pid="${Product.ID}">
-					<isprint value="${Product.name}" encoding="off" />
+					<isprint value="${Product.name}" />
 				</a>
 			</div> 
 		</div>

@@ -8,7 +8,7 @@
         assets.addCss('/css/pages/looksGallery.css');
     </isscript>
 
-    <isinclude template="searchLooksGallery/searchLooksResult" />
+    <isinclude template="searchLooksGallery/searchResultsNoDecorator" />
     
     <!-- Modal -->
     <isinclude template="modal/baseModal"/> 

@@ -16,10 +16,6 @@
         }
     }
 
-    .owl-carousel {
-        z-index: inherit;
-    }
-
     .flex-container {
         display: flex;
         justify-content: space-between;
@@ -94,9 +90,11 @@
             &::before {
                 @include rem(width, 15px);
                 @include rem(height, 15px);
-
+                @include rem(border-top-width, 3px);
+                @include rem(border-right-width, 3px);
+                border-bottom-width: 0;
+                border-left-width: 0;
                 content: '';
-                border-width: 3px 3px 0 0;
                 border-style: solid;
                 border-color: #222;
                 transition: 0.2s ease;
@@ -107,7 +105,10 @@
                     @include rem(width, 18px);
                     @include rem(height, 18px);
 
-                    border-width: 2px 2px 0 0;
+                    @include rem(border-top-width, 2px);
+                    @include rem(border-right-width, 2px);
+                    border-bottom-width: 0;
+                    border-left-width: 0;
                 }
             }
 
@@ -120,7 +121,7 @@
             @include rem(left, -20px);
 
             transform: rotate(-135deg);
-            top: calc(45% - 57px);
+            top: calc(45% - 3.563rem);
 
             @media (min-width: $md) {
                 @include rem(left, -45px);
@@ -131,7 +132,7 @@
             @include rem(right, -20px);
 
             transform: rotate(45deg);
-            top: calc(45% - 47px);
+            top: calc(45% - 2.938rem);
 
             @media (min-width: $md) {
                 @include rem(right, -45px);
@@ -143,8 +144,9 @@
         height: auto;
 
         .mercaux-image {
-            width: calc(100% - 3px);
-            border: 1px #f1f1f1 solid;
+            @include rem(border-width, 1px);
+            width: calc(100% - 0.1875rem);
+            border: #f1f1f1 solid;
 
             img {
                 width: 100%;
@@ -160,7 +162,7 @@
     @include rem(margin-left, 10px);
     @include rem(margin-right, 10px);
 
-    @media screen and (max-width: 568px) { /* stylelint-disable-line */
+    @media screen and (max-width: 35.5rem) { /* stylelint-disable-line */
         @include rem(padding-top, 30px);
         position: fixed;
         bottom: 0;
@@ -170,7 +172,7 @@
         z-index: 2;
     }
 
-    a {
+    a.btn-primary:not(:disabled) {
         @include rem(width, 210px);
         @include rem(height, 37px);
         @include rem(line-height, 37px);
@@ -210,12 +212,12 @@
 
         &:active,
         &:hover {
-            color: #000 !important;
-            background-color: #dcdcdc !important;
-            border-color: #dcdcdc !important;
+            color: #000;
+            background-color: #dcdcdc;
+            border-color: #dcdcdc;
         }
 
-        @media screen and (max-width: 568px) { /* stylelint-disable-line */
+        @media screen and (max-width: 35.5rem) { /* stylelint-disable-line */
             @include rem(height, 40px);
             @include rem(line-height, 40px);
             @include rem(text-indent, 15px);
@@ -239,9 +241,9 @@
 
             &:active,
             &:hover {
-                color: #fff !important;
-                background-color: #000 !important;
-                border-color: #000 !important;
+                color: #fff;
+                background-color: #000;
+                border-color: #000;
             }
         }
     }

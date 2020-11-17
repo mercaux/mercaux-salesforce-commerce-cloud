@@ -84,9 +84,15 @@ function fetchLookImageDef() {
         return null;
     }
 
+    function filterLogMessage(msg) {
+        return msg; // it's never passing sensitive data
+    }
+
+
     return {
         createRequest: createRequest,
-        parseResponse: parseResponse
+        parseResponse: parseResponse,
+        filterLogMessage: filterLogMessage
     };
 }
 
@@ -142,10 +148,15 @@ function fetchAllLooksDef() {
         return serviceHelpers.generateMockResponse(mockRes);
     }
 
+    function filterLogMessage(msg) {
+        return msg; // it's never passing sensitive data
+    }
+
     return {
         createRequest: createRequest,
         parseResponse: parseResponse,
-        mockCall: mockCall
+        mockCall: mockCall,
+        filterLogMessage: filterLogMessage
     };
 }
 

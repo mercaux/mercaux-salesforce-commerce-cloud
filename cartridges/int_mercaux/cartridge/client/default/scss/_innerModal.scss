@@ -1,4 +1,4 @@
-.modal-wrapper-internal {
+header~#maincontent .modal-wrapper-internal {
 
     @media (max-width: $xs) {
         display: flex;
@@ -43,7 +43,7 @@
             font-weight: 600;
 
             a {
-                color: #000 !important;
+                color: #000;
             }
         }
 
@@ -183,12 +183,13 @@
         .collapsible-xl {
             span.title {
                 @include rem(font-size, 16px);
+                @include rem(border-bottom-width, 1px);
 
                 width: 100%;
                 outline: none;
                 cursor: pointer;
                 color: #000;
-                border-bottom: 1px solid #cbcbcb;
+                border-bottom: solid #cbcbcb;
 
                 &::after {
                     @include rem(font-size, 20px);
@@ -292,9 +293,10 @@
             @include rem(padding-left, 10px);
             @include rem(padding-right, 10px);
             @include rem(margin-top, 16px);
+            @include rem(border-width, 1px);
 
             text-align: center;
-            border: 1px #000 solid;
+            border: #000 solid;
         }
 
         .pick-color {
@@ -331,10 +333,11 @@
                 @include rem(padding-bottom, 10px);
                 @include rem(padding-left, 15px);
                 @include rem(padding-right, 10px);
+                @include rem(border-width, 1px);
 
                 width: 100%;
                 background: #fff;
-                border: solid 1px #000;
+                border: solid #000;
                 border-radius: 0;
                 color: #000;
 
@@ -371,7 +374,7 @@
             }
 
             a {
-                color: #000 !important;
+                color: #000;
 
                 &:hover {
                     text-decoration: none;

@@ -33,5 +33,5 @@
 </footer>
 
 <!-- Mercuax Analytic tag **** start -->
-<span class="js-mercaux-analytics-tag" data-mercaux-analytics-url="${URLUtils.url('Analytics-Add')}"></span>
+<span class="js-mercaux-analytics-tag" data-mercaux-analytics-url="${URLUtils.url('Analytics-Add')}" data-mercaux-analytics-csrf-url="${URLUtils.url('CSRF-Generate')}"></span>
 <!-- Mercuax Analytic tag **** end -->

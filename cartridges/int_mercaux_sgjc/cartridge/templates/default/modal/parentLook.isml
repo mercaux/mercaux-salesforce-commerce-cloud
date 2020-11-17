@@ -21,22 +21,17 @@
                 var="SetProduct" status="productSetLoop">
                 
                 <isif condition="${SetProduct.online}">
-                    <isscript>
-                        if (SetProduct.master) {
-                            var _variants = SetProduct.getVariants();
-                            if (_variants != null) {
-                                if (_variants.length === 1) {
-                                    for each(var _p: dw.product.Product in _variants) {
-                                        if (_p.onlineFlag == true) {
-                                            SetProduct = _p;
-                                            break;
-                                        }
-                                    } 
-                                }
-                            }
-                        }   
-                        pdict.ProductSetList.add(SetProduct);
-                    </isscript> 
+                    <isif condition="${SetProduct.master}">
+                        <isset name="_variants" value="${SetProduct.getVariants()}" scope="page" />
+                        <isif condition="${_variants != null && _variants.length === 1}">
+                            <isloop items="${_variants}" var="_p">
+                                <isif condition="${_p.onlineFlag}">
+                                    <isset name="SetProduct" value="${_p}" scope="page" />
+                                </isif>
+                            </isloop>
+                        </isif>
+                    </isif>
+                    <isset name="productSetAdd" value="${pdict.ProductSetList.add(SetProduct)}" scope="page" />
                 </isif>
             </isloop>
 
@@ -45,7 +40,7 @@
             <div class="left-block product-set">
                 <div class="header-left-block flex-container">
                     <h4 class="title-left-block" itemprop="name">
-                        <isprint value="${pdict.Product.name}" encoding="off" />
+                        <isprint value="${pdict.Product.name}" />
                     </h4>
                     
                     <span class="product-count d-lg-none d-md-none">${pdict.Product.productSetProducts.size().toFixed()}

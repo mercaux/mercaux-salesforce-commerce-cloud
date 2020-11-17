@@ -88,13 +88,11 @@
     	</div>
     </div>
 
+    <!-- Mercuax Customization start -->
 	<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('mercaux_GlobalEnableStatus')}">
-	<div class="shop-the-look-btn js-insert-shop-the-look-btn" data-slider-id="SliderLooksCarousel">
-    	<a href="#SliderLooksCarousel" class="btn-primary">SHOP THE LOOK</a>                
-	</div>
-	<!-- Mercuax Looks Slider **** start -->
-	<isinclude url="${URLUtils.url('Mercaux-IncludeSlider', 'cid', 'mercaux-pdp-slider-looks-content', 'pid', pdict.Product.ID)}" />
-	<!-- Mercuax Looks Slider **** end -->
+        <!-- Mercuax Looks Slider -->
+        <isinclude url="${URLUtils.url('Mercaux-IncludeSlider', 'cid', 'mercaux-pdp-slider-looks-content', 'pid', pdict.Product.ID)}" />
  	</isif>
+ 	<!-- Mercuax Customization end -->
 
 </isif>

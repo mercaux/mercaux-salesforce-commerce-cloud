@@ -1,10 +1,6 @@
 <div class="add-to-cart-block">
     <isif condition="${pdict.isSet}">
-        <isscript>
-            // ensure a unique form name and make the name reuseable, because the call to
-            // dynamicHtmlName always creates a different name
-            var uniqueFormID: String = pdict.CurrentForms.product.addtocart.dynamicHtmlName;
-        </isscript>
+        <isset name="uniqueFormID" value="${pdict.CurrentForms.product.addtocart.dynamicHtmlName}" scope="page" />
         <div class="product-add-to-cart add-sub-product">
 
             <iscomment>

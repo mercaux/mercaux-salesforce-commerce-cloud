@@ -78,9 +78,12 @@
             &::before {
                 @include rem(width, 35px);
                 @include rem(height, 35px);
+                @include rem(border-top-width, 3px);
+                @include rem(border-right-width, 3px);
 
                 content: '';
-                border-width: 3px 3px 0 0;
+                border-bottom-width: 0;
+                border-left-width: 0;
                 border-style: solid;
                 border-color: #222;
                 transition: 0.2s ease;
@@ -90,8 +93,11 @@
                 @media (max-width: $sm) {
                     @include rem(width, 15px);
                     @include rem(height, 15px);
+                    @include rem(border-top-width, 2px);
+                    @include rem(border-right-width, 2px);
 
-                    border-width: 2px 2px 0 0;
+                    border-bottom-width: 0;
+                    border-left-width: 0;
                 }
             }
 
@@ -104,7 +110,7 @@
             @include rem(left, -50px);
 
             transform: rotate(-135deg);
-            top: calc(45% - 52px);
+            top: calc(45% - 3.25rem);
 
             @media (max-width: $md) {
                 @include rem(left, 20px);
@@ -115,7 +121,7 @@
             @include rem(right, -50px);
 
             transform: rotate(45deg);
-            top: calc(45% - 35px);
+            top: calc(45% - 2.188rem);
 
             @media (max-width: $md) {
                 @include rem(right, 20px);
@@ -136,7 +142,7 @@
     }
 }
 
-@media screen and (max-width: 544px) { /* stylelint-disable-line */
+@media screen and (max-width: 34rem) { /* stylelint-disable-line */
     .cart-and-ipay {
         padding-bottom: 0;
     }
@@ -149,11 +155,11 @@
     @include rem(padding-top, 10px);
     @include rem(padding-bottom, 10px);
 
-    @media screen and (max-width: 544px) { /* stylelint-disable-line */
+    @media screen and (max-width: 34rem) { /* stylelint-disable-line */
         @include rem(padding-top, 30px);
     }
 
-    a {
+    a.btn-primary:not(:disabled) {
         @include rem(width, 210px);
         @include rem(height, 45px);
         @include rem(line-height, 45px);
@@ -194,12 +200,12 @@
 
         &:active,
         &:hover {
-            color: #000 !important;
-            background-color: #dcdcdc !important;
-            border-color: #dcdcdc !important;
+            color: #000;
+            background-color: #dcdcdc;
+            border-color: #dcdcdc;
         }
 
-        @media screen and (max-width: 544px) { /* stylelint-disable-line */
+        @media screen and (max-width: 34rem) { /* stylelint-disable-line */
             @include rem(height, 40px);
             @include rem(line-height, 40px);
             @include rem(text-indent, 15px);
@@ -223,9 +229,9 @@
 
             &:active,
             &:hover {
-                color: #fff !important;
-                background-color: #000 !important;
-                border-color: #000 !important;
+                color: #fff;
+                background-color: #000;
+                border-color: #000;
             }
         }
     }

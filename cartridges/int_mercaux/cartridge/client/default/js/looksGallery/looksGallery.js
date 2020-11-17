@@ -5,7 +5,8 @@ var selectors = {
     refinementFilterItem: '.js-refinement-filter-item',
     refinementDesktopParent: '.js-refinement-desktop-parent',
     sortByParentMobile: '.looks-top-filters-wrapper-mobile .js-sortBy-parent-mobile',
-    sortByParentDesktop: '.looks-top-filters-wrapper #looks-top-filters-sortBy'
+    sortByParentDesktop: '.looks-top-filters-wrapper #looks-top-filters-sortBy',
+    refinementBar: '.refinement-bar'
 };
 var CURRENT_WINDOW_WIDTH = 0;
 var BREAKPOINT_MOBILE = 1025;
@@ -26,6 +27,7 @@ function onWindowChange() {
     var $sortParentDesktop = $(selectors.sortByParentDesktop);
 
     if (INITIONAL_DEVICE === 'desktop') {
+        $(selectors.refinementBar).show();
         if ($sortParentDesktop.find('.flex-item-ul').length !== 0) return;
 
         var sortByMobileHtml = $sortParentMobile.html();

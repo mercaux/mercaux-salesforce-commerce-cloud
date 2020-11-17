@@ -23,7 +23,7 @@
         <div class="price-block flex-container mobile-flex-container">
             <span class="product-price open-modal js-open-product-look" data-url="${URLUtils.url('Mercaux-ShowModal')}" data-pid="${product.id}" data-pid-look="${productLook.id}">
                 <isset name="price" value="${product.price}" scope="page" />
-                <isinclude template="modal/product/components/pricing/main" />
+                <isinclude template="product/components/pricing/main" />
             </span>
         </div>
 

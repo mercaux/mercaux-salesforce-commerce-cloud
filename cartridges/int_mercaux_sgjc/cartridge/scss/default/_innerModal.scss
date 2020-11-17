@@ -1,4 +1,4 @@
-.modal-wrapper-internal {
+header~#maincontent .modal-wrapper-internal {
 
     @media (max-width: $xs) {
         display: flex;
@@ -43,7 +43,7 @@
             font-weight: 600;
 
             a {
-                color: #000 !important;
+                color: #000;
             }
         }
 
@@ -92,10 +92,11 @@
                 @include rem(padding-bottom, 10px);
                 @include rem(padding-left, 15px);
                 @include rem(padding-right, 10px);
+                @include rem(border-width, 1px);
 
                 width: 100%;
                 background: #fff;
-                border: solid 1px #000;
+                border: solid #000;
                 border-radius: 0;
                 color: #000;
 
@@ -183,7 +184,7 @@
                 }
             }
 
-            @media screen and (min-width: 768px) { /* stylelint-disable-line scss/media-feature-value-dollar-variable */
+            @media screen and (min-width: 48rem) { /* stylelint-disable-line scss/media-feature-value-dollar-variable */
                 .tab .tab-switch:checked + .tab-label {
                     background: none;
                     border-bottom-color: #000;
@@ -226,8 +227,8 @@
                         @include rem(height, 23px);
                         @include rem(min-width, 23px);
                         @include rem(min-height, 23px);
-
-                        border: 2px #000 solid;
+                        @include rem(border-width, 2px);
+                        border: #000 solid;
                         display: flex;
                         align-items: center;
                         justify-content: center;
@@ -237,7 +238,8 @@
                         @include rem(padding-bottom, 2px);
 
                         img {
-                            border: 2px #fff solid;
+                            @include rem(border-width, 2px);
+                            border: #fff solid;
                             border-radius: 100%;
                             padding: 0;
                             margin: 0;
@@ -314,7 +316,7 @@
                 input {
                     width: 100%;
                     background: #fff;
-                    border: solid 1px #000;
+                    border: solid #000;
                     border-radius: 0;
                     color: #000;
                     font-size: 1.5em;
@@ -322,6 +324,7 @@
                     text-align: center;
                     padding: 0.7em 0.5em;
                     @include rem(height, 37px);
+                    @include rem(border-width, 1px);
                 }
             }
         }
@@ -333,7 +336,7 @@
             text-align: right;
 
             a {
-                color: #000 !important;
+                color: #000;
                 text-decoration: underline;
 
                 &:hover {
@@ -464,9 +467,9 @@
             @include rem(padding-left, 10px);
             @include rem(padding-right, 10px);
             @include rem(margin-top, 16px);
-
+            @include rem(border-width, 1px);
             text-align: center;
-            border: 1px #000 solid;
+            border: #000 solid;
         }
 
         .add-bag-button {

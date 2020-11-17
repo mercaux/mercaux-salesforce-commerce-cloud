@@ -12,7 +12,7 @@
                 <div class="header-left-block flex-container">
                     <h4 class="title-left-block title-left-block-internal product-name" itemprop="name" data-product-sku="${pdict.Product.manufacturerSKU}">
                         <a href="${URLUtils.url('Product-Show', 'pid', pdict.Product.ID)}">
-                            <isprint value="${pdict.Product.name}" encoding="off"/> 
+                            <isprint value="${pdict.Product.name}" />
                         </a>
                     </h4>
                 </div>

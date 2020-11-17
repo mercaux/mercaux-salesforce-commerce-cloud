@@ -17,7 +17,7 @@
     }
 
     .refinements-wrapper-parent .refinement-bar {
-        display: block !important;
+        display: block;
     }
 
     .refinements .accordion-mobile {
@@ -46,8 +46,9 @@
     .active {
         .flex-item-header {
             background-color: #fff;
-            border: 1px solid #000;
+            border: solid #000;
             border-bottom: none;
+            @include rem(border-width, 1px);
             @include rem(padding-top, 9px);
             @include rem(padding-right, 19px);
             @include rem(padding-left, 19px);
@@ -69,7 +70,7 @@
 
     .flex-item-header {
         position: relative;
-        z-index: 2;
+        z-index: 2; // required for refinement bar to make expanded refinemnt looks solid
         top: 0;
         right: 0;
         display: inline-block;
@@ -100,12 +101,13 @@
     .flex-item-body {
         position: absolute;
         left: 0;
-        z-index: 1;
+        z-index: 1; // required for refinement bar to make expanded refinemnt looks solid
         width: 95%;
         height: auto;
         background-color: #fff;
-        border: 1px solid;
+        border: solid;
         @include rem(top, 28px);
+        @include rem(border-width, 1px);
 
         .flex-item-ul {
             padding-left: 0;
@@ -187,10 +189,11 @@
             @include rem(padding-bottom, 10px);
             @include rem(padding-left, 15px);
             @include rem(padding-right, 10px);
+            @include rem(border-width, 1px);
 
             width: 100%;
             background: #fff;
-            border: solid 1px #000;
+            border: solid #000;
             border-radius: 0;
             color: #000;
 
@@ -220,11 +223,11 @@
         top: 0;
         left: 0;
         background-color: #fff;
-        border: 2px #000 solid;
-        z-index: 0;
+        border: #000 solid;
         @include rem(height, 22px);
         @include rem(width, 22px);
         @include rem(border-radius, 5px);
+        @include rem(border-width, 2px);
 
         &::after {
             content: "";
@@ -256,7 +259,7 @@
             opacity: 0;
             cursor: pointer;
             width: 100%;
-            z-index: 1;
+            display: none;
         }
 
         &:hover input ~ .checkmark {
@@ -276,8 +279,9 @@
             left: 0;
             width: 100%;
             height: 100%;
-            border: 2px #fff solid;
+            border: #fff solid;
             @include rem(border-radius, 5px);
+            @include rem(border-width, 2px);
         }
     }
 }
