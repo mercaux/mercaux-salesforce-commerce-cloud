@@ -102,7 +102,7 @@
                 }
             },
             {
-                "@type-id": "custom.Mercaux.analytic",
+                "@type-id": "custom.Mercaux.analytic.prepare",
                 "module": "bm_mercaux/cartridge/scripts/steps/PrepareAnalyticObjects.js",
                 "description":"Setting all analytic object to ready for export",
                 "function": "execute",
@@ -159,6 +159,28 @@
                         {
                             "@code": "OK",
                             "description": "Processing finished successfully."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.Mercaux.analytic.cleanup",
+                "module": "bm_mercaux/cartridge/scripts/steps/CleanAnalyticObjects.js",
+                "description":"Removing all exported analytic objects",
+                "function": "execute",
+                "parameters": {
+                    "parameter": [
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "ERROR"
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "OK"
                         }
                     ]
                 }

@@ -5,7 +5,7 @@
         <parameters/>
         <flow>
             <context site-id="RefArch"/>
-            <step step-id="prerpareAnalyticObjects" type="custom.Mercaux.analytic" enforce-restart="false">
+            <step step-id="prerpareAnalyticObjects" type="custom.Mercaux.analytic.prepare" enforce-restart="false">
                 <description/>
                 <parameters/>
             </step>
@@ -15,6 +15,10 @@
                     <parameter name="disabled">false</parameter>
                     <parameter name="outputFolder">/mercaux/Analytics</parameter>
                 </parameters>
+            </step>
+            <step step-id="cleanupAnalyticObjects" type="custom.Mercaux.analytic.cleanup" enforce-restart="false">
+                <description/>
+                <parameters/>
             </step>
         </flow>
         <rules/>
