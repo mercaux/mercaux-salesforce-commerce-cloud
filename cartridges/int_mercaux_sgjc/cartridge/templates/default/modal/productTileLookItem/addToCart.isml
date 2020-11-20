@@ -42,6 +42,7 @@
                 <isif condition="${!pdict.available || pdict.Product.master}"> 
                     <span class="js-show-size-attr add-to-cart-overlay" data-product-sku="${pdict.Product.manufacturerSKU || null}" data-pid-look="${productSetID}"></span> 
                 </isif> 
+                <input type="hidden" name="${dw.web.CSRFProtection.getTokenName()}" value="${dw.web.CSRFProtection.generateToken()}"/>
             </form>
         </div>
     </isif>

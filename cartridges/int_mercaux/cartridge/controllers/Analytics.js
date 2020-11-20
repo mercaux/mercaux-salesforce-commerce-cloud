@@ -12,8 +12,7 @@ var OBJECT_TYPE = 'mercauxAnalytics';
 server.post('Add', consentTracking.consent, csrfProtection.validateAjaxRequest, function (req, res, next) {
     var Transaction = require('dw/system/Transaction');
     var customObject;
-    var dataJSON = req.form;
-    delete dataJSON.csrf_token;
+    var dataJSON = JSON.parse(req.form.data);
     dataJSON.customer = req.currentCustomer.raw.isAnonymous() ? 'Anonymous' : req.currentCustomer.raw.profile.credentials.login;
     var customObjects = COMgr.queryCustomObjects(OBJECT_TYPE, 'custom.mercauxAnalyticsUser={0} AND custom.readyForExport=false', 'custom.mercauxAnalyticsUser asc', req.currentCustomer.raw.ID);
 
