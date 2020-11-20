@@ -57,7 +57,7 @@ function searchProductsBySKU(data, uploadLookImage) {
             // Upload Look image
             var imageFullPath = product.imageName;
             if (imageFullPath) {
-                uploadedImagePath = uploadLookImage(imageFullPath, product.id);
+                uploadedImagePath = uploadLookImage(imageFullPath);
             }
 
             result.push({

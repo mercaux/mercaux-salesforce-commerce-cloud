@@ -39,10 +39,10 @@ function generateMockResponse(mockObj) {
 }
 
 /**
- * Extract base URL
- * @param {string} fullUrl - full url string
- * @returns {string} - Base URL
- */
+* Extract base URL
+* @param {string} fullUrl - full url string
+* @returns {string} - Base URL
+*/
 function extractBaseUrl(fullUrl) {
     var baseUrl = fullUrl.match(/(http|https)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}/gi);
     return baseUrl;

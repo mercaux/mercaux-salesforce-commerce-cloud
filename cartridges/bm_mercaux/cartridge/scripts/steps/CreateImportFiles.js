@@ -27,66 +27,37 @@ function execute(args, jobStepExecution) {
     var catalogImageBasePath = args.CatalogImageBasePath;
     cleanSrcFolder(rootJobFolder);
 
-    var partialResponse = false;
-    var statusCode;
-    var nextPagingHeader;
     var catalogID = args.CatalogID;
     var storefrontCatalogID = args.StorefrontCatalogID;
     var categoryID = args.CategoryID;
 
-    // 1. Call first-time service request
-    var initialRequest = fetchLooksAPI();
+    // 1. Request first page
+    var response =  ServiceMgr.getLooks();
     logger.info('Start fetch looks data from Service API...');
 
-    if (!initialRequest.ok) {
-        var StatusCode = initialRequest.empty ? Status.OK : Status.ERROR;
-        logger.error(initialRequest.errorMsg);
-        return new Status(StatusCode, 'ERROR');
-    }
-    
-    if (initialRequest.statusCode === 206) {
-        partialResponse = true;
-        nextPagingHeader = initialRequest.pagingData;
-        statusCode = initialRequest.statusCode;
-        logger.info('Partial response was returned from Service API...');
-    }
+    while (response) {
+        if (!response.ok) {
+            logger.error('Error while requesting looks batch',  response.errorMsg);
+            return new Status(Status.ERROR, 'ERROR');
+        }
 
-    // create xml file based on first response
-    var looksResultArr = initialRequest.data;
-    var xmlCatalogStatus = createCatalogFile(catalogID, storefrontCatalogID, catalogImageBasePath, categoryID, rootJobFolder, looksResultArr);
-    if (!xmlCatalogStatus.ok) {
-        logger.error(xmlCatalogStatus.errorMsg);
-        return new Status(Status.ERROR, 'ERROR');
-    }
-    logger.info('Catalog file was created...');
-
-    while (partialResponse) {
-        var nextLooksResult = fetchLooksAPI({ pagingHeader: nextPagingHeader });
-        statusCode = nextLooksResult.statusCode;
-        nextPagingHeader = nextLooksResult.pagingData;
-
-        if (!nextLooksResult.ok) {
-            if (nextLooksResult.empty) {
-                return new Status(Status.OK, nextLooksResult.errorMsg);
+        if (response.data && response.data.length > 0) {
+            var xmlCatalogStatus = createCatalogFile(catalogID, storefrontCatalogID, catalogImageBasePath, categoryID, rootJobFolder, response.data);
+            if (xmlCatalogStatus.ok) {
+                logger.info('Catalog file for looks batch was created...');
+            } else {
+                logger.error('Error while creating catalogue file for looks batch', xmlCatalogStatus.errorMsg);
+                return new Status(Status.ERROR, 'ERROR');
             }
-
-            logger.error(nextLooksResult.errorMsg);
-            return new Status(Status.ERROR, nextLooksResult.errorMsg);
         }
-        logger.info('Fetched next partial data of response from Service API...');
-
-        // 2. Create Catalog Import File containing looks data
-        var looksArray = nextLooksResult.data;
-        var xmlCatalogStatus = createCatalogFile(catalogID, storefrontCatalogID, catalogImageBasePath, categoryID, rootJobFolder, looksArray);
-        if (!xmlCatalogStatus.ok) {
-            logger.error(xmlCatalogStatus.errorMsg);
-            return new Status(Status.ERROR, xmlCatalogStatus.errorMsg);
-        }
-        logger.info('Catalog file from partial response was created...');
-
-        if (statusCode !== 206 || !nextPagingHeader) {
-            partialResponse = false;
+        if (response.pagingData) {
+            // 2. Request next page if any
+            logger.info('Fetched next partial data of response from Service API...');
+            response = ServiceMgr.getLooks({pagingData: response.pagingData});
+        } else {
+            // 3. No more pages -- break loop
             logger.info('End of request pagination, exited from creating catalog files...');
+            response = null;
         }
     }
 
@@ -107,41 +78,6 @@ function cleanSrcFolder(rootJobFolderPath) {
             logger.info('Folder was cleaned, PATH: ' + rootJobFolderPath);
         }
     }
-}
-
-/**
- * Calls services to fetch Looks data from Mercaux API
- * @param {string} params - Object that contains params for apply paging data
- * @returns {Object} response object with Looks data
- */
-function fetchLooksAPI(params) {
-    var result = ServiceMgr.getLooks(params);
-    var responseData = {
-        ok: true,
-        data: [],
-        statusCode: 0,
-        pagingData: '',
-        errorMsg: '',
-        empty: false
-    };
-
-    if (result.isError) {
-        return { ok: false, errorMsg: 'Error with the service call' };
-    }
-
-    var looksArr = result.responseObj.data && result.responseObj.data.length > 0 ? result.responseObj.data : [];
-    if (looksArr.length < 1 && result.statusCode === 200) {
-        responseData.ok = false;
-        responseData.empty = true;
-        responseData.errorMsg = 'Response data is empty';
-        return responseData;
-    }
-
-    responseData.pagingData = result.responseObj.pagingHeader || '';
-    responseData.data = looksArr;
-    responseData.statusCode = result.statusCode;
-
-    return responseData;
 }
 
 /**
@@ -251,12 +187,14 @@ function createImportFile(rootMercauxFolder, catalogId, storefrontCatID, catalog
  * @param {string} catalogId - Master catalog ID
  * @param {string} catalogImageBasePath - Base Path of Image Settings of Catalog
  * @param {string} fullImagePath - Path of root Mercaux job folder
- * @param {string} productId - Product ID of assigned image should be products assigned for
  * @returns {string} uploaded image path
  */
-function uploadImageService(catalogId, catalogImageBasePath, fullImagePath, productId) {
+function uploadImageService(catalogId, catalogImageBasePath, fullImagePath) {
+    var catalogRootFolder = File.getRootDirectory(File.CATALOGS, catalogId);
+    var catalogImagesFolder = new File(catalogRootFolder, 'default' + catalogImageBasePath)
+
     try {
-        var result = ServiceMgr.saveLookImage(fullImagePath, productId, catalogId, catalogImageBasePath);
+        var result = ServiceMgr.saveLookImage(fullImagePath, catalogImagesFolder);
         return result;
     } catch (error) {
         logger.error('Error in uploading look image', error);

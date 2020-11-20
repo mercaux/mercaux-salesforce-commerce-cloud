@@ -6,24 +6,41 @@ var serviceHelpers = require('~/cartridge/scripts/services/helpers');
 
 const endpoints = {
     get: {
-        looks: 'look'
+        looks: 'look/'
     }
 };
 
 /**
  * Insert authorization service into request header
  * @param {dw.svc.HTTPService} svc - service instance
- * @param {dw.svc.HTTPService} endpoint - part  call
  * @throws {Error} Throws error when API key is not available or wasn't correct.
  */
-function setAuthHeader(svc, endpoint) {
-    var svcPassword = svc.getConfiguration().getCredential().getPassword();
-    var url = svc.getURL();
-
-    svc.addHeader('X-MercauxApikey', svcPassword);
+function setAuthHeader(svc) {
+    var apiKey = svc.getConfiguration().getCredential().getPassword();
+    if (!apiKey) {
+        throw Error('Mercaux API key is not configured');
+    }
+    svc.addHeader('X-MercauxApikey', apiKey);
     svc.setAuthentication('NONE');
-    var formatedURL = StringUtils.format('{0}/{1}/', url, endpoint);
-    svc.setURL(formatedURL);
+}
+
+/**
+ * Set request url for service
+ * @param {dw.svc.HTTPService} svc - service instance
+ * @param {String} relativeUrl - service instance
+ * @throws {Error} Throws error when API key is not available or wasn't correct.
+ */
+function setURL(svc, relativeURL) {
+    var baseURL = svc.getURL();
+    var absoluteURL;
+    if (relativeURL.slice(0, 1) === '/') {
+        absoluteURL = serviceHelpers.extractBaseUrl(baseURL) + relativeURL;
+    } else if (baseURL.slice(-1) === '/') {
+        absoluteURL = baseURL + relativeURL;
+    } else {
+        absoluteURL = baseURL + '/' + relativeURL;
+    }
+    svc.setURL(absoluteURL)
 }
 
 /**
@@ -33,39 +50,23 @@ function setAuthHeader(svc, endpoint) {
  * @returns {{responseObj: Object, isError: boolean, statusCode: string, msg: string, errorText: string}} - server response
  */
 function parseResponse(svc, client) {
-    var parsedBody;
-    var isJSON = false;
-    var response = {};
+    var result = {}
 
-    // eslint-disable-next-line no-prototype-builtins
-    if (client.hasOwnProperty('isMockResult') && client.isMockResult()) {
-        response.isMock = client.isMockResult();
-    } else {
-        isJSON = serviceHelpers.isResponseJSON(client);
-    }
-
-    if (isJSON) {
+    if (serviceHelpers.isResponseJSON(client)) {
         try {
-            parsedBody = JSON.parse(client.text);
+            result.data = JSON.parse(client.text).data;
         } catch (e) {
             logger.error('Error on parse JSON response: ', e.message);
-            parsedBody = client.text;
         }
-    } else {
-        parsedBody = client.text;
+    }
+    if (client.getStatusCode() === 204) {
+        result.data = [];
     }
     if (client.getStatusCode() === 206) {
         var pagingHeader = client.getResponseHeader('X-MercauxPagingData');
-        parsedBody.pagingHeader = pagingHeader;
+        result.pagingData = pagingHeader;
     }
-
-    return {
-        isError: client.getStatusCode() >= 400,
-        statusCode: client.getStatusCode(),
-        msg: client.getStatusMessage(),
-        responseObj: parsedBody,
-        errorText: client.errorText
-    };
+    return result
 }
 
 /**
@@ -78,16 +79,17 @@ function fetchLookImageDef() {
      * @param {dw.svc.HTTPService} svc - service instance
      * @returns {null} null
      */
-    function createRequest(svc) {
-        setAuthHeader(svc, '');
+    function createRequest(svc, params) {
+        setAuthHeader(svc);
+        setURL(svc, params.imageName);
         svc.setRequestMethod('GET');
+        svc.setOutFile(params.saveToFile);
         return null;
     }
 
     function filterLogMessage(msg) {
         return msg; // it's never passing sensitive data
     }
-
 
     return {
         createRequest: createRequest,
@@ -108,10 +110,11 @@ function fetchAllLooksDef() {
      * @returns {null} null
      */
     function createRequest(svc, params) {
-        setAuthHeader(svc, endpoints.get.looks);
+        setAuthHeader(svc);
+        setURL(svc, endpoints.get.looks);
 
-        if (params && params.pagingHeader) {
-            svc.addHeader('X-MercauxPagingData', params.pagingHeader);
+        if (params && params.pagingData) {
+            svc.addHeader('X-MercauxPagingData', params.pagingData);
         }
         if (params && params.query) {
             svc.addParam('query', params.query);
