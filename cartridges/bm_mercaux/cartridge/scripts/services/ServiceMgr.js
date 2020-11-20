@@ -93,6 +93,9 @@ module.exports = {
         logger.info('Image generation service called: URL: {0}, Status Code: {1}', baseApiUrl + fullImageURL, httpClient.statusCode);
 
         return uploadedImagePath;
+    },
+    filterLogMessage: function(msg) {
+        return msg; // it's never passing sensitive data
     }
 };
 
