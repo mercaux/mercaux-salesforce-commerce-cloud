@@ -9,7 +9,7 @@ var ADDED_PRODUCT_DATA = {
 $(document).ready(function () {
     initSizeDropdown();
 
-    $('body').on('hide.bs.modal', '#baseMercauxModal', function () {
+    $('body').on('hide.bs.modal', '#baseMercauxModal', function (e) {
         $('#baseMercauxModal').find('.js-modal-mercaux').empty();
     });
 
@@ -42,9 +42,6 @@ $(document).ready(function () {
     });
 
     $('body').on('product:afterAddToCart', function () {
-        $('#baseMercauxModal').modal('hide');
-        $('#baseMercauxModal').find('.js-modal-mercaux').empty();
-
         // Mercaux Analytics
         if (ADDED_PRODUCT_DATA.productSKU && ADDED_PRODUCT_DATA.lookID) {
             trigger_ProductsAddedToBasket_event(ADDED_PRODUCT_DATA.productSKU, ADDED_PRODUCT_DATA.lookID);

@@ -118,7 +118,7 @@
         }
 
         .owl-prev {
-            @include rem(left, -20px);
+            @include rem(left, 12px);
 
             transform: rotate(-135deg);
             top: calc(45% - 3.563rem);
@@ -129,7 +129,7 @@
         }
 
         .owl-next {
-            @include rem(right, -20px);
+            @include rem(right, 12px);
 
             transform: rotate(45deg);
             top: calc(45% - 2.938rem);

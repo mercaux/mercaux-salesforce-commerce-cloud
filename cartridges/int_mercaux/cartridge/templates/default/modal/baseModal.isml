@@ -11,7 +11,7 @@
                                 <span class="close-mercaux-btn" aria-hidden="true" data-dismiss="modal"></span>
                             </div>
                         </header>
-
+                        <div class="add-to-cart-messages mercaux-add-to-cart-messages"></div>
                         <div class="js-modal-mercaux"></div>
                     </div> 
                 </div>
