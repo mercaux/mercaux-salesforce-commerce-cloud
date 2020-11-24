@@ -32,13 +32,17 @@
                             size="2" maxlength="6" />
                     </div>
                 </div>
-                <isset name="disabledText" value="${pdict.available && !pdict.Product.master ? '' : ' disabled=" disabled"'}" scope="page" />
-                <button type="submit" value="${Resource.msg('global.addtocart', 'locale', null)}" 
-                    class="button-fancy-medium sub-product-item add-to-cart" <isprint value="${disabledText}"
-                    encoding="off" />>
-                ${Resource.msg('global.addtocart', 'locale', null)}
-                </button>
-
+                <isif condition="${pdict.available && !pdict.Product.master}">
+                    <button type="submit" value="${Resource.msg('global.addtocart', 'locale', null)}"
+                        class="button-fancy-medium sub-product-item add-to-cart" >
+                        ${Resource.msg('global.addtocart', 'locale', null)}
+                    </button>
+                <iselse/>
+                    <button type="submit" value="${Resource.msg('global.addtocart', 'locale', null)}"
+                        class="button-fancy-medium sub-product-item add-to-cart" disabled="disabled" >
+                        ${Resource.msg('global.addtocart', 'locale', null)}
+                    </button>
+                </isif>
                 <isif condition="${!pdict.available || pdict.Product.master}"> 
                     <span class="js-show-size-attr add-to-cart-overlay" data-product-sku="${pdict.Product.manufacturerSKU || null}" data-pid-look="${productSetID}"></span> 
                 </isif> 

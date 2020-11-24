@@ -167,19 +167,19 @@
 
 					<isset name="product" value="${pdict.Product}" scope="page" />
 					<isset name="pid" value="${pdict.Product.getID()}" scope="page" />
-					<isset name="disabledAttr" value="${pdict.isProductAvailable && !product.master ? '' : ' disabled=\"disabled\"'}" scope="page" />
+					<isset name="addToCartDisabled" value="${!pdict.isProductAvailable || product.master}" scope="page" />
 					<isif condition="${product.isVariationGroup()}">
 						<isset name="variationModel" value="${pdict.CurrentVariationModel || product.getVariationModel()}" scope="page" />
 						<isset name="selectedVariant" value="${variationModel.getSelectedVariant()}" scope="page" />
 						<isif condition="${selectedVariant}">
 							<isset name="pid" value="${selectedVariant.getID()}" scope="page" />
 						<iselse>
-							<isset name="disabledAttr" value="${' disabled=\"disabled\"'}" scope="page" />
+							<isset name="addToCartDisabled" value="${true}" scope="page" />
 						</isif>
 					</isif>
 
 					<input type="hidden" name="pid" id="pid" value="${pid}" />
-					<isif condition="${!disabledAttr}">
+					<isif condition="${!addToCartDisabled}">
 						<div class="add-bag-button">
 							<button id="add-to-cart" type="submit" title="${buttonTitle}" value="${buttonTitle}" class="button-fancy-large add-to-cart">${buttonTitle}</button>
 							<isapplepay sku="${pdict.Product.ID}"></isapplepay>
@@ -187,7 +187,7 @@
 					<iselse>
 						<isset name="requiredOptions" value="${require('*/cartridge/scripts/util/utils').requiredOptions(pdict.Product.getVariationModel())}" scope="page" />
 						<isset name="buttonTitleDisabledSelectVariation" value="${StringUtils.format(Resource.msg('product.missingval','product', null), requiredOptions)}" scope="page" />
-						<button id="add-to-cart" type="button" title="${buttonTitleDisabledSelectVariation}" value="${buttonTitleDisabledSelectVariation}" class="button-fancy-large add-to-cart-disabled"<isprint value="${disabledAttr}" encoding="off"/>>${buttonTitle}</button>
+						<button id="add-to-cart" type="button" title="${buttonTitleDisabledSelectVariation}" value="${buttonTitleDisabledSelectVariation}" class="button-fancy-large add-to-cart-disabled" disabled="disabled">${buttonTitle}</button>
 					</isif>
 
 				</div>

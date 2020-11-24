@@ -89,10 +89,17 @@
 								<iscomment>filter out unorderable variation attribute values</iscomment>
 								<isif condition="${attrValue.isOrderableInMaster}">
 									<isif condition="${attrValue.isAvailable}">
-										<option value="${attrValue.optionValue}<isif condition="${!attr.uuid}">&uuid=${attr.uuidStringValue}</isif>"
-											data-lgimg='<isif condition="${attrValue.largeImage}">${attrValue.largeImage}</isif>' <isprint value="${attrValue.selected}" encoding="off"/>>
-											<isprint value="${(attrValue.displayValue)}" />
-										</option>
+										<isif condition="${attrValue.selected}">
+											<option value="${attrValue.optionValue}<isif condition="${!attr.uuid}">&uuid=${attr.uuidStringValue}</isif>"
+												data-lgimg='<isif condition="${attrValue.largeImage}">${attrValue.largeImage}</isif>' selected="selected" >
+												<isprint value="${(attrValue.displayValue)}" />
+											</option>
+										<iselse/>
+											<option value="${attrValue.optionValue}<isif condition="${!attr.uuid}">&uuid=${attr.uuidStringValue}</isif>"
+												data-lgimg='<isif condition="${attrValue.largeImage}">${attrValue.largeImage}</isif>' >
+												<isprint value="${(attrValue.displayValue)}" />
+											</option>
+										</isif>
 									</isif>
 								</isif>
 							</isloop>
