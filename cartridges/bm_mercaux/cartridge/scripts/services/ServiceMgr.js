@@ -26,7 +26,7 @@ module.exports = {
             responseObject = Result.getObject();
             responseObject.ok = true;
         } else {
-            logger.error('Error when requesting looks from mercax api: {0}', Result.getErrorMessage());
+            logger.error('Error when requesting looks from mercaux api: {0}', Result.getErrorMessage());
             responseObject = {ok: false, errorMsg: Result.getErrorMessage()};
         }
         return responseObject
@@ -42,12 +42,17 @@ module.exports = {
 
         var imageName = fullImageName.match(/[^\/]+$/);
         var destinationFile = new File(destinationFolder, imageName);
+        if (destinationFile.exists()) {
+            logger.info('Image file already exists: {0}', imageName);
+            return imageName;
+        }
+
         var Result = service.call({imageName: fullImageName, saveToFile: destinationFile});
 
         if (Result.isOk()) {
             return imageName;
         } else {
-            logger.error('Error when downloading look image from mercax api: {0}', Result.getErrorMessage());
+            logger.error('Error when downloading look image from mercaux api: {0}', Result.getErrorMessage());
             return null;
         }
     },
