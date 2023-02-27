@@ -21,14 +21,11 @@
                     <isinclude template="product/components/pricing"/>
                 </div>
 
-                <div class="add-wishlist add-wishlist-desktop-hidden">
+                <iscomment> <div class="add-wishlist add-wishlist-desktop-hidden">
                     <div class="add-wishlist-wrapper">
                         <span class="icon-like"></span> ${Resource.msg('label.addtowishlist', 'int_mercaux_common', null)}
                     </div>
-                    <div>
-                        <iscomment> <isinclude template="modal/product/components/pidRating" /> </iscomment>
-                    </div>
-                </div>
+                </div> </iscomment>
 
                 <div class="left-img-container-internal product-image-container">
                     <isinclude template="product/components/productimages"/>

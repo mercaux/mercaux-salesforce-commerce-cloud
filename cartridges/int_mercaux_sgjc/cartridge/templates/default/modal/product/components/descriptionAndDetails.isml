@@ -8,26 +8,6 @@
         </isif>
     </isloop>
     <div class="tabs"> 
-        
-        <isif
-            condition="${!empty(pdict.Product.shortDescription) && pdict.Product.shortDescription.markup.length > 0}">
-            <div class="tab">
-                <input type="radio" name="css-tabs" id="tab-lookmodal-1" checked class="tab-switch">
-        <label for="tab-lookmodal-1" class="tab-label">${Resource.msg('product.tab.description', 'product', null)}</label>
-        <div class="tab-content">
-            <isprint value="${pdict.Product.shortDescription}" encoding="off" />
-        </div>
-    </div>
-    </isif>
-    <isif condition="${!empty(pdict.Product.longDescription) && pdict.Product.longDescription.markup.length > 0}">
-        <div class="tab">
-            <input type="radio" name="css-tabs" id="tab-lookmodal-2" class="tab-switch">
-            <label for="tab-lookmodal-2" class="tab-label">${Resource.msg('product.tab.details', 'product', null)}</label>
-            <div class="tab-content">
-                <isprint value="${pdict.Product.longDescription}" encoding="off" />
-            </div>
-        </div>
-    </isif>
     <isif condition="${showAttributes}">
         <div class="tab">
             <input type="radio" name="css-tabs" id="tab-lookmodal-3" class="tab-switch">

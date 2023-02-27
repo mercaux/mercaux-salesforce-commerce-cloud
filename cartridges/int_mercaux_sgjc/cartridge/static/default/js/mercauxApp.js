@@ -687,17 +687,17 @@ function init() {
             margin: 65,
             nav: true,
             dots: false,
-            mouseDrag: true,
-            touchDrag: true,
+            mouseDrag: false,
+            touchDrag: false,
             onInitialized: onOwlLoaded,
             responsive: {
                 0: {
                     items: 1,
-                    nav: false
+                    touchDrag: true
                 },
                 600: {
                     items: 3,
-                    nav: false
+                    touchDrag: true
                 },
                 1000: {
                     items: 3

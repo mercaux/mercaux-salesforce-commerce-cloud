@@ -2,12 +2,9 @@
 
 var logger = require('dw/system/Logger').getLogger('Mercaux');
 var LocalServiceRegistry = require('dw/svc/LocalServiceRegistry');
-var HTTPClient = require('dw/net/HTTPClient');
 var File = require('dw/io/File');
-var serviceHelpers = require('~/cartridge/scripts/services/helpers');
 var rest = require('~/cartridge/scripts/services/restDefinition');
 var SERVICE_ID = 'int_mercaux_api_service';
-var CATALOG_BASE_PREFIX = '/CATALOGS';
 
 /**
  * Constructs and configures a service with a callback.
@@ -19,80 +16,48 @@ function createService(serviceID, definition) {
     return LocalServiceRegistry.createService(serviceID, definition);
 }
 
-/**
- * Creates error object if any
- * @param {dw.svc.Result} Result - result of a service call.
- * @returns {Object|boolean} -  return error object or false boolean
- */
-function printError(Result) {
-    var responseObj = {
-        isError: true,
-        statusCode: Result.status,
-        errorText: Result.errorMessage,
-        errorCode: Result.error,
-        msg: Result.msg
-    };
-
-    return (Result.status === 'ERROR') ? responseObj : false;
-}
-
 module.exports = {
     getLooks: function (requestParams) {
         var service = createService(SERVICE_ID, rest.service.fetchAllLooks());
         var Result = service.call(requestParams || '');
-        var responseObject = null;
+        var resopnseObject;
 
-        if (printError(Result)) return printError(Result);
-
-        try {
+        if (Result.ok) {
             responseObject = Result.getObject();
-        } catch (error) {
-            logger.error('Error in when parse response from service: ', error);
+            responseObject.ok = true;
+        } else {
+            logger.error('Error when requesting looks from mercaux api: {0}', Result.getErrorMessage());
+            responseObject = {ok: false, errorMsg: Result.getErrorMessage()};
         }
-
-        return responseObject;
+        return responseObject
     },
-    saveLookImage: function (fullImageURL, productId, catalogId, catalogImageBasePath) {
+
+    saveLookImage: function (fullImageName, destinationFolder) {
         var service = createService(SERVICE_ID, rest.service.fetchLookImage());
-        var serviceConfig = service.getConfiguration();
-        var serviceCreds = serviceConfig.getCredential();
-        var serviceCredsURL = serviceCreds.getURL();
 
-        var baseApiUrl = (serviceCredsURL) && serviceHelpers.extractBaseUrl(serviceCredsURL);
-        var apiPassword = serviceCreds.getPassword();
-
-        var imageSizeFolder = 'large';
-        var imageType = fullImageURL.substr(-4);
-        var imageFileName = productId + imageType;
-        var imageBasePath = catalogImageBasePath.slice(-1) === '/' ? catalogImageBasePath : catalogImageBasePath + '/';
-        var CATALOG_PATH = '/' + catalogId + '/default' + imageBasePath + imageSizeFolder + '/';
-        var destinationImageFolder = new File(CATALOG_BASE_PREFIX + CATALOG_PATH);
-        var uploadedImagePath = null;
-
-        if (!destinationImageFolder.exists()) {
-            destinationImageFolder.mkdirs();
+        if (!destinationFolder.exists()) {
+            destinationFolder.mkdirs();
             logger.info('Destination catalog image folder was created...');
         }
 
-        var destinationImageFile = new File(CATALOG_BASE_PREFIX + CATALOG_PATH + imageFileName);
-        if (destinationImageFile.exists()) {
-            destinationImageFile.remove();
+        var imageName = fullImageName.match(/[^\/]+$/);
+        var destinationFile = new File(destinationFolder, imageName);
+        if (destinationFile.exists()) {
+            logger.info('Image file already exists: {0}', imageName);
+            return imageName;
         }
-        var httpClient = new HTTPClient();
 
-        httpClient.setRequestHeader('X-MercauxApikey', apiPassword);
-        httpClient.open('GET', baseApiUrl + fullImageURL);
+        var Result = service.call({imageName: fullImageName, saveToFile: destinationFile});
 
-        httpClient.sendAndReceiveToFile(destinationImageFile);
-
-        if (httpClient.statusCode === 200) {
-            uploadedImagePath = imageSizeFolder + '/' + imageFileName;
+        if (Result.isOk()) {
+            return imageName;
         } else {
-            logger.error('Error while calling saveLookImage() service, StatusCode: {0}', httpClient.statusCode);
+            logger.error('Error when downloading look image from mercaux api: {0}', Result.getErrorMessage());
+            return null;
         }
-        logger.info('Image generation service called: URL: {0}, Status Code: {1}', baseApiUrl + fullImageURL, httpClient.statusCode);
-
-        return uploadedImagePath;
+    },
+    filterLogMessage: function(msg) {
+        return msg; // it's never passing sensitive data
     }
 };
 

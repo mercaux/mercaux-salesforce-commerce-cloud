@@ -2719,9 +2719,9 @@ header ~ #maincontent .modal-wrapper-internal .right-wrapper-internal {
     /* 6 */
     /* 6 */
     /* 7 */
-    left: -20px;
+    left: 12px;
     /* 9 */
-    left: -1.25rem;
+    left: 0.75rem;
     /* 9 */
     transform: rotate(-135deg);
     top: calc(45% - 3.563rem); }
@@ -2744,9 +2744,9 @@ header ~ #maincontent .modal-wrapper-internal .right-wrapper-internal {
     /* 6 */
     /* 6 */
     /* 7 */
-    right: -20px;
+    right: 12px;
     /* 9 */
-    right: -1.25rem;
+    right: 0.75rem;
     /* 9 */
     transform: rotate(45deg);
     top: calc(45% - 2.938rem); }

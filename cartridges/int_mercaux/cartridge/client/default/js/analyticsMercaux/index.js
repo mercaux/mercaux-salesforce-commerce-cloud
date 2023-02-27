@@ -186,13 +186,15 @@ function makeAnalyticsRequest(endpointURL, data) {
     }).then((response) => {
         return response.json();
     }).then((responseData) => {
-        data.csrf_token = responseData.csrf.token;
         fetch(endpointURL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: $.param(data)
+            body: $.param({
+                csrf_token: responseData.csrf.token,
+                data: JSON.stringify(data)
+            })
         }).then(() => {
         }).catch(e => {
             console.log(e);

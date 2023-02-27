@@ -14,7 +14,7 @@
             ${Resource.msg('label.description', 'product', null)}
         </span>
 
-        <isinclude template="modal/product/components/description" />
+        <isinclude template="product/components/description" />
     </div>
 
     <isif condition="${product.longDescription}">
@@ -27,6 +27,6 @@
             ${Resource.msg('label.details', 'product', null)}
         </span>
 
-        <isinclude template="modal/product/components/details" />
+        <isinclude template="product/components/details" />
     </div>
 </div>
